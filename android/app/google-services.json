@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "184301190803",
+    "project_id": "karakol-tinder",
+    "storage_bucket": "karakol-tinder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184301190803:android:b2d17e0a05d31c78201766",
+        "android_client_info": {
+          "package_name": "com.example.karakol_tinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184301190803-33kfvu66k287d3f0mod5tk49klvn0dd0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsasRpgdcsqdnM5PjnwBIyUaUBq79OK0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184301190803-33kfvu66k287d3f0mod5tk49klvn0dd0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184301190803:android:4367f35b55d69580201766",
+        "android_client_info": {
+          "package_name": "com.example.tinder"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184301190803-33kfvu66k287d3f0mod5tk49klvn0dd0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsasRpgdcsqdnM5PjnwBIyUaUBq79OK0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184301190803-33kfvu66k287d3f0mod5tk49klvn0dd0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
