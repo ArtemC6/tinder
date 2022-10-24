@@ -102,12 +102,14 @@ class _Manager extends State<Manager> {
               if (isEmptyData) {
                 return const HomeMain();
               } else {
-                return const EditProfileScreen();
+                return EditProfileScreen(
+                  isFirst: true,
+                );
               }
             } else {
               return const DataInputUser();
             }
-          } else if (snapshot.hasData) {
+          } else {
             return const SignInScreen();
           }
         });

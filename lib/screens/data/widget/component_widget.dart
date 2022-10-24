@@ -22,7 +22,7 @@ class slideStory extends StatelessWidget {
           padding: const EdgeInsets.only(left: 22, top: 22, bottom: 22),
           child: RichText(
             text: TextSpan(
-              text: 'INTERESTS',
+              text: 'Интересы',
               style: GoogleFonts.lato(
                 textStyle: TextStyle(
                     color: Colors.white.withOpacity(0.8),
@@ -33,7 +33,7 @@ class slideStory extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 90,
+          height: 92,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -57,6 +57,7 @@ class slideStory extends StatelessWidget {
                           highlightColor: Colors.transparent,
                           onTap: () {},
                           child: Container(
+
                             margin: const EdgeInsets.only(left: 22, right: 4),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -151,7 +152,7 @@ class slideStorySettings extends StatelessWidget {
           padding: const EdgeInsets.only(left: 22, top: 22, bottom: 22),
           child: RichText(
             text: TextSpan(
-              text: 'INTERESTS',
+              text: 'Интересы',
               style: GoogleFonts.lato(
                 textStyle: TextStyle(
                     color: Colors.white.withOpacity(0.8),
@@ -312,11 +313,11 @@ class photoProfile extends StatelessWidget {
           padding: const EdgeInsets.only(left: 26, top: 20, bottom: 18),
           child: RichText(
             text: TextSpan(
-              text: 'PHOTO',
+              text: 'Фото',
               style: GoogleFonts.lato(
                 textStyle: TextStyle(
                     color: Colors.white.withOpacity(0.8),
-                    fontSize: 11,
+                    fontSize: 12,
                     letterSpacing: .9),
               ),
             ),
@@ -407,11 +408,11 @@ class photoProfileSettings extends StatelessWidget {
           padding: const EdgeInsets.only(left: 26, top: 20, bottom: 18),
           child: RichText(
             text: TextSpan(
-              text: 'PHOTO',
+              text: 'Фото',
               style: GoogleFonts.lato(
                 textStyle: TextStyle(
                     color: Colors.white.withOpacity(0.8),
-                    fontSize: 11,
+                    fontSize: 12,
                     letterSpacing: .9),
               ),
             ),

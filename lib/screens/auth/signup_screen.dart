@@ -176,7 +176,7 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
                       ),
                     ),
                     Expanded(
-                      flex: 6,
+                      flex: 7,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [

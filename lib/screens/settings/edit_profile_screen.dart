@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -15,30 +14,41 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
 import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../data/const.dart';
+import '../data/firebase_auth.dart';
 import '../data/model/user_model.dart';
+import '../profile_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({Key? key}) : super(key: key);
+  bool isFirst;
+
+  EditProfileScreen({Key? key, required this.isFirst}) : super(key: key);
+
+  // EditProfileScreen(@required this.isFirst, {Key? key}) : super(key: key);
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState(isFirst);
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  bool isLoading = false;
+  bool isFirst = false;
+
+  _EditProfileScreenState(this.isFirst);
+
+  bool isLoading = false, isError = false;
   late UserModel modelUser;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _ageRangController = TextEditingController();
-  String _dropDownUserPol = '', _dropDownSearchPol = '';
+  String _dropDownUserPol = '', _dropDownSearchPol = '', _dropDownLocal = '';
   var _selectedInterests = [];
   FirebaseStorage storage = FirebaseStorage.instance;
   List<String> listImageUri = [], listImagePath = [];
   DateTime _dateTimeBirthday = DateTime.now();
-  SfRangeValues _valuesAge = const SfRangeValues(16, 50);
+  late SfRangeValues _valuesAge;
 
   void showDatePicker() {
     DatePicker.showDatePicker(context,
@@ -48,9 +58,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             itemStyle: TextStyle(color: Colors.white)),
         showTitleActions: true,
         minTime: DateTime(1970),
-        maxTime: DateTime(2008), onChanged: (date) {
+        maxTime: DateTime(2006), onChanged: (date) {
       setState(() {
-        // _isVisibleTime = false;
         _dateTimeBirthday = date;
         _ageController.text =
             (DateTime.now().year - _dateTimeBirthday.year).toString();
@@ -82,7 +91,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         listImagePath.add(fileName);
         listImageUri.add(urlDownload);
 
-        final docUser = await FirebaseFirestore.instance
+        final docUser = FirebaseFirestore.instance
             .collection('User')
             .doc(FirebaseAuth.instance.currentUser?.uid);
 
@@ -93,7 +102,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         docUser.update(json).then((value) {
           Navigator.pushReplacement(
-              context, FadeRouteAnimation(const EditProfileScreen()));
+              context,
+              FadeRouteAnimation(EditProfileScreen(
+                isFirst: false,
+              )));
         });
 
         setState(() {});
@@ -127,12 +139,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final snapshot = await task.whenComplete(() {});
         final urlDownload = await snapshot.ref.getDownloadURL();
 
+        await storage.ref(modelUser.userImagePath[0]).delete();
+
+        modelUser.userImageUrl.removeAt(0);
+        modelUser.userImagePath.removeAt(0);
+
         listImagePath.add(fileName);
         listImageUri.add(urlDownload);
 
-        // listImageUri.addAll(modelUser.userImage.removeLast());
+        listImagePath.addAll(modelUser.userImagePath);
+        listImageUri.addAll(modelUser.userImageUrl);
 
-        final docUser = await FirebaseFirestore.instance
+        final docUser = FirebaseFirestore.instance
             .collection('User')
             .doc(FirebaseAuth.instance.currentUser?.uid);
 
@@ -143,7 +161,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         docUser.update(json).then((value) {
           Navigator.pushReplacement(
-              context, FadeRouteAnimation(const EditProfileScreen()));
+              context,
+              FadeRouteAnimation(EditProfileScreen(
+                isFirst: false,
+              )));
         });
 
         setState(() {});
@@ -160,24 +181,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _uploadData() async {
-    final docUser = await FirebaseFirestore.instance
-        .collection('User')
-        .doc(FirebaseAuth.instance.currentUser?.uid);
+    if (_selectedInterests.isNotEmpty &&
+        _selectedInterests.length <= 6 &&
+        _dropDownUserPol.isNotEmpty &&
+        _nameController.text.length >= 3 &&
+        _dropDownSearchPol.isNotEmpty &&
+        _dropDownLocal.isNotEmpty &&
+        modelUser.userImageUrl.isNotEmpty) {
+      final docUser = FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid);
 
-    final json = {
-      'listInterests': _selectedInterests,
-      'myPol': _dropDownUserPol,
-      'name': _nameController.text,
-      'searchPol': _dropDownSearchPol,
-      'myAge': _dateTimeBirthday,
-      'rangeStart': _valuesAge.start,
-      'rangeEnd': _valuesAge.end,
-    };
+      final json = {
+        'listInterests': _selectedInterests,
+        'myPol': _dropDownUserPol,
+        'name': _nameController.text,
+        'searchPol': _dropDownSearchPol,
+        'myAge': _dateTimeBirthday,
+        'rangeStart': _valuesAge.start,
+        'rangeEnd': _valuesAge.end,
+        'myCity': _dropDownLocal,
+      };
 
-    docUser.update(json).then((value) {
-      Navigator.pushReplacement(
-          context, FadeRouteAnimation(const EditProfileScreen()));
-    });
+      docUser.update(json).then((value) {
+        Navigator.pushReplacement(
+            context, FadeRouteAnimation(const ProfileScreen()));
+      });
+    } else {
+      setState(() {
+        isError = true;
+      });
+    }
   }
 
   void readFirebase() async {
@@ -200,7 +234,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             userInterests: List<String>.from(data['listInterests']),
             userImagePath: List<String>.from(data['listImagePath']),
             userImageUrl: List<String>.from(data['listImageUri']),
-            searchRangeEnd: data['rangeEnd']);
+            searchRangeEnd: data['rangeEnd'],
+            myCity: data['myCity']);
       });
     });
 
@@ -211,10 +246,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _ageController.text =
           (DateTime.now().year - getDataTimeDate(modelUser.age).year)
               .toString();
+      _valuesAge =
+          SfRangeValues(modelUser.searchRangeStart, modelUser.searchRangeEnd);
       _dropDownUserPol = modelUser.userPol;
+      _dropDownLocal = modelUser.myCity;
       _dropDownSearchPol = modelUser.searchPol;
-      // _dropDownUserPol = modelUser.userPol;
       isLoading = true;
+      _selectedInterests = modelUser.userInterests;
+      _dateTimeBirthday = getDataTimeDate(modelUser.age);
     });
   }
 
@@ -226,8 +265,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(isLoading);
-
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_data_input,
@@ -237,35 +274,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 40, bottom: 24),
+                  padding: const EdgeInsets.only(top: 30, bottom: 0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(
-                        color: Colors.white,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(Icons.arrow_back_ios_new_rounded),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          text: 'Edit profile',
-                          style: GoogleFonts.lato(
-                            textStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 19,
-                                letterSpacing: .9),
+                      if (!isFirst)
+                        IconButton(
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                              size: 20),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () {
+                            // print('object');
+                            context
+                                .read<FirebaseAuthMethods>()
+                                .signOut(context);
+                          },
+                          child: Image.asset(
+                            'images/ic_log_out.png',
+                            height: 30,
+                            width: 30,
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 24,
                       ),
                     ],
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 120,
                   width: 120,
                   child: Card(
@@ -277,7 +320,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           width: 0.8,
                           color: Colors.white30,
                         )),
-                    elevation: 4,
+                    elevation: 6,
                     child: Stack(
                       alignment: Alignment.bottomRight,
                       children: [
@@ -319,7 +362,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: () {
-                              _uploadImage();
+                              _uploadFirstImage();
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(6),
@@ -353,7 +396,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 80,
                     ),
                     Padding(
@@ -370,35 +413,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaY: 17, sigmaX: 17),
-                        child: InkWell(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          onTap: () {},
-                          child: Container(
-                            height: 45,
-                            width: 90,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(.05),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Text(
-                              'Сохронить',
-                              style: TextStyle(
-                                  color: Colors.white.withOpacity(.8)),
-                            ),
+                    SizedBox(
+                      height: 40,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                              colors: [Colors.blueAccent, Colors.purpleAccent]),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _uploadData();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shadowColor: Colors.transparent,
+                            backgroundColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                          ),
+                          child: Text(
+                            isFirst ? 'Завершить' : 'Сохронить',
+                            style:
+                                TextStyle(color: Colors.white.withOpacity(.8)),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
+
+                if (isError)
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Данные введены некоректно',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
                 Container(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  height: 74,
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: Theme(
                     data: ThemeData.dark(), // HERE
                     child: Column(
@@ -410,7 +464,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             suffixIcon: Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                             labelText: 'Имя',
                             labelStyle: TextStyle(
@@ -428,7 +482,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  height: 74,
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: Theme(
                     data: ThemeData.dark(), // HERE
                     child: Column(
@@ -445,7 +500,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             suffixIcon: Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                             labelText: 'Возраст',
                             labelStyle: TextStyle(
@@ -463,8 +518,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  height: 90,
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  height: 86,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -476,7 +531,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             fontSize: 12),
                       ),
                       SizedBox(
-                        height: 58,
+                        height: 54,
                         child: DropdownButton(
                           focusColor: Colors.white,
                           dropdownColor: color_data_input,
@@ -485,7 +540,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                           ),
                           hint: _dropDownUserPol == ''
@@ -498,12 +553,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 )
                               : Text(
                                   _dropDownUserPol,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.white, fontSize: 15),
                                 ),
                           isExpanded: true,
                           iconSize: 30.0,
-                          style: TextStyle(color: Colors.blue),
+                          style: const TextStyle(color: Colors.blue),
                           items: ['Мужской', 'Женский'].map(
                             (val) {
                               return DropdownMenuItem<String>(
@@ -524,7 +579,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 Container(
                   height: 90,
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  padding: const EdgeInsets.only(top: 8, bottom: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -536,7 +591,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             fontSize: 12),
                       ),
                       SizedBox(
-                        height: 58,
+                        height: 54,
                         child: DropdownButton(
                           focusColor: Colors.white,
                           dropdownColor: color_data_input,
@@ -545,7 +600,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                           ),
                           hint: _dropDownSearchPol == ''
@@ -558,12 +613,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 )
                               : Text(
                                   _dropDownSearchPol,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.white, fontSize: 15),
                                 ),
                           isExpanded: true,
                           iconSize: 30.0,
-                          style: TextStyle(color: Colors.blue),
+                          style: const TextStyle(color: Colors.blue),
                           items: ['Мужчину', 'Девушку'].map(
                             (val) {
                               return DropdownMenuItem<String>(
@@ -582,8 +637,70 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ],
                   ),
                 ),
+
                 Container(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  height: 90,
+                  padding: const EdgeInsets.only(top: 8, bottom: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Вы проживаете',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
+                      ),
+                      SizedBox(
+                        height: 54,
+                        child: DropdownButton(
+                          focusColor: Colors.white,
+                          dropdownColor: color_data_input,
+                          icon: const Padding(
+                            padding: EdgeInsets.only(right: 14),
+                            child: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                          hint: _dropDownLocal == ''
+                              ? const Text(
+                                  '',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                )
+                              : Text(
+                                  _dropDownLocal,
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
+                          isExpanded: true,
+                          iconSize: 30.0,
+                          style: const TextStyle(color: Colors.blue),
+                          items: ['Каракол', 'Бишкек'].map(
+                            (val) {
+                              return DropdownMenuItem<String>(
+                                value: val,
+                                child: Text(val),
+                              );
+                            },
+                          ).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _dropDownLocal = val!;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  padding: const EdgeInsets.only(top: 2, bottom: 10),
                   child: Theme(
                     data: ThemeData.dark(), // HERE
                     child: Column(
@@ -606,30 +723,55 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           // top: size.height / 40,
                                           ),
                                       width: MediaQuery.of(context).size.width,
-                                      child: SfRangeSlider(
-                                        activeColor: Colors.blue,
-                                        min: 16,
-                                        max: 50,
-                                        values: _valuesAge,
-                                        stepSize: 1,
-                                        enableTooltip: true,
-                                        onChanged: (SfRangeValues values) {
-                                          setState(() {
-                                            _valuesAge = values;
-                                          });
-                                        },
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20, bottom: 60),
+                                            child: RichText(
+                                              text: TextSpan(
+                                                text:
+                                                    'От ${_valuesAge.start} до ${_valuesAge.end} лет',
+                                                style: GoogleFonts.lato(
+                                                  textStyle: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13,
+                                                      letterSpacing: .9),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          SfRangeSlider(
+                                            activeColor: Colors.blue,
+                                            min: 16,
+                                            max: 50,
+                                            values: _valuesAge,
+                                            stepSize: 1,
+                                            enableTooltip: true,
+                                            onChanged: (SfRangeValues values) {
+                                              setState(() {
+                                                _valuesAge = values;
+
+                                                _ageRangController.text =
+                                                    'От ${_valuesAge.start} до ${_valuesAge.end} лет';
+                                              });
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     );
                                   });
                                 });
                           },
                           controller: _ageRangController,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
                           decoration: const InputDecoration(
                             suffixIcon: Icon(
                               Icons.arrow_forward_ios_outlined,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
                             labelText: 'Диапазон поиска',
                             labelStyle: TextStyle(
@@ -647,9 +789,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 Container(
-                  // height: 80,
-
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
                   child: MultiSelectBottomSheetField(
                     initialValue: modelUser.userInterests,
                     searchHintStyle: const TextStyle(color: Colors.white),
@@ -660,7 +800,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     buttonIcon: const Icon(
                       Icons.arrow_forward_ios_outlined,
                       color: Colors.white,
-                      size: 20,
+                      size: 18,
                     ),
                     backgroundColor: color_data_input,
                     checkColor: Colors.white,
@@ -686,17 +826,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     items: items,
                     onSelectionChanged: (value) {
                       setState(() {
-                        if (value.length <= 6) {
-                          print(value.length);
-                          _selectedInterests = value;
-                        }
+                        // if (value.length <= 6) {
+                        //   print(value.length);
+                        _selectedInterests = value;
+                        // }
                       });
                     },
                     onConfirm: (values) {
                       setState(() {
-                        if (values.length <= 6) {
-                          _selectedInterests = values;
-                        }
+                        // if (values.length <= 6) {
+                        _selectedInterests = values;
+                        // }
                       });
                     },
                     chipDisplay: MultiSelectChipDisplay(
@@ -708,9 +848,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 50,
-                ),
+                // const SizedBox(
+                //   height: 50,
+                // ),
               ],
             ),
           ),
@@ -721,7 +861,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
         backgroundColor: color_data_input,
         body: Center(
-          child: LoadingAnimationWidget.fourRotatingDots(
+          child: LoadingAnimationWidget.dotsTriangle(
             size: 44,
             color: Colors.blueAccent,
           ),

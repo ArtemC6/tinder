@@ -4,6 +4,7 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 const color_auth = Color(0xff192028);
 const color_data_input = Color(0xff212428);
+const black_86 = Color(0xFF2D2D2D);
 
 showAlertDialogLoad(BuildContext context) {
   AlertDialog alert = AlertDialog(
