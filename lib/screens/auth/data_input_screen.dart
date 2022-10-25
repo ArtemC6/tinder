@@ -551,16 +551,6 @@ class _DataInputUserState extends State<DataInputUser>
               style: TextStyle(color: Colors.white),
             ),
             items: items,
-            // selectedColor: Colors.red,
-            // unselectedColor: Colors.purple,
-            // barrierColor: Colors.blueAccent,
-            // itemsTextStyle: TextStyle(color: Colors.white),
-            onSelectionChanged: (value) {
-              // print(value);
-
-              // _selectedInterests = value;
-              // print(value.toList());
-            },
             onConfirm: (values) {
               setState(() {
                 if (values.length <= 6) {

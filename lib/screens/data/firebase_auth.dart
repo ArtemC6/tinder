@@ -52,7 +52,10 @@ class FirebaseAuthMethods {
     try {
       await _auth
           .signInWithEmailAndPassword(email: email, password: password)
-          .then((value) {})
+          .then((value) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Manager()));
+      })
           .onError((error, stackTrace) {
         // showAlertDialogLoad(context);
         // Navigator.pop(context);

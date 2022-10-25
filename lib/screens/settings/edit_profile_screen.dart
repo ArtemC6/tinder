@@ -16,6 +16,7 @@ import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:tinder/screens/auth/signin_screen.dart';
 
 import '../data/const.dart';
 import '../data/firebase_auth.dart';
@@ -292,11 +293,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: InkWell(
                           splashColor: Colors.transparent,
                           highlightColor: Colors.transparent,
-                          onTap: () {
+                          onTap: () async {
                             // print('object');
-                            context
+                            await context
                                 .read<FirebaseAuthMethods>()
                                 .signOut(context);
+
+                            await Navigator.push(context,
+                                FadeRouteAnimation(const SignInScreen()));
                           },
                           child: Image.asset(
                             'images/ic_log_out.png',
@@ -342,8 +346,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               progressIndicatorBuilder:
                                   (context, url, progress) => Center(
                                 child: SizedBox(
-                                  height: 22,
-                                  width: 22,
+                                  height: 120,
+                                  width: 120,
                                   child: CircularProgressIndicator(
                                     color: Colors.white,
                                     strokeWidth: 0.8,
@@ -399,20 +403,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(
                       width: 80,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: RichText(
-                        text: TextSpan(
-                          text: _nameController.text,
-                          style: GoogleFonts.lato(
-                            textStyle: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                letterSpacing: .9),
-                          ),
-                        ),
-                      ),
-                    ),
                     SizedBox(
                       height: 40,
                       child: DecoratedBox(
@@ -431,10 +421,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20)),
                           ),
-                          child: Text(
-                            isFirst ? 'Завершить' : 'Сохронить',
-                            style:
-                                TextStyle(color: Colors.white.withOpacity(.8)),
+                          child: RichText(
+                            text: TextSpan(
+                              text: isFirst ? 'Завершить' : 'Сохронить',
+                              style: GoogleFonts.lato(
+                                textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    letterSpacing: .1),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -824,14 +820,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       style: TextStyle(color: Colors.white),
                     ),
                     items: items,
-                    onSelectionChanged: (value) {
-                      setState(() {
-                        // if (value.length <= 6) {
-                        //   print(value.length);
-                        _selectedInterests = value;
-                        // }
-                      });
-                    },
+                    // onSelectionChanged: (value) {
+                    //   setState(() {
+                    //     // if (value.length <= 6) {
+                    //     //   print(value.length);
+                    //     _selectedInterests = value;
+                    //     // }
+                    //   });
+                    // },
                     onConfirm: (values) {
                       setState(() {
                         // if (values.length <= 6) {

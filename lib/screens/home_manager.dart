@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tinder/screens/home_screen.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/sympathy_screen.dart';
 import 'package:tinder/screens/that_screen.dart';
-
 import 'data/const.dart';
-import 'home_screen.dart';
 
 class HomeMain extends StatefulWidget {
   const HomeMain({Key? key}) : super(key: key);
@@ -20,7 +19,7 @@ class _HomeMain extends State<HomeMain> {
     var child;
     switch (currentIndex) {
       case 0:
-        child =  ProfileScreen();
+        child =  HomeScreen();
         break;
       case 1:
         child = const SympathyScreen();

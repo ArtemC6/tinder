@@ -1,12 +1,21 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import '../../settings/edit_profile_screen.dart';
+import '../../settings/settiongs_profile_screen.dart';
 import '../const.dart';
 import '../model/story_model.dart';
+import '../model/user_model.dart';
 
 class slideStory extends StatelessWidget {
   List<StoryModel> listStory = [];
@@ -33,13 +42,13 @@ class slideStory extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 92,
+          height: 100,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(right: 20),
                 scrollDirection: Axis.horizontal,
-                itemCount: listStory.length,
+                itemCount: 12,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return AnimationConfiguration.staggeredList(
@@ -57,72 +66,76 @@ class slideStory extends StatelessWidget {
                           highlightColor: Colors.transparent,
                           onTap: () {},
                           child: Container(
-
                             margin: const EdgeInsets.only(left: 22, right: 4),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-                                Card(
-                                  shadowColor: Colors.white30,
-                                  color: color_data_input,
-                                  shape: RoundedRectangleBorder(
+                                if (listStory.length > index)
+                                  Card(
+                                    shadowColor: Colors.white30,
+                                    color: color_data_input,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(100),
+                                        side: const BorderSide(
+                                          width: 0.8,
+                                          color: Colors.white54,
+                                        )),
+                                    elevation: 4,
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
-                                      side: const BorderSide(
-                                        width: 0.8,
-                                        color: Colors.white30,
-                                      )),
-                                  elevation: 4,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: CachedNetworkImage(
-                                      imageBuilder: (context, imageProvider) =>
-                                          Container(
-                                        height: 64,
-                                        width: 64,
-                                        decoration: BoxDecoration(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(100)),
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
+                                      child: CachedNetworkImage(
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                Container(
+                                          height: 70,
+                                          width: 70,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(100)),
+                                            image: DecorationImage(
+                                              image: imageProvider,
+                                              fit: BoxFit.cover,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      progressIndicatorBuilder:
-                                          (context, url, progress) => Center(
-                                        child: SizedBox(
-                                          height: 22,
-                                          width: 22,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 0.8,
-                                            value: progress.progress,
+                                        progressIndicatorBuilder:
+                                            (context, url, progress) => Center(
+                                          child: SizedBox(
+                                            height: 70,
+                                            width: 70,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 1,
+                                              value: progress.progress,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      imageUrl: listStory[index].uri,
-                                      fit: BoxFit.cover,
-                                      // height: 166,
-                                      // width: MediaQuery.of(context).size.width
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 8, right: 4, top: 3),
-                                  child: RichText(
-                                    text: TextSpan(
-                                      text: listStory[index].name,
-                                      style: GoogleFonts.lato(
-                                        textStyle: TextStyle(
-                                            color:
-                                                Colors.white.withOpacity(0.8),
-                                            fontSize: 11,
-                                            letterSpacing: .9),
+                                        imageUrl: listStory[index].uri,
+                                        fit: BoxFit.cover,
+                                        // height: 166,
+                                        // width: MediaQuery.of(context).size.width
                                       ),
                                     ),
                                   ),
-                                ),
+                                if (listStory.length > index)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, right: 4, top: 3),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        text: listStory[index].name,
+                                        style: GoogleFonts.lato(
+                                          textStyle: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontSize: 10,
+                                              letterSpacing: .9),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -140,11 +153,36 @@ class slideStory extends StatelessWidget {
 
 class slideStorySettings extends StatelessWidget {
   List<StoryModel> listStory = [];
+  List<String> listInterests = [];
 
   slideStorySettings(this.listStory, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    // listInterests.clear();
+    // Future<void> _imageRemove(int index) async {
+    //   print(index);
+    //   print(listStory.length);
+    //   listStory.removeAt(index);
+    //
+    //   listStory.removeAt(index);
+    //
+    //   listStory.forEach((element) {
+    //     listInterests.add(element.name);
+    //   });
+    //
+    //   final docUser = FirebaseFirestore.instance
+    //       .collection('User')
+    //       .doc(FirebaseAuth.instance.currentUser?.uid);
+    //
+    //   final json = {'listInterests': listInterests};
+    //
+    //   docUser.update(json).then((value) {
+    //     Navigator.pushReplacement(
+    //         context, FadeRouteAnimation(const ProfileSettingScreen()));
+    //   });
+    // }
+
     return Column(
       children: [
         Container(
@@ -163,7 +201,7 @@ class slideStorySettings extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 90,
+          height: 100,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -214,8 +252,8 @@ class slideStorySettings extends StatelessWidget {
                                             imageBuilder:
                                                 (context, imageProvider) =>
                                                     Container(
-                                              height: 64,
-                                              width: 64,
+                                              height: 70,
+                                              width: 70,
                                               decoration: BoxDecoration(
                                                 borderRadius:
                                                     const BorderRadius.all(
@@ -230,12 +268,12 @@ class slideStorySettings extends StatelessWidget {
                                                 (context, url, progress) =>
                                                     Center(
                                               child: SizedBox(
-                                                height: 22,
-                                                width: 22,
+                                                height: 70,
+                                                width: 70,
                                                 child:
                                                     CircularProgressIndicator(
                                                   color: Colors.white,
-                                                  strokeWidth: 0.8,
+                                                  strokeWidth: 1,
                                                   value: progress.progress,
                                                 ),
                                               ),
@@ -246,29 +284,76 @@ class slideStorySettings extends StatelessWidget {
                                             // width: MediaQuery.of(context).size.width
                                           ),
                                         ),
-                                      if (listStory.length > index)
-                                        Padding(
-                                          padding: const EdgeInsets.all(2),
-                                          child: Image.asset(
-                                            'images/ic_remove.png',
-                                            height: 25,
-                                            width: 25,
+                                      if (0 == index)
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                FadeRouteAnimation(
+                                                    EditProfileScreen(
+                                                  isFirst: false,
+                                                )));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(2),
+                                            child: Image.asset(
+                                              'images/edit_icon.png',
+                                              height: 20,
+                                              width: 20,
+                                            ),
                                           ),
                                         ),
-                                      if (listStory.length <= index)
-                                        Padding(
-                                          padding: const EdgeInsets.all(6),
-                                          child: Image.asset(
-                                            'images/ic_add.png',
-                                            height: 21,
-                                            width: 21,
+                                      if (listStory.length > index &&
+                                          index != 0)
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                FadeRouteAnimation(
+                                                    EditProfileScreen(
+                                                      isFirst: false,
+                                                    )));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(1),
+                                            child: Image.asset(
+                                              'images/ic_remove.png',
+                                              height: 23,
+                                              width: 23,
+                                            ),
+                                          ),
+                                        ),
+                                      if (listStory.length <= index &&
+                                          listStory.length >= 1)
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                FadeRouteAnimation(
+                                                    EditProfileScreen(
+                                                  isFirst: false,
+                                                )));
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(6),
+                                            child: Image.asset(
+                                              'images/ic_add.png',
+                                              height: 21,
+                                              width: 21,
+                                            ),
                                           ),
                                         ),
                                     ],
                                   ),
                                 ),
                                 if (listStory.length > index)
-                                  Padding(
+                                  Container(
                                     padding: const EdgeInsets.only(
                                         left: 8, right: 4, top: 3),
                                     child: RichText(
@@ -278,7 +363,7 @@ class slideStorySettings extends StatelessWidget {
                                           textStyle: TextStyle(
                                               color:
                                                   Colors.white.withOpacity(0.8),
-                                              fontSize: 11,
+                                              fontSize: 10,
                                               letterSpacing: .9),
                                         ),
                                       ),
@@ -395,12 +480,148 @@ class photoProfile extends StatelessWidget {
 }
 
 class photoProfileSettings extends StatelessWidget {
-  List<String> listPhoto = [];
+  UserModel userModel;
 
-  photoProfileSettings(this.listPhoto, {super.key});
+  photoProfileSettings(this.userModel, {super.key});
+
+  List<String> listImageUri = [], listImagePath = [];
+  FirebaseStorage storage = FirebaseStorage.instance;
 
   @override
   Widget build(BuildContext context) {
+    Future<void> _uploadImage() async {
+      final picker = ImagePicker();
+      XFile? pickedImage;
+      try {
+        pickedImage = await picker.pickImage(
+            source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+
+        final String fileName = path.basename(pickedImage!.path);
+        File imageFile = File(pickedImage.path);
+
+        try {
+          var task = storage.ref(fileName).putFile(imageFile);
+
+          if (task == null) return;
+
+          final snapshot = await task.whenComplete(() {});
+          final urlDownload = await snapshot.ref.getDownloadURL();
+          print(userModel.userImagePath[0]);
+
+          await storage.ref(userModel.userImagePath[0]).delete();
+
+          userModel.userImageUrl.removeAt(0);
+          userModel.userImagePath.removeAt(0);
+
+          listImagePath.add(fileName);
+          listImageUri.add(urlDownload);
+
+          listImagePath.addAll(userModel.userImagePath);
+          listImageUri.addAll(userModel.userImageUrl);
+
+          final docUser = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid);
+
+          final json = {
+            'listImageUri': listImageUri,
+            'listImagePath': listImagePath
+          };
+
+          docUser.update(json).then((value) {
+            Navigator.pushReplacement(
+                context, FadeRouteAnimation(const ProfileSettingScreen()));
+          });
+        } on FirebaseException catch (error) {
+          if (kDebugMode) {
+            print(error);
+          }
+        }
+      } catch (err) {
+        if (kDebugMode) {
+          print(err);
+        }
+      }
+    }
+
+    Future<void> _uploadImageAdd() async {
+      final picker = ImagePicker();
+      XFile? pickedImage;
+      try {
+        pickedImage = await picker.pickImage(
+            source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+
+        final String fileName = path.basename(pickedImage!.path);
+        File imageFile = File(pickedImage.path);
+
+        try {
+          var task = storage.ref(fileName).putFile(imageFile);
+
+          if (task == null) return;
+
+          final snapshot = await task.whenComplete(() {});
+          final urlDownload = await snapshot.ref.getDownloadURL();
+
+          userModel.userImageUrl.add(urlDownload);
+          userModel.userImagePath.add(fileName);
+
+          final docUser = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid);
+
+          final json = {
+            'listImageUri': userModel.userImageUrl,
+            'listImagePath': userModel.userImagePath
+          };
+
+          docUser.update(json).then((value) {
+            Navigator.pushReplacement(
+                context, FadeRouteAnimation(const ProfileSettingScreen()));
+          });
+        } on FirebaseException catch (error) {
+          if (kDebugMode) {
+            print(error);
+          }
+        }
+      } catch (err) {
+        if (kDebugMode) {
+          print(err);
+        }
+      }
+    }
+
+    Future<void> _imageRemove(int index) async {
+      try {
+        try {
+          await storage.ref(userModel.userImagePath[index]).delete();
+
+          userModel.userImageUrl.removeAt(index);
+          userModel.userImagePath.removeAt(index);
+          final docUser = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid);
+
+          final json = {
+            'listImageUri': userModel.userImageUrl,
+            'listImagePath': userModel.userImagePath
+          };
+
+          docUser.update(json).then((value) {
+            Navigator.pushReplacement(
+                context, FadeRouteAnimation(const ProfileSettingScreen()));
+          });
+        } on FirebaseException catch (error) {
+          if (kDebugMode) {
+            print(error);
+          }
+        }
+      } catch (err) {
+        if (kDebugMode) {
+          print(err);
+        }
+      }
+    }
+
     return Column(
       children: [
         Container(
@@ -438,7 +659,7 @@ class photoProfileSettings extends StatelessWidget {
                         child: FadeInAnimation(
                           child: Padding(
                             padding: const EdgeInsets.only(
-                                bottom: 6, left: 6, right: 6, top: 6),
+                                bottom: 5, left: 5, right: 5, top: 5),
                             child: Card(
                               shadowColor: Colors.white30,
                               color: color_data_input,
@@ -452,7 +673,7 @@ class photoProfileSettings extends StatelessWidget {
                               child: Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
-                                  if (listPhoto.length > index)
+                                  if (userModel.userImageUrl.length > index)
                                     CachedNetworkImage(
                                       imageBuilder: (context, imageProvider) =>
                                           Container(
@@ -477,24 +698,56 @@ class photoProfileSettings extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-                                      imageUrl: listPhoto[index],
+                                      imageUrl: userModel.userImageUrl[index],
                                     ),
-                                  if (listPhoto.length > index)
-                                    Padding(
-                                      padding: const EdgeInsets.all(2),
-                                      child: Image.asset(
-                                        'images/ic_remove.png',
-                                        height: 25,
-                                        width: 25,
+                                  if (0 == index)
+                                    InkWell(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () {
+                                        _uploadImage();
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: Image.asset(
+                                          'images/edit_icon.png',
+                                          height: 22,
+                                          width: 22,
+                                        ),
                                       ),
                                     ),
-                                  if (listPhoto.length <= index)
-                                    Padding(
-                                      padding: const EdgeInsets.all(6),
-                                      child: Image.asset(
-                                        'images/ic_add.png',
-                                        height: 21,
-                                        width: 21,
+                                  if (userModel.userImageUrl.length > index &&
+                                      index != 0)
+                                    InkWell(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () {
+                                        _imageRemove(index);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Image.asset(
+                                          'images/ic_remove.png',
+                                          height: 25,
+                                          width: 25,
+                                        ),
+                                      ),
+                                    ),
+                                  if (userModel.userImageUrl.length <= index &&
+                                      userModel.userImageUrl.length >= 1)
+                                    InkWell(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () {
+                                        _uploadImageAdd();
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(6),
+                                        child: Image.asset(
+                                          'images/ic_add.png',
+                                          height: 21,
+                                          width: 21,
+                                        ),
                                       ),
                                     ),
                                 ],
