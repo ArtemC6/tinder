@@ -48,7 +48,7 @@ class slideStory extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(right: 20),
                 scrollDirection: Axis.horizontal,
-                itemCount: 12,
+                itemCount: 8,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return AnimationConfiguration.staggeredList(
@@ -413,7 +413,7 @@ class photoProfile extends StatelessWidget {
             child: AnimationLimiter(
               child: GridView.count(
                 physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(left: 18, right: 18, top: 0),
+                padding: const EdgeInsets.only(left: 18, right: 18),
                 crossAxisCount: 3,
                 children: List.generate(
                   listPhoto.length,
@@ -428,7 +428,7 @@ class photoProfile extends StatelessWidget {
                         child: FadeInAnimation(
                           child: Padding(
                             padding: const EdgeInsets.only(
-                                bottom: 6, left: 6, right: 6, top: 6),
+                                bottom: 5, left: 5, right: 5, top: 5),
                             child: Card(
                               shadowColor: Colors.white30,
                               color: color_data_input,

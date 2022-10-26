@@ -28,8 +28,6 @@ class EditProfileScreen extends StatefulWidget {
 
   EditProfileScreen({Key? key, required this.isFirst}) : super(key: key);
 
-  // EditProfileScreen(@required this.isFirst, {Key? key}) : super(key: key);
-
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState(isFirst);
 }
@@ -50,6 +48,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   List<String> listImageUri = [], listImagePath = [];
   DateTime _dateTimeBirthday = DateTime.now();
   late SfRangeValues _valuesAge;
+
+  List<String> listProfileImage = [];
+  List<String> listProfilePath = [];
 
   void showDatePicker() {
     DatePicker.showDatePicker(context,
@@ -181,6 +182,70 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // Future<void> _uploadImage() async {
+  //   final picker = ImagePicker();
+  //   XFile? pickedImage;
+  //   try {
+  //     pickedImage = await picker.pickImage(
+  //         source: ImageSource.gallery);
+  //
+  //     final String fileName = path.basename(pickedImage!.path);
+  //     File imageFile = File(pickedImage.path);
+  //
+  //     try {
+  //       var task = storage.ref(fileName).putFile(imageFile);
+  //
+  //       if (task == null) return;
+  //
+  //       final snapshot = await task.whenComplete(() {});
+  //       final urlDownload = await snapshot.ref.getDownloadURL();
+  //       //
+  //       // await storage.ref(modelUser.userImagePath[0]).delete();
+  //       //
+  //       // modelUser.userImageUrl.removeAt(0);
+  //       // modelUser.userImagePath.removeAt(0);
+  //       //
+  //       // listImagePath.add(fileName);
+  //       // listImageUri.add(urlDownload);
+  //       //
+  //       // listImagePath.addAll(modelUser.userImagePath);
+  //       // listImageUri.addAll(modelUser.userImageUrl);
+  //
+  //
+  //
+  //       listProfileImage.add(urlDownload.toString());
+  //       listProfilePath.add(snapshot.toString());
+  //
+  //       final docUser = FirebaseFirestore.instance
+  //           .collection('ImageProfile')
+  //           .doc('Image');
+  //
+  //       final json = {
+  //         'listProfileImage': listProfileImage,
+  //         'listProfilePath': listProfilePath
+  //       };
+  //
+  //       docUser.set(json).then((value) {
+  //         Navigator.pushReplacement(
+  //             context,
+  //             FadeRouteAnimation(EditProfileScreen(
+  //               isFirst: false,
+  //             )));
+  //       });
+  //
+  //       setState(() {});
+  //     } on FirebaseException catch (error) {
+  //       if (kDebugMode) {
+  //         print(error);
+  //       }
+  //     }
+  //   } catch (err) {
+  //     if (kDebugMode) {
+  //       print(err);
+  //     }
+  //   }
+  // }
+
   Future<void> _uploadData() async {
     if (_selectedInterests.isNotEmpty &&
         _selectedInterests.length <= 6 &&
@@ -236,7 +301,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             userImagePath: List<String>.from(data['listImagePath']),
             userImageUrl: List<String>.from(data['listImageUri']),
             searchRangeEnd: data['rangeEnd'],
-            myCity: data['myCity']);
+            myCity: data['myCity'], imageBackground: data['imageBackground']);
       });
     });
 
@@ -407,6 +472,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 40,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
+                          border: Border.all(width: 0.7, color: Colors.white30),
                           gradient: const LinearGradient(
                               colors: [Colors.blueAccent, Colors.purpleAccent]),
                           borderRadius: BorderRadius.circular(20),

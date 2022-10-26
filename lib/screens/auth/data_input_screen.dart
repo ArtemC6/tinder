@@ -74,6 +74,7 @@ class _DataInputUserState extends State<DataInputUser>
 
         final json = {
           'myPol': myPol,
+          'imageBackground': '',
           'myCity': myLocation,
           'searchPol': searchPol == 'С парнем' ? 'Парня' : 'Девушку',
           'rangeStart': _valuesAge.start,

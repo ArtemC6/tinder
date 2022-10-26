@@ -146,12 +146,11 @@ List<StoryModel> listStoryMain = [
       id: '',
       uri:
           'https://sportishka.com/uploads/posts/2022-03/1648589724_6-sportishka-com'
-              '-p-velosiped-dlya-triatlona-sport-krasivie-fo-6.jpg'),
+          '-p-velosiped-dlya-triatlona-sport-krasivie-fo-6.jpg'),
   StoryModel(
       name: 'TikTok',
       id: '',
-      uri:
-          'https://pbs.twimg.com/media/EMK6NtfXsAAZsrS.png:large'),
+      uri: 'https://pbs.twimg.com/media/EMK6NtfXsAAZsrS.png:large'),
   StoryModel(
       name: 'Instagram',
       id: '',

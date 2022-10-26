@@ -6,6 +6,7 @@ class UserModel {
   String userPol;
   String searchPol;
   String myCity;
+  String imageBackground;
   Timestamp age;
 
   num searchRangeStart;
@@ -24,6 +25,7 @@ class UserModel {
       required this.searchRangeStart,
       required this.userImageUrl,
       required this.userImagePath,
+      required this.imageBackground,
       required this.userInterests,
       required this.searchRangeEnd});
 }
