@@ -14,18 +14,25 @@ import 'data/model/user_model.dart';
 import 'data/widget/component_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  UserModel userModel;
+  bool isBack;
+  String idUser;
+
+  ProfileScreen({required this.userModel, required this.isBack, required this.idUser});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreen();
+  State<ProfileScreen> createState() => _ProfileScreen(userModel, isBack, idUser);
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
-  bool isLoading = false, isLike = false;
+  bool isLoading = false, isLike = false, isBack, isProprietor = false;
   late UserModel userModel;
+  String idUser;
   List<StoryModel> listStory = [];
   List<String> listImageUri = [], listImagePath = [];
   FirebaseStorage storage = FirebaseStorage.instance;
+
+  _ProfileScreen(this.userModel, this.isBack, this.idUser);
 
   // SlideFadeTransition(
   // delayStart: Duration(milliseconds: 800),
@@ -59,29 +66,61 @@ class _ProfileScreen extends State<ProfileScreen> {
   }
 
   void readFirebase() async {
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      Map<String, dynamic> data =
-          documentSnapshot.data() as Map<String, dynamic>;
+    if (userModel.uid == ''  && idUser == '') {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        Map<String, dynamic> data =
+            documentSnapshot.data() as Map<String, dynamic>;
 
-      setState(() {
-        userModel = UserModel(
-            name: data['name'],
-            uid: data['uid'],
-            age: data['myAge'],
-            userPol: data['myPol'],
-            searchPol: data['searchPol'],
-            searchRangeStart: data['rangeStart'],
-            userInterests: List<String>.from(data['listInterests']),
-            userImagePath: List<String>.from(data['listImagePath']),
-            userImageUrl: List<String>.from(data['listImageUri']),
-            searchRangeEnd: data['rangeEnd'],
-            myCity: data['myCity'], imageBackground: data['imageBackground']);
+        setState(() {
+          userModel = UserModel(
+              name: data['name'],
+              uid: data['uid'],
+              ageTime: data['ageTime'],
+              userPol: data['myPol'],
+              searchPol: data['searchPol'],
+              searchRangeStart: data['rangeStart'],
+              userInterests: List<String>.from(data['listInterests']),
+              userImagePath: List<String>.from(data['listImagePath']),
+              userImageUrl: List<String>.from(data['listImageUri']),
+              searchRangeEnd: data['rangeEnd'],
+              myCity: data['myCity'],
+              imageBackground: data['imageBackground'],
+              ageInt: data['ageInt']);
+        });
       });
-    });
+    }
+
+    if (userModel.uid == ''  && idUser != '') {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(idUser)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        Map<String, dynamic> data =
+        documentSnapshot.data() as Map<String, dynamic>;
+
+        setState(() {
+          userModel = UserModel(
+              name: data['name'],
+              uid: data['uid'],
+              ageTime: data['ageTime'],
+              userPol: data['myPol'],
+              searchPol: data['searchPol'],
+              searchRangeStart: data['rangeStart'],
+              userInterests: List<String>.from(data['listInterests']),
+              userImagePath: List<String>.from(data['listImagePath']),
+              userImageUrl: List<String>.from(data['listImageUri']),
+              searchRangeEnd: data['rangeEnd'],
+              myCity: data['myCity'],
+              imageBackground: data['imageBackground'],
+              ageInt: data['ageInt']);
+        });
+      });
+    }
 
     for (var elementMain in userModel.userInterests) {
       for (var element in listStoryMain) {
@@ -113,6 +152,11 @@ class _ProfileScreen extends State<ProfileScreen> {
     });
 
     setState(() {
+      if (FirebaseAuth.instance.currentUser?.uid == userModel.uid) {
+        isProprietor = true;
+      } else {
+        isProprietor = false;
+      }
       isLoading = true;
     });
   }
@@ -142,47 +186,42 @@ class _ProfileScreen extends State<ProfileScreen> {
                   ),
                 ),
               ),
-              // Positioned(
-              //   width: MediaQuery.of(context).size.width,
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //     children: [
-              //       Positioned(
-              //         child: Container(
-              //           margin: const EdgeInsets.only(
-              //             top: 20,
-              //           ),
-              //           height: 40,
-              //           width: 40,
-              //           child: IconButton(
-              //             onPressed: () {
-              //               Navigator.pop(context);
-              //             },
-              //             icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              //                 size: 20),
-              //             color: Colors.white,
-              //           ),
-              //         ),
-              //       ),
-              //       Positioned(
-              //         child: Container(
-              //           padding: const EdgeInsets.only(top: 24, right: 24),
-              //           alignment: Alignment.centerRight,
-              //           child: IconButton(
-              //             onPressed: () {
-              //               Navigator.push(
-              //                   context,
-              //                   FadeRouteAnimation(
-              //                       const ProfileSettingScreen()));
-              //             },
-              //             icon: const Icon(Icons.settings, size: 20),
-              //             color: Colors.white,
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              if (isBack)
+                Positioned(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
+                    ),
+                    height: 40,
+                    width: 40,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          size: 20),
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              if (isProprietor)
+                Positioned(
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 24, right: 24),
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            FadeRouteAnimation(ProfileSettingScreen(
+                              userModel: userModel,
+                            )));
+                      },
+                      icon: const Icon(Icons.settings, size: 20),
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               Container(
                 margin: const EdgeInsets.only(top: 150),
                 child: Column(
@@ -200,8 +239,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                             height: 110,
                             width: 110,
                             child: Card(
-                              shadowColor: Colors.transparent,
-                              color: Colors.transparent,
+                              shadowColor: Colors.white38,
+                              color: color_data_input,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   side: const BorderSide(
@@ -240,34 +279,35 @@ class _ProfileScreen extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(right: 30),
-                            child: LikeButton(
-                              isLiked: isLike,
-                              size: 30,
-                              circleColor: const CircleColor(
-                                  start: Color(0xff00ddff),
-                                  end: Color(0xff0099cc)),
-                              bubblesColor: const BubblesColor(
-                                dotPrimaryColor: Color(0xff33b5e5),
-                                dotSecondaryColor: Color(0xff0099cc),
+                          if (!isProprietor)
+                            Container(
+                              margin: const EdgeInsets.only(right: 30),
+                              child: LikeButton(
+                                isLiked: isLike,
+                                size: 30,
+                                circleColor: const CircleColor(
+                                    start: Color(0xff00ddff),
+                                    end: Color(0xff0099cc)),
+                                bubblesColor: const BubblesColor(
+                                  dotPrimaryColor: Color(0xff33b5e5),
+                                  dotSecondaryColor: Color(0xff0099cc),
+                                ),
+                                likeBuilder: (bool isLiked) {
+                                  return Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border_sharp,
+                                    color: isLiked ? Colors.red : Colors.grey,
+                                    size: 30,
+                                  );
+                                },
+                                onTap: (isLiked) {
+                                  return changedata(
+                                    isLiked,
+                                  );
+                                },
                               ),
-                              likeBuilder: (bool isLiked) {
-                                return Icon(
-                                  isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border_sharp,
-                                  color: isLiked ? Colors.red : Colors.grey,
-                                  size: 30,
-                                );
-                              },
-                              onTap: (isLiked) {
-                                return changedata(
-                                  isLiked,
-                                );
-                              },
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -282,7 +322,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                               RichText(
                                 text: TextSpan(
                                   text:
-                                      '${userModel.name}, ${DateTime.now().year - getDataTimeDate(userModel.age).year}',
+                                      '${userModel.name}, ${userModel.ageInt}',
                                   style: GoogleFonts.lato(
                                     textStyle: TextStyle(
                                         color: Colors.white.withOpacity(1),
@@ -330,6 +370,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                     context,
                                     FadeRouteAnimation(EditProfileScreen(
                                       isFirst: false,
+                                      userModel: userModel,
                                     )));
                               },
                               style: ElevatedButton.styleFrom(
@@ -340,7 +381,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                               ),
                               child: RichText(
                                 text: TextSpan(
-                                  text: 'Изменить',
+                                  text: isProprietor ? 'Изменить' : 'Написать',
                                   style: GoogleFonts.lato(
                                     textStyle: const TextStyle(
                                         color: Colors.white,

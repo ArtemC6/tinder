@@ -1,25 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:tinder/screens/home_screen.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/sympathy_screen.dart';
 import 'package:tinder/screens/that_screen.dart';
 import 'data/const.dart';
+import 'data/model/user_model.dart';
 
 class HomeMain extends StatefulWidget {
-  const HomeMain({Key? key}) : super(key: key);
+  int currentIndex;
+
+  HomeMain({required this.currentIndex});
 
   @override
-  _HomeMain createState() => _HomeMain();
+  _HomeMain createState() => _HomeMain(currentIndex);
 }
 
 class _HomeMain extends State<HomeMain> {
   var currentIndex = 0;
 
+  _HomeMain(this.currentIndex);
+
   Widget childEmployee() {
     var child;
     switch (currentIndex) {
       case 0:
-        child =  HomeScreen();
+        child = const HomeScreen();
         break;
       case 1:
         child = const SympathyScreen();
@@ -28,7 +34,19 @@ class _HomeMain extends State<HomeMain> {
         child = const ThatScreen();
         break;
       case 3:
-        child = ProfileScreen();
+        child = ProfileScreen(userModel: UserModel(
+            name: '',
+            uid: '',
+            myCity: '',
+            ageTime: Timestamp.now(),
+            userPol: '',
+            searchPol: '',
+            searchRangeStart: 0,
+            userImageUrl: [],
+            userImagePath: [],
+            imageBackground: '',
+            userInterests: [],
+            searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',);
         break;
     }
     return child;
@@ -84,12 +102,4 @@ class _HomeMain extends State<HomeMain> {
         ),
         body: SizedBox.expand(child: childEmployee()));
   }
-
-  List<IconData> listOfIcons = [
-    Icons.home_rounded,
-    Icons.favorite_rounded,
-    Icons.messenger_outline,
-    Icons.person_rounded,
-  ];
-
 }

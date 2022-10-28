@@ -332,13 +332,15 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               buttonComponent('Зарегистрироваться', 2, () {
-                                context
-                                    .read<FirebaseAuthMethods>()
-                                    .signUpWithEmail(
-                                        email: _email,
-                                        password: _password,
-                                        name: _name,
-                                        context: context);
+                                if(_name.length > 3) {
+                                  context
+                                      .read<FirebaseAuthMethods>()
+                                      .signUpWithEmail(
+                                      email: _email,
+                                      password: _password,
+                                      name: _name[0].toUpperCase() + _name.substring(1).toLowerCase(),
+                                      context: context);
+                                }
                               }),
                             ],
                           ),

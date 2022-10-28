@@ -1,35 +1,31 @@
-import 'dart:io';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:path/path.dart' as path;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:tinder/screens/settings/settiongs_profile_screen.dart';
 import '../data/const.dart';
-import '../data/model/story_model.dart';
-import '../data/model/user_model.dart';
+import '../home_manager.dart';
 
 class EditImageProfileScreen extends StatefulWidget {
-  UserModel userModel;
+  String bacImage;
 
-  EditImageProfileScreen({Key? key, required this.userModel}) : super(key: key);
+  EditImageProfileScreen({Key? key, required this.bacImage}) : super(key: key);
 
   @override
-  State<EditImageProfileScreen> createState() => _EditImageProfileScreen(userModel);
+  State<EditImageProfileScreen> createState() =>
+      _EditImageProfileScreen(bacImage);
 }
 
 class _EditImageProfileScreen extends State<EditImageProfileScreen> {
   bool isLoading = false;
-  late UserModel userModel;
+  String bacImage;
   List<String> listImageUri = [];
+  int indexImage = 100;
 
-  _EditImageProfileScreen(UserModel userModel);
+  _EditImageProfileScreen(this.bacImage);
 
   // SlideFadeTransition(
   // delayStart: Duration(milliseconds: 800),
@@ -52,7 +48,29 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
         docUser.update(json).then((value) {
           Navigator.pushReplacement(
-              context, FadeRouteAnimation(const ProfileSettingScreen()));
+              context,
+              FadeRouteAnimation(
+                HomeMain(currentIndex: 3),
+              ));
+          // Navigator.pushReplacement(
+          //     context,
+          //     FadeRouteAnimation(ProfileScreen(
+          //       userModel: UserModel(
+          //           name: '',
+          //           uid: '',
+          //           myCity: '',
+          //           ageTime: Timestamp.now(),
+          //           userPol: '',
+          //           searchPol: '',
+          //           searchRangeStart: 0,
+          //           userImageUrl: [],
+          //           userImagePath: [],
+          //           imageBackground: '',
+          //           userInterests: [],
+          //           searchRangeEnd: 0,
+          //           ageInt: 0),
+          //       isBack: false,
+          //     )));
         });
 
         setState(() {});
@@ -74,21 +92,19 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
         .doc('Image')
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-      Map<String, dynamic> data =
-          documentSnapshot.data() as Map<String, dynamic>;
-
       setState(() {
         listImageUri = List<String>.from(documentSnapshot['listProfileImage']);
       });
     });
 
-    setState(() {
+    // if (bacImage == '') {
+    //   _uploadImage(listImageUri[0]);
+    // }
 
-      // listImageUri.forEach((element) {
-      //   if(element == userModel.imageBackground) {
-      //   print(element);
-      //   }
-      // });
+    setState(() {
+      if (bacImage != '') {
+        indexImage = listImageUri.indexWhere((element) => element == bacImage);
+      }
       isLoading = true;
     });
   }
@@ -101,11 +117,12 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_data_input,
         body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
+
           child: Column(
             children: [
               Container(
@@ -115,10 +132,14 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    if(bacImage != '')
                     IconButton(
                       onPressed: () {
                         Navigator.pushReplacement(
-                            context, FadeRouteAnimation(const ProfileSettingScreen()));
+                            context,
+                            FadeRouteAnimation(
+                              HomeMain(currentIndex: 3),
+                            ));
                       },
                       icon: const Icon(Icons.arrow_back_ios_new_rounded,
                           size: 20),
@@ -129,7 +150,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                       padding: const EdgeInsets.only(),
                       child: RichText(
                         text: TextSpan(
-                          text: 'Галерея',
+                          text: 'Фон',
                           style: GoogleFonts.lato(
                             textStyle: TextStyle(
                                 color: Colors.white.withOpacity(1),
@@ -139,7 +160,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 40),
+                    const SizedBox(width: 40),
                   ],
                 ),
               ),
@@ -164,67 +185,79 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                 child: Stack(
                                   alignment: Alignment.bottomRight,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 4, left: 4, right: 4, top: 4),
-                                      child: Card(
-                                        shadowColor: Colors.white30,
-                                        color: color_data_input,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            side: const BorderSide(
-                                              width: 0.8,
-                                              color: Colors.white38,
-                                            )),
-                                        elevation: 6,
-                                        child: CachedNetworkImage(
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            decoration: BoxDecoration(
+                                    InkWell(
+                                      splashColor: Colors.transparent,
+                                      highlightColor: Colors.transparent,
+                                      onTap: () {
+                                        _uploadImage(listImageUri[index]);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            bottom: 4,
+                                            left: 4,
+                                            right: 4,
+                                            top: 4),
+                                        child: Card(
+                                          shadowColor: Colors.white30,
+                                          color: color_data_input,
+                                          shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(14)),
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover,
+                                                  BorderRadius.circular(12),
+                                              side: const BorderSide(
+                                                width: 0.8,
+                                                color: Colors.white38,
+                                              )),
+                                          elevation: 6,
+                                          child: CachedNetworkImage(
+                                            imageBuilder:
+                                                (context, imageProvider) =>
+                                                    Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(14)),
+                                                image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          progressIndicatorBuilder:
-                                              (context, url, progress) =>
-                                                  Center(
-                                            child: SizedBox(
-                                              height: 26,
-                                              width: 26,
-                                              child: CircularProgressIndicator(
-                                                color: Colors.white,
-                                                strokeWidth: 0.8,
-                                                value: progress.progress,
+                                            progressIndicatorBuilder:
+                                                (context, url, progress) =>
+                                                    Center(
+                                              child: SizedBox(
+                                                height: 26,
+                                                width: 26,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 0.8,
+                                                  value: progress.progress,
+                                                ),
                                               ),
                                             ),
+                                            imageUrl: listImageUri[index],
                                           ),
-                                          imageUrl: listImageUri[index],
                                         ),
                                       ),
                                     ),
-                                    // if (0 == index)
-                                    //   InkWell(
-                                    //     splashColor: Colors.transparent,
-                                    //     highlightColor: Colors.transparent,
-                                    //     onTap: () {
-                                    //       _uploadImage(listImageUri[index]);
-                                    //     },
-                                    //     child: Padding(
-                                    //       padding: const EdgeInsets.all(4),
-                                    //       child: Image.asset(
-                                    //         'images/ic_save.png',
-                                    //         height: 24,
-                                    //         width: 24,
-                                    //       ),
-                                    //     ),
-                                    //   ),
+                                    if (indexImage == index && indexImage != 100)
+                                      InkWell(
+                                        splashColor: Colors.transparent,
+                                        highlightColor: Colors.transparent,
+                                        onTap: () {
+                                          _uploadImage(listImageUri[index]);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Image.asset(
+                                            'images/ic_save.png',
+                                            height: 24,
+                                            width: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    if (indexImage != index)
                                       InkWell(
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,

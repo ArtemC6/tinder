@@ -4,12 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:tinder/screens/auth/data_input_screen.dart';
 import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/screens/data/firebase_auth.dart';
+import 'package:tinder/screens/data/model/user_model.dart';
 import 'package:tinder/screens/home_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
 
 void main() async {
@@ -60,7 +63,7 @@ class Manager extends StatefulWidget {
 }
 
 class _Manager extends State<Manager> {
-  bool isEmpty = false, isEmptyData = false;
+  bool isEmpty = false, isEmptyData = false, isEmptyImageBck = false;
 
   @override
   void initState() {
@@ -84,6 +87,11 @@ class _Manager extends State<Manager> {
               isEmptyData = true;
             });
           }
+          if (documentSnapshot['imageBackground'] != '') {
+            setState(() {
+              isEmptyImageBck = true;
+            });
+          }
         }
       });
     }
@@ -96,14 +104,39 @@ class _Manager extends State<Manager> {
         // ignore: missing_return
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: LoadingAnimationWidget.dotsTriangle(
+                size: 44,
+                color: Colors.blueAccent,
+              ),
+            );
           } else if (snapshot.hasData) {
             if (isEmpty) {
               if (isEmptyData) {
-                return const HomeMain();
+                if (isEmptyImageBck) {
+                  return HomeMain(currentIndex: 0,);
+                } else {
+                  return EditImageProfileScreen(
+                    bacImage: '',
+                  );
+                }
               } else {
                 return EditProfileScreen(
                   isFirst: true,
+                  userModel: UserModel(
+                      name: '',
+                      uid: '',
+                      myCity: '',
+                      ageTime: Timestamp.now(),
+                      ageInt: 0,
+                      userPol: '',
+                      searchPol: '',
+                      searchRangeStart: 0,
+                      userImageUrl: [],
+                      userImagePath: [],
+                      imageBackground: '',
+                      userInterests: [],
+                      searchRangeEnd: 0),
                 );
               }
             } else {

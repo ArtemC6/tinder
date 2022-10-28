@@ -11,8 +11,8 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+import '../../profile_screen.dart';
 import '../../settings/edit_profile_screen.dart';
-import '../../settings/settiongs_profile_screen.dart';
 import '../const.dart';
 import '../model/story_model.dart';
 import '../model/user_model.dart';
@@ -153,9 +153,10 @@ class slideStory extends StatelessWidget {
 
 class slideStorySettings extends StatelessWidget {
   List<StoryModel> listStory = [];
-  List<String> listInterests = [];
 
-  slideStorySettings(this.listStory, {super.key});
+  late UserModel userModel;
+
+  slideStorySettings(this.listStory, this.userModel, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -294,6 +295,7 @@ class slideStorySettings extends StatelessWidget {
                                                 FadeRouteAnimation(
                                                     EditProfileScreen(
                                                   isFirst: false,
+                                                  userModel: userModel,
                                                 )));
                                           },
                                           child: Padding(
@@ -315,8 +317,9 @@ class slideStorySettings extends StatelessWidget {
                                                 context,
                                                 FadeRouteAnimation(
                                                     EditProfileScreen(
-                                                      isFirst: false,
-                                                    )));
+                                                  isFirst: false,
+                                                  userModel: userModel,
+                                                )));
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(1),
@@ -338,6 +341,7 @@ class slideStorySettings extends StatelessWidget {
                                                 FadeRouteAnimation(
                                                     EditProfileScreen(
                                                   isFirst: false,
+                                                  userModel: userModel,
                                                 )));
                                           },
                                           child: Padding(
@@ -443,6 +447,7 @@ class photoProfile extends StatelessWidget {
                                 imageBuilder: (context, imageProvider) =>
                                     Container(
                                   decoration: BoxDecoration(
+                                    color: color_data_input,
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(14)),
                                     image: DecorationImage(
@@ -506,7 +511,6 @@ class photoProfileSettings extends StatelessWidget {
 
           final snapshot = await task.whenComplete(() {});
           final urlDownload = await snapshot.ref.getDownloadURL();
-          print(userModel.userImagePath[0]);
 
           await storage.ref(userModel.userImagePath[0]).delete();
 
@@ -530,7 +534,19 @@ class photoProfileSettings extends StatelessWidget {
 
           docUser.update(json).then((value) {
             Navigator.pushReplacement(
-                context, FadeRouteAnimation(const ProfileSettingScreen()));
+                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
+                name: '',
+                uid: '',
+                myCity: '',
+                ageTime: Timestamp.now(),
+                userPol: '',
+                searchPol: '',
+                searchRangeStart: 0,
+                userImageUrl: [],
+                userImagePath: [],
+                imageBackground: '',
+                userInterests: [],
+                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
           });
         } on FirebaseException catch (error) {
           if (kDebugMode) {
@@ -576,7 +592,19 @@ class photoProfileSettings extends StatelessWidget {
 
           docUser.update(json).then((value) {
             Navigator.pushReplacement(
-                context, FadeRouteAnimation(const ProfileSettingScreen()));
+                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
+                name: '',
+                uid: '',
+                myCity: '',
+                ageTime: Timestamp.now(),
+                userPol: '',
+                searchPol: '',
+                searchRangeStart: 0,
+                userImageUrl: [],
+                userImagePath: [],
+                imageBackground: '',
+                userInterests: [],
+                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
           });
         } on FirebaseException catch (error) {
           if (kDebugMode) {
@@ -608,7 +636,19 @@ class photoProfileSettings extends StatelessWidget {
 
           docUser.update(json).then((value) {
             Navigator.pushReplacement(
-                context, FadeRouteAnimation(const ProfileSettingScreen()));
+                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
+                name: '',
+                uid: '',
+                myCity: '',
+                ageTime: Timestamp.now(),
+                userPol: '',
+                searchPol: '',
+                searchRangeStart: 0,
+                userImageUrl: [],
+                userImagePath: [],
+                imageBackground: '',
+                userInterests: [],
+                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
           });
         } on FirebaseException catch (error) {
           if (kDebugMode) {
@@ -681,9 +721,8 @@ class photoProfileSettings extends StatelessWidget {
                                           borderRadius: const BorderRadius.all(
                                               Radius.circular(14)),
                                           image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
-                                          ),
+                                              image: imageProvider,
+                                              fit: BoxFit.cover),
                                         ),
                                       ),
                                       progressIndicatorBuilder:

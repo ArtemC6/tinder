@@ -14,13 +14,16 @@ import 'package:tinder/screens/settings/edit_profile_screen.dart';
 import '../data/const.dart';
 import '../data/model/story_model.dart';
 import '../data/model/user_model.dart';
+import '../profile_screen.dart';
 import 'edit_image_profile_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
-  const ProfileSettingScreen({Key? key}) : super(key: key);
+  UserModel userModel;
+
+  ProfileSettingScreen({Key? key, required this.userModel}) : super(key: key);
 
   @override
-  State<ProfileSettingScreen> createState() => _ProfileSettingScreen();
+  State<ProfileSettingScreen> createState() => _ProfileSettingScreen(userModel);
 }
 
 class _ProfileSettingScreen extends State<ProfileSettingScreen> {
@@ -29,6 +32,8 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
   List<StoryModel> listStory = [];
   List<String> listImageUri = [], listImagePath = [];
   FirebaseStorage storage = FirebaseStorage.instance;
+
+  _ProfileSettingScreen(this.userModel);
 
   // SlideFadeTransition(
   // delayStart: Duration(milliseconds: 800),
@@ -43,7 +48,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
     XFile? pickedImage;
     try {
       pickedImage = await picker.pickImage(
-          source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+          source: ImageSource.gallery, imageQuality: 28, maxWidth: 1920);
 
       final String fileName = path.basename(pickedImage!.path);
       File imageFile = File(pickedImage.path);
@@ -78,7 +83,24 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
 
         docUser.update(json).then((value) {
           Navigator.pushReplacement(
-              context, FadeRouteAnimation(const ProfileSettingScreen()));
+              context,
+              FadeRouteAnimation(ProfileScreen(
+                userModel: UserModel(
+                    name: '',
+                    uid: '',
+                    myCity: '',
+                    ageTime: Timestamp.now(),
+                    userPol: '',
+                    searchPol: '',
+                    searchRangeStart: 0,
+                    userImageUrl: [],
+                    userImagePath: [],
+                    imageBackground: '',
+                    userInterests: [],
+                    searchRangeEnd: 0,
+                    ageInt: 0),
+                isBack: true, idUser: '',
+              )));
         });
 
         setState(() {});
@@ -95,30 +117,30 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
   }
 
   void readFirebase() async {
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      Map<String, dynamic> data =
-          documentSnapshot.data() as Map<String, dynamic>;
-
-      setState(() {
-        userModel = UserModel(
-            name: data['name'],
-            uid: data['uid'],
-            age: data['myAge'],
-            userPol: data['myPol'],
-            searchPol: data['searchPol'],
-            searchRangeStart: data['rangeStart'],
-            userInterests: List<String>.from(data['listInterests']),
-            userImagePath: List<String>.from(data['listImagePath']),
-            userImageUrl: List<String>.from(data['listImageUri']),
-            searchRangeEnd: data['rangeEnd'],
-            myCity: data['myCity'],
-            imageBackground: data['imageBackground']);
-      });
-    });
+    // await FirebaseFirestore.instance
+    //     .collection('User')
+    //     .doc(FirebaseAuth.instance.currentUser?.uid)
+    //     .get()
+    //     .then((DocumentSnapshot documentSnapshot) {
+    //   Map<String, dynamic> data =
+    //       documentSnapshot.data() as Map<String, dynamic>;
+    //
+    //   setState(() {
+    //     userModel = UserModel(
+    //         name: data['name'],
+    //         uid: data['uid'],
+    //         age: data['myAge'],
+    //         userPol: data['myPol'],
+    //         searchPol: data['searchPol'],
+    //         searchRangeStart: data['rangeStart'],
+    //         userInterests: List<String>.from(data['listInterests']),
+    //         userImagePath: List<String>.from(data['listImagePath']),
+    //         userImageUrl: List<String>.from(data['listImageUri']),
+    //         searchRangeEnd: data['rangeEnd'],
+    //         myCity: data['myCity'],
+    //         imageBackground: data['imageBackground']);
+    //   });
+    // });
 
     for (var elementMain in userModel.userInterests) {
       for (var element in listStoryMain) {
@@ -179,51 +201,46 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                   ),
                 ),
               ),
-              Positioned(
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Positioned(
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                          top: 20,
-                        ),
-                        height: 40,
-                        width: 40,
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                              size: 20),
-                          color: Colors.white,
-                        ),
-                      ),
+              if (isLoading)
+                Positioned(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      top: 20,
                     ),
-                    Positioned(
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 24, right: 24),
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                                context,
-                                FadeRouteAnimation(
-                                     EditImageProfileScreen(userModel: userModel,)));
-                          },
-                          icon: Image.asset(
-                            'images/ic_images.png',
-                            height: 21,
-                            width: 21,
-                          ),
-                          color: Colors.white,
-                        ),
-                      ),
+                    height: 40,
+                    width: 40,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          size: 20),
+                      color: Colors.white,
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              if (isLoading)
+                Positioned(
+                  child: Container(
+                    padding: const EdgeInsets.only(top: 24, right: 24),
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                            context,
+                            FadeRouteAnimation(EditImageProfileScreen(
+                              bacImage: userModel.imageBackground,
+                            )));
+                      },
+                      icon: Image.asset(
+                        'images/ic_image.png',
+                        height: 25,
+                        width: 25,
+                      ),
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               Container(
                 margin: const EdgeInsets.only(top: 150),
                 child: Column(
@@ -309,7 +326,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                               RichText(
                                 text: TextSpan(
                                   text:
-                                      '${userModel.name}, ${DateTime.now().year - getDataTimeDate(userModel.age).year}',
+                                      '${userModel.name}, ${userModel.ageInt}',
                                   style: GoogleFonts.lato(
                                     textStyle: TextStyle(
                                         color: Colors.white.withOpacity(1),
@@ -359,6 +376,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                                     context,
                                     FadeRouteAnimation(EditProfileScreen(
                                       isFirst: false,
+                                      userModel: userModel,
                                     )));
                               },
                               style: ElevatedButton.styleFrom(
@@ -524,7 +542,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                               ],
                             ),
                           ),
-                          slideStorySettings(listStory),
+                          slideStorySettings(listStory, userModel),
                           photoProfileSettings(userModel),
                         ],
                       ),

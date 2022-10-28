@@ -17,28 +17,32 @@ import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:tinder/screens/auth/signin_screen.dart';
+import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 
 import '../data/const.dart';
 import '../data/firebase_auth.dart';
 import '../data/model/user_model.dart';
+import '../home_manager.dart';
 import '../profile_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   bool isFirst;
+  UserModel userModel;
 
-  EditProfileScreen({Key? key, required this.isFirst}) : super(key: key);
+  EditProfileScreen({required this.isFirst, required this.userModel});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState(isFirst);
+  State<EditProfileScreen> createState() =>
+      _EditProfileScreenState(isFirst, userModel);
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  bool isFirst = false;
+  bool isFirst;
+  late UserModel modelUser;
 
-  _EditProfileScreenState(this.isFirst);
+  _EditProfileScreenState(this.isFirst, this.modelUser);
 
   bool isLoading = false, isError = false;
-  late UserModel modelUser;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _ageRangController = TextEditingController();
@@ -77,7 +81,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     XFile? pickedImage;
     try {
       pickedImage = await picker.pickImage(
-          source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+          source: ImageSource.gallery, imageQuality: 28, maxWidth: 1920);
 
       final String fileName = path.basename(pickedImage!.path);
       File imageFile = File(pickedImage.path);
@@ -107,6 +111,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               context,
               FadeRouteAnimation(EditProfileScreen(
                 isFirst: false,
+                userModel: UserModel(
+                    name: '',
+                    uid: '',
+                    myCity: '',
+                    ageTime: Timestamp.now(),
+                    userPol: '',
+                    searchPol: '',
+                    searchRangeStart: 0,
+                    userImageUrl: [],
+                    userImagePath: [],
+                    imageBackground: '',
+                    userInterests: [],
+                    searchRangeEnd: 0,
+                    ageInt: 0),
               )));
         });
 
@@ -166,6 +184,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               context,
               FadeRouteAnimation(EditProfileScreen(
                 isFirst: false,
+                userModel: UserModel(
+                    name: '',
+                    uid: '',
+                    myCity: '',
+                    ageTime: Timestamp.now(),
+                    userPol: '',
+                    searchPol: '',
+                    searchRangeStart: 0,
+                    userImageUrl: [],
+                    userImagePath: [],
+                    imageBackground: '',
+                    userInterests: [],
+                    searchRangeEnd: 0,
+                    ageInt: 0),
               )));
         });
 
@@ -262,16 +294,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'listInterests': _selectedInterests,
         'myPol': _dropDownUserPol,
         'name': _nameController.text,
-        'searchPol': _dropDownSearchPol,
-        'myAge': _dateTimeBirthday,
+        'searchPol': _dropDownSearchPol == 'С парнем' ? 'Мужской' : 'Женский',
+        'ageTime': _dateTimeBirthday,
+        'ageInt': DateTime.now().year - _dateTimeBirthday.year,
         'rangeStart': _valuesAge.start,
         'rangeEnd': _valuesAge.end,
         'myCity': _dropDownLocal,
       };
 
       docUser.update(json).then((value) {
-        Navigator.pushReplacement(
-            context, FadeRouteAnimation(const ProfileScreen()));
+        if (modelUser.imageBackground != '') {
+          Navigator.pushReplacement(
+              context,
+              FadeRouteAnimation(
+                HomeMain(currentIndex: 3),
+              ));
+          // Navigator.pushReplacement(
+          //     context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
+          //     name: '',
+          //     uid: '',
+          //     myCity: '',
+          //     ageTime: Timestamp.now(),
+          //     userPol: '',
+          //     searchPol: '',
+          //     searchRangeStart: 0,
+          //     userImageUrl: [],
+          //     userImagePath: [],
+          //     imageBackground: '',
+          //     userInterests: [],
+          //     searchRangeEnd: 0, ageInt: 0), isBack: false,)));
+        } else {
+          Navigator.pushReplacement(
+              context,
+              FadeRouteAnimation(
+                  EditImageProfileScreen(bacImage: modelUser.imageBackground)));
+        }
       });
     } else {
       setState(() {
@@ -281,45 +338,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   void readFirebase() async {
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      Map<String, dynamic> data =
-          documentSnapshot.data() as Map<String, dynamic>;
+    if (modelUser.uid == '') {
+      await FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        Map<String, dynamic> data =
+            documentSnapshot.data() as Map<String, dynamic>;
 
-      setState(() {
-        modelUser = UserModel(
-            name: data['name'],
-            uid: data['uid'],
-            age: data['myAge'],
-            userPol: data['myPol'],
-            searchPol: data['searchPol'],
-            searchRangeStart: data['rangeStart'],
-            userInterests: List<String>.from(data['listInterests']),
-            userImagePath: List<String>.from(data['listImagePath']),
-            userImageUrl: List<String>.from(data['listImageUri']),
-            searchRangeEnd: data['rangeEnd'],
-            myCity: data['myCity'], imageBackground: data['imageBackground']);
+        setState(() {
+          modelUser = UserModel(
+              name: data['name'],
+              uid: data['uid'],
+              ageTime: data['ageTime'],
+              userPol: data['myPol'],
+              searchPol: data['searchPol'],
+              searchRangeStart: data['rangeStart'],
+              userInterests: List<String>.from(data['listInterests']),
+              userImagePath: List<String>.from(data['listImagePath']),
+              userImageUrl: List<String>.from(data['listImageUri']),
+              searchRangeEnd: data['rangeEnd'],
+              myCity: data['myCity'],
+              imageBackground: data['imageBackground'],
+              ageInt: data['ageInt']);
+        });
       });
-    });
+    }
 
     setState(() {
       _nameController.text = modelUser.name;
       _ageRangController.text =
           'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
-      _ageController.text =
-          (DateTime.now().year - getDataTimeDate(modelUser.age).year)
-              .toString();
+      _ageController.text = modelUser.ageInt.toString();
       _valuesAge =
           SfRangeValues(modelUser.searchRangeStart, modelUser.searchRangeEnd);
       _dropDownUserPol = modelUser.userPol;
       _dropDownLocal = modelUser.myCity;
-      _dropDownSearchPol = modelUser.searchPol;
+
+      _dropDownSearchPol = modelUser.searchPol == 'Муской' ? 'С парнем' : 'С девушкой';
+
       isLoading = true;
       _selectedInterests = modelUser.userInterests;
-      _dateTimeBirthday = getDataTimeDate(modelUser.age);
+      _dateTimeBirthday = getDataTimeDate(modelUser.ageTime);
     });
   }
 
@@ -335,6 +396,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return Scaffold(
         backgroundColor: color_data_input,
         body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Container(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: Column(
@@ -646,7 +708,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Вы ищите',
+                        'С вы хотите познакомиться',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -667,7 +729,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           hint: _dropDownSearchPol == ''
                               ? const Text(
-                                  'Вы ищите',
+                                  ' ',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -681,7 +743,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           isExpanded: true,
                           iconSize: 30.0,
                           style: const TextStyle(color: Colors.blue),
-                          items: ['Мужчину', 'Девушку'].map(
+                          items: ['С парнем', 'С девушкой'].map(
                             (val) {
                               return DropdownMenuItem<String>(
                                 value: val,

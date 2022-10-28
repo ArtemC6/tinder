@@ -85,6 +85,21 @@ final List<String> interestsList = [
   "Instagram",
 ];
 
+const List months = [
+  'Января',
+  'Февроля',
+  'Марта',
+  'Апреля',
+  'Мая',
+  'Июня',
+  'Июля',
+  'Августа',
+  'Сентября',
+  'Октябтя',
+  'Ноября',
+  'Декобря'
+];
+
 List<StoryModel> listStoryMain = [
   StoryModel(
       name: 'Кулинария',
@@ -166,3 +181,10 @@ DateTime getDataTimeDate(Timestamp startDate) {
   DateTime dateTimeStart = startDate.toDate();
   return dateTimeStart;
 }
+
+List<IconData> listOfIcons = [
+  Icons.home_rounded,
+  Icons.favorite_rounded,
+  Icons.messenger_outline,
+  Icons.person_rounded,
+];

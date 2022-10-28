@@ -8,8 +8,8 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../data/model/user_model.dart';
 import '../data/widget/component_widget.dart';
-import '../home_manager.dart';
 import '../settings/edit_profile_screen.dart';
 
 class DataInputUser extends StatefulWidget {
@@ -76,10 +76,11 @@ class _DataInputUserState extends State<DataInputUser>
           'myPol': myPol,
           'imageBackground': '',
           'myCity': myLocation,
-          'searchPol': searchPol == 'С парнем' ? 'Парня' : 'Девушку',
+          'searchPol': searchPol == 'C парнем' ? 'Мужской' : 'Женский',
           'rangeStart': _valuesAge.start,
           'rangeEnd': _valuesAge.end,
-          'myAge': _dateTimeBirthday,
+          'ageTime': _dateTimeBirthday,
+          'ageInt': DateTime.now().year - _dateTimeBirthday.year,
           'listInterests': _selectedInterests,
           'listImagePath': [],
           'listImageUri': [],
@@ -92,6 +93,19 @@ class _DataInputUserState extends State<DataInputUser>
           Navigator.of(context).pushReplacement(MaterialPageRoute(
               builder: (context) => EditProfileScreen(
                     isFirst: false,
+                    userModel: UserModel(
+                        name: '',
+                        uid: '',
+                        myCity: '',
+                        ageTime: Timestamp.now(),
+                        userPol: '',
+                        searchPol: '',
+                        searchRangeStart: 0,
+                        userImageUrl: [],
+                        userImagePath: [],
+                        imageBackground: '',
+                        userInterests: [],
+                        searchRangeEnd: 0, ageInt: 0),
                   )));
         });
       } else {
@@ -126,7 +140,7 @@ class _DataInputUserState extends State<DataInputUser>
               ),
         content: Card(
           shadowColor: Colors.white30,
-          color: color_data_input,
+          color: color_auth,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: const BorderSide(
@@ -216,7 +230,7 @@ class _DataInputUserState extends State<DataInputUser>
               ),
         content: Card(
           shadowColor: Colors.white30,
-          color: color_data_input,
+          color: color_auth,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: const BorderSide(
@@ -379,7 +393,7 @@ class _DataInputUserState extends State<DataInputUser>
               ),
         content: Card(
           shadowColor: Colors.white30,
-          color: color_data_input,
+          color: color_auth,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
               side: const BorderSide(
@@ -512,7 +526,7 @@ class _DataInputUserState extends State<DataInputUser>
               ),
         content: Card(
           shadowColor: Colors.white30,
-          color: color_data_input,
+          color: color_auth,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(3),
               side: const BorderSide(
@@ -577,8 +591,8 @@ class _DataInputUserState extends State<DataInputUser>
           child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+              begin: Alignment.topCenter, end: Alignment.bottomCenter,
+              // colors: <Color>[color_auth, Colors.deepPurple]),
               colors: <Color>[color_auth, color_data_input]),
         ),
         child: Column(

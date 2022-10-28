@@ -7,8 +7,9 @@ class UserModel {
   String searchPol;
   String myCity;
   String imageBackground;
-  Timestamp age;
+  Timestamp ageTime;
 
+  num ageInt;
   num searchRangeStart;
   num searchRangeEnd;
   List<String> userInterests;
@@ -19,7 +20,8 @@ class UserModel {
       {required this.name,
       required this.uid,
       required this.myCity,
-      required this.age,
+      required this.ageInt,
+      required this.ageTime,
       required this.userPol,
       required this.searchPol,
       required this.searchRangeStart,
