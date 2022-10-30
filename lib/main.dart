@@ -63,7 +63,7 @@ class Manager extends StatefulWidget {
 }
 
 class _Manager extends State<Manager> {
-  bool isEmpty = false, isEmptyData = false, isEmptyImageBck = false;
+  bool isEmptyImageBackground = false, isEmptyData = false;
 
   @override
   void initState() {
@@ -76,22 +76,39 @@ class _Manager extends State<Manager> {
           .get()
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
-          if (documentSnapshot['myPol'] != null) {
+          if (documentSnapshot['myPol'] != '' &&
+              documentSnapshot['myCity'] != '' &&
+              documentSnapshot['searchPol'] != '' &&
+              documentSnapshot['rangeStart'] != '' &&
+              documentSnapshot['rangeEnd'] != '' &&
+              documentSnapshot['ageTime'] != '' &&
+              documentSnapshot['ageInt'] != '' &&
+              documentSnapshot['listInterests'] != '' &&
+              List<String>.from(documentSnapshot['listImageUri']).isNotEmpty &&
+              List<String>.from(documentSnapshot['listImageUri']).isNotEmpty) {
             setState(() {
-              isEmpty = true;
-            });
-          }
-
-          if (List<String>.from(documentSnapshot['listImageUri']).isNotEmpty) {
-            setState(() {
+              if (documentSnapshot['imageBackground'] != '') {
+                isEmptyImageBackground = true;
+              }
               isEmptyData = true;
             });
           }
-          if (documentSnapshot['imageBackground'] != '') {
-            setState(() {
-              isEmptyImageBck = true;
-            });
-          }
+          // if (documentSnapshot['myPol'] != null) {
+          //   setState(() {
+          //     isEmpty = true;
+          //   });
+          // }
+          //
+          // if (List<String>.from(documentSnapshot['listImageUri']).isNotEmpty) {
+          //   setState(() {
+          //     isEmptyData = true;
+          //   });
+          // }
+          // if (documentSnapshot['imageBackground'] != '') {
+          //   setState(() {
+          //     isEmptyImageBck = true;
+          //   });
+          // }
         }
       });
     }
@@ -111,37 +128,71 @@ class _Manager extends State<Manager> {
               ),
             );
           } else if (snapshot.hasData) {
-            if (isEmpty) {
-              if (isEmptyData) {
-                if (isEmptyImageBck) {
-                  return HomeMain(currentIndex: 0,);
-                } else {
-                  return EditImageProfileScreen(
-                    bacImage: '',
-                  );
-                }
+            if (isEmptyData) {
+              if (isEmptyImageBackground) {
+                return HomeMain(
+                  currentIndex: 0,
+                );
               } else {
-                return EditProfileScreen(
-                  isFirst: true,
-                  userModel: UserModel(
-                      name: '',
-                      uid: '',
-                      myCity: '',
-                      ageTime: Timestamp.now(),
-                      ageInt: 0,
-                      userPol: '',
-                      searchPol: '',
-                      searchRangeStart: 0,
-                      userImageUrl: [],
-                      userImagePath: [],
-                      imageBackground: '',
-                      userInterests: [],
-                      searchRangeEnd: 0),
+                return EditImageProfileScreen(
+                  bacImage: '',
                 );
               }
             } else {
-              return const DataInputUser();
+              return EditProfileScreen(
+                isFirst: true,
+                userModel: UserModel(
+                    name: '',
+                    uid: '',
+                    myCity: '',
+                    ageTime: Timestamp.now(),
+                    ageInt: 0,
+                    userPol: '',
+                    searchPol: '',
+                    searchRangeStart: 0,
+                    userImageUrl: [],
+                    userImagePath: [],
+                    imageBackground: '',
+                    userInterests: [],
+                    searchRangeEnd: 0),
+              );
             }
+            //   if (isEmpty) {
+            //
+            //     if (isEmptyData) {
+            //       if (isEmptyImageBck) {
+            //         return HomeMain(
+            //           currentIndex: 0,
+            //         );
+            //       } else {
+            //         return EditImageProfileScreen(
+            //           bacImage: '',
+            //         );
+            //       }
+            //     } else {
+            //       return EditProfileScreen(
+            //         isFirst: true,
+            //         userModel: UserModel(
+            //             name: '',
+            //             uid: '',
+            //             myCity: '',
+            //             ageTime: Timestamp.now(),
+            //             ageInt: 0,
+            //             userPol: '',
+            //             searchPol: '',
+            //             searchRangeStart: 0,
+            //             userImageUrl: [],
+            //             userImagePath: [],
+            //             imageBackground: '',
+            //             userInterests: [],
+            //             searchRangeEnd: 0),
+            //       );
+            //     }
+            //   } else {
+            //     return const DataInputUser();
+            //   }
+            // } else {
+            //   return const SignInScreen();
           } else {
             return const SignInScreen();
           }

@@ -11,11 +11,12 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
-import '../../profile_screen.dart';
-import '../../settings/edit_profile_screen.dart';
-import '../const.dart';
-import '../model/story_model.dart';
-import '../model/user_model.dart';
+
+import '../data/const.dart';
+import '../data/model/story_model.dart';
+import '../data/model/user_model.dart';
+import '../profile_screen.dart';
+import '../settings/edit_profile_screen.dart';
 
 class slideStory extends StatelessWidget {
   List<StoryModel> listStory = [];
@@ -773,7 +774,7 @@ class photoProfileSettings extends StatelessWidget {
                                       ),
                                     ),
                                   if (userModel.userImageUrl.length <= index &&
-                                      userModel.userImageUrl.length >= 1)
+                                      userModel.userImageUrl.isNotEmpty)
                                     InkWell(
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,

@@ -23,13 +23,13 @@ import '../data/const.dart';
 import '../data/firebase_auth.dart';
 import '../data/model/user_model.dart';
 import '../home_manager.dart';
-import '../profile_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   bool isFirst;
   UserModel userModel;
 
-  EditProfileScreen({required this.isFirst, required this.userModel});
+  EditProfileScreen(
+      {super.key, required this.isFirst, required this.userModel});
 
   @override
   State<EditProfileScreen> createState() =>
@@ -368,15 +368,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     setState(() {
       _nameController.text = modelUser.name;
-      _ageRangController.text =
-          'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
-      _ageController.text = modelUser.ageInt.toString();
-      _valuesAge =
-          SfRangeValues(modelUser.searchRangeStart, modelUser.searchRangeEnd);
+
+      _ageRangController.text = modelUser.searchRangeStart == 0
+          ? ' '
+          : 'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
+
+      _ageController.text =
+          modelUser.ageInt == 0 ? ' ' : modelUser.ageInt.toString();
+      // _valuesAge =
+      //     SfRangeValues(modelUser.searchRangeStart, modelUser.searchRangeEnd);
+
+      _valuesAge = const SfRangeValues(16, 50);
+
       _dropDownUserPol = modelUser.userPol;
       _dropDownLocal = modelUser.myCity;
-
-      _dropDownSearchPol = modelUser.searchPol == 'Муской' ? 'С парнем' : 'С девушкой';
+      if (modelUser.searchPol == '') {
+        _dropDownSearchPol = modelUser.searchPol;
+      } else {
+        _dropDownSearchPol =
+            modelUser.searchPol == 'Мужской' ? 'С парнем' : 'С девушкой';
+      }
 
       isLoading = true;
       _selectedInterests = modelUser.userInterests;
@@ -396,7 +407,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return Scaffold(
         backgroundColor: color_data_input,
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Container(
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: Column(
@@ -426,7 +437,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 .read<FirebaseAuthMethods>()
                                 .signOut(context);
 
-                            await Navigator.push(context,
+                            await Navigator.pushReplacement(context,
                                 FadeRouteAnimation(const SignInScreen()));
                           },
                           child: Image.asset(
@@ -669,7 +680,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           hint: _dropDownUserPol == ''
                               ? const Text(
-                                  'Ваш пол ',
+                                  '',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

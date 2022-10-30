@@ -32,7 +32,17 @@ class FirebaseAuthMethods {
           'uid': FirebaseAuth.instance.currentUser!.uid,
           'name': name,
           'email': email,
-          'password': password,
+          'myPol': '',
+          'imageBackground': '',
+          'myCity': '',
+          'searchPol': '',
+          'rangeStart': 0,
+          'rangeEnd': 0,
+          'ageTime': DateTime.now(),
+          'ageInt': 0,
+          'listInterests': [],
+          'listImagePath': [],
+          'listImageUri': [],
         };
         docUser.set(json);
 

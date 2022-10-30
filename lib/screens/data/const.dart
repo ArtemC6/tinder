@@ -6,6 +6,7 @@ import 'model/story_model.dart';
 
 const color_auth = Color(0xff192028);
 const color_data_input = Color(0xff212428);
+// const color_data_input = Color(0xff3E3F5D);
 const black_86 = Color(0xFF2D2D2D);
 
 showAlertDialogLoad(BuildContext context) {

@@ -9,7 +9,7 @@ import 'package:tinder/screens/auth/signin_screen.dart';
 
 import '../data/const.dart';
 import '../data/firebase_auth.dart';
-import '../data/widget/component_widget.dart';
+import '../widget/component_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -332,14 +332,15 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               buttonComponent('Зарегистрироваться', 2, () {
-                                if(_name.length > 3) {
+                                if (_name.length > 3) {
                                   context
                                       .read<FirebaseAuthMethods>()
                                       .signUpWithEmail(
-                                      email: _email,
-                                      password: _password,
-                                      name: _name[0].toUpperCase() + _name.substring(1).toLowerCase(),
-                                      context: context);
+                                          email: _email,
+                                          password: _password,
+                                          name: _name[0].toUpperCase() +
+                                              _name.substring(1).toLowerCase(),
+                                          context: context);
                                 }
                               }),
                             ],
@@ -490,35 +491,6 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-//   Widget componentButton(
-//       String string, double width, VoidCallback voidCallback) {
-//     Size size = MediaQuery.of(context).size;
-//     return ClipRRect(
-//       borderRadius: BorderRadius.circular(15),
-//       child: BackdropFilter(
-//         filter: ImageFilter.blur(sigmaY: 15, sigmaX: 15),
-//         child: InkWell(
-//           highlightColor: Colors.transparent,
-//           splashColor: Colors.transparent,
-//           onTap: voidCallback,
-//           child: Container(
-//             height: size.width / 8,
-//             width: size.width / width,
-//             alignment: Alignment.center,
-//             decoration: BoxDecoration(
-//               color: Colors.white.withOpacity(.05),
-//               borderRadius: BorderRadius.circular(15),
-//             ),
-//             child: Text(
-//               string,
-//               style: TextStyle(color: Colors.white.withOpacity(.8)),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
 }
 
 class MyPainter extends CustomPainter {

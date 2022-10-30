@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/profile_screen.dart';
+import 'package:tinder/screens/that_user_screen.dart';
 
 import 'data/const.dart';
 import 'data/model/sympathy_model.dart';
@@ -31,8 +31,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
         .collection('Like')
         .get()
         .then((querySnapshot) {
-      querySnapshot.docs.forEach((result) {
-        Map<String, dynamic> data = result.data() as Map<String, dynamic>;
+      for (var result in querySnapshot.docs) {
+        Map<String, dynamic> data = result.data();
 
         setState(() {
           listSympathy.add(SympathyModel(
@@ -44,7 +44,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
               time: data['time'],
               id_doc: data['id_doc']));
         });
-      });
+      }
     });
     setState(() {
       isLoading = true;
@@ -52,12 +52,10 @@ class _SympathyScreenState extends State<SympathyScreen> {
   }
 
   Future<void> deleteSympathy(String id) async {
-    print(id);
     final docUser = FirebaseFirestore.instance
         .collection("Sympathy")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('Like');
-    // .doc(id).delete();
     docUser.doc(id).delete().then((value) {
       Navigator.pushReplacement(
           context,
@@ -65,15 +63,6 @@ class _SympathyScreenState extends State<SympathyScreen> {
             HomeMain(currentIndex: 1),
           ));
     });
-    // docUser.set({
-    //   'idDoc': docUser.id,
-    //   'uid': userModelCurrent.uid,
-    //   'time': DateTime.now(),
-    //   'image_uri': userModelCurrent.userImageUrl[0],
-    //   'name': userModelCurrent.name,
-    //   'age': userModelCurrent.ageInt,
-    //   'city': userModelCurrent.myCity
-    // });
   }
 
   @override
@@ -85,38 +74,24 @@ class _SympathyScreenState extends State<SympathyScreen> {
   @override
   Widget build(BuildContext context) {
     Widget cardSympathy(SympathyModel sympathyModel) {
-      double _width = MediaQuery.of(context).size.width;
+      double width = MediaQuery.of(context).size.width;
       return Container(
-        height: _width / 2.3,
-        width: _width,
+        height: width / 2.3,
+        width: width,
         padding: EdgeInsets.only(
-            left: _width / 20, top: 0, right: _width / 20, bottom: _width / 20),
+            left: width / 20, top: 0, right: width / 20, bottom: width / 20),
         child: Card(
-          shadowColor: Colors.white30,
-          color: Colors.blueAccent,
+          color: color_data_input,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
               side: const BorderSide(
                 width: 0.8,
-                color: Colors.white54,
+                color: Colors.white10,
               )),
-          elevation: 10,
+          elevation: 14,
           child: Container(
             decoration: BoxDecoration(
-              // color:                   Colors.white.withOpacity(.0),
-
               borderRadius: BorderRadius.circular(30),
-              gradient: LinearGradient(
-                colors: [
-                  // color_data_input,
-                  // color_auth,
-                  //
-                  Colors.purpleAccent,
-                  Colors.blueAccent,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
             ),
             child: InkWell(
               highlightColor: Colors.transparent,
@@ -144,7 +119,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                     )));
               },
               child: Padding(
-                padding: EdgeInsets.all(_width / 50),
+                padding: EdgeInsets.all(width / 50),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -157,7 +132,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                             width: 0.8,
                             color: Colors.white30,
                           )),
-                      elevation: 4,
+                      elevation: 10,
                       child: CachedNetworkImage(
                         progressIndicatorBuilder: (context, url, progress) =>
                             Center(
@@ -187,9 +162,9 @@ class _SympathyScreenState extends State<SympathyScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: _width / 40),
+                    SizedBox(width: width / 40),
                     SizedBox(
-                      width: _width / 2.05,
+                      width: width / 2.05,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +182,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                       style: GoogleFonts.lato(
                                         textStyle: TextStyle(
                                             color: Colors.white,
-                                            fontSize: _width / 30,
+                                            fontSize: width / 30,
                                             letterSpacing: .5),
                                       ),
                                     ),
@@ -218,7 +193,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                       style: GoogleFonts.lato(
                                         textStyle: TextStyle(
                                             color: Colors.white.withOpacity(.8),
-                                            fontSize: _width / 40,
+                                            fontSize: width / 40,
                                             letterSpacing: .5),
                                       ),
                                     ),
@@ -238,7 +213,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                           textStyle: TextStyle(
                                               color:
                                                   Colors.white.withOpacity(.8),
-                                              fontSize: _width / 40,
+                                              fontSize: width / 40,
                                               letterSpacing: .5),
                                         ),
                                       ),
@@ -270,12 +245,12 @@ class _SympathyScreenState extends State<SympathyScreen> {
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     FadeRouteAnimation(EditProfileScreen(
-                                  //       isFirst: false,
-                                  //       userModel: userModel,
-                                  //     )));
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => ThatUserScreen(
+                                            friendId: sympathyModel.uid,
+                                            friendName: sympathyModel.name,
+                                            friendImage: sympathyModel.uri,
+                                          )));
                                 },
                                 style: ElevatedButton.styleFrom(
                                   shadowColor: Colors.transparent,
@@ -312,27 +287,50 @@ class _SympathyScreenState extends State<SympathyScreen> {
     if (isLoading) {
       return Scaffold(
           backgroundColor: color_data_input,
-          body: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: AnimationLimiter(
-              child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  itemCount: listSympathy.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return AnimationConfiguration.staggeredList(
-                        position: index,
-                        delay: const Duration(milliseconds: 600),
-                        child: SlideAnimation(
-                            duration: const Duration(milliseconds: 2200),
-                            verticalOffset: 200,
-                            curve: Curves.ease,
-                            child: FadeInAnimation(
-                                curve: Curves.easeOut,
-                                duration: const Duration(milliseconds: 2500),
-                                child: cardSympathy(listSympathy[index]))));
-                  }),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 10),
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Симпатии',
+                      style: GoogleFonts.lato(
+                        textStyle: TextStyle(
+                            color: Colors.white.withOpacity(.8),
+                            fontSize: 20,
+                            letterSpacing: .5),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        itemCount: listSympathy.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return AnimationConfiguration.staggeredList(
+                              position: index,
+                              delay: const Duration(milliseconds: 600),
+                              child: SlideAnimation(
+                                  duration: const Duration(milliseconds: 2200),
+                                  verticalOffset: 200,
+                                  curve: Curves.ease,
+                                  child: FadeInAnimation(
+                                      curve: Curves.easeOut,
+                                      duration:
+                                          const Duration(milliseconds: 2500),
+                                      child:
+                                          cardSympathy(listSympathy[index]))));
+                        }),
+                  ),
+                ),
+              ],
             ),
           ));
     }

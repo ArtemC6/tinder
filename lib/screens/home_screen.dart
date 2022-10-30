@@ -45,6 +45,9 @@ class _HomeScreen extends State<HomeScreen>
   }
 
   void readFirebase() async {
+
+    // QuerySnapshot snapshot = DatabaseService
+
     await FirebaseFirestore.instance
         .collection('User')
         .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)

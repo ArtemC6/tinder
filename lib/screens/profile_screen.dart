@@ -8,20 +8,23 @@ import 'package:like_button/like_button.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
 import 'package:tinder/screens/settings/settiongs_profile_screen.dart';
+import 'package:tinder/screens/that_user_screen.dart';
+import 'package:tinder/screens/widget/component_widget.dart';
 import 'data/const.dart';
 import 'data/model/story_model.dart';
 import 'data/model/user_model.dart';
-import 'data/widget/component_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   UserModel userModel;
   bool isBack;
   String idUser;
 
-  ProfileScreen({required this.userModel, required this.isBack, required this.idUser});
+  ProfileScreen(
+      {required this.userModel, required this.isBack, required this.idUser});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreen(userModel, isBack, idUser);
+  State<ProfileScreen> createState() =>
+      _ProfileScreen(userModel, isBack, idUser);
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
@@ -66,7 +69,7 @@ class _ProfileScreen extends State<ProfileScreen> {
   }
 
   void readFirebase() async {
-    if (userModel.uid == ''  && idUser == '') {
+    if (userModel.uid == '' && idUser == '') {
       await FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -94,14 +97,14 @@ class _ProfileScreen extends State<ProfileScreen> {
       });
     }
 
-    if (userModel.uid == ''  && idUser != '') {
+    if (userModel.uid == '' && idUser != '') {
       await FirebaseFirestore.instance
           .collection('User')
           .doc(idUser)
           .get()
           .then((DocumentSnapshot documentSnapshot) {
         Map<String, dynamic> data =
-        documentSnapshot.data() as Map<String, dynamic>;
+            documentSnapshot.data() as Map<String, dynamic>;
 
         setState(() {
           userModel = UserModel(
@@ -366,12 +369,22 @@ class _ProfileScreen extends State<ProfileScreen> {
                             ),
                             child: ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    FadeRouteAnimation(EditProfileScreen(
-                                      isFirst: false,
-                                      userModel: userModel,
-                                    )));
+                                if (isProprietor) {
+                                  Navigator.push(
+                                      context,
+                                      FadeRouteAnimation(EditProfileScreen(
+                                        isFirst: false,
+                                        userModel: userModel,
+                                      )));
+                                } else {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => ThatUserScreen(
+                                            friendId: userModel.uid,
+                                            friendName: userModel.name,
+                                            friendImage:
+                                                userModel.userImageUrl[0],
+                                          )));
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 shadowColor: Colors.transparent,

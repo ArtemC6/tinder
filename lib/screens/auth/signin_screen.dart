@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:ui';
 import '../data/const.dart';
 import '../data/firebase_auth.dart';
-import '../data/widget/component_widget.dart';
+import '../widget/component_widget.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);

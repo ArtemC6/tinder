@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:tinder/screens/data/widget/component_widget.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
 import '../data/const.dart';
 import '../data/model/story_model.dart';
 import '../data/model/user_model.dart';
 import '../profile_screen.dart';
+import '../widget/component_widget.dart';
 import 'edit_image_profile_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
