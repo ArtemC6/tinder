@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
@@ -11,20 +12,23 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
+import 'package:tinder/config/firestore_operations.dart';
 
-import '../data/const.dart';
-import '../data/model/story_model.dart';
-import '../data/model/user_model.dart';
+import '../../config/const.dart';
+import '../../model/interests_model.dart';
+import '../../model/user_model.dart';
 import '../profile_screen.dart';
 import '../settings/edit_profile_screen.dart';
+import '../that_user_screen.dart';
 
-class slideStory extends StatelessWidget {
-  List<StoryModel> listStory = [];
+class slideInterests extends StatelessWidget {
+  List<InterestsModel> listStory = [];
 
-  slideStory(this.listStory, {super.key});
+  slideInterests(this.listStory, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Column(
       children: [
         Container(
@@ -43,7 +47,7 @@ class slideStory extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 100,
+          height: size.height * .13,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -79,8 +83,8 @@ class slideStory extends StatelessWidget {
                                         borderRadius:
                                             BorderRadius.circular(100),
                                         side: const BorderSide(
-                                          width: 0.8,
-                                          color: Colors.white54,
+                                          width: 0.5,
+                                          color: Colors.white30,
                                         )),
                                     elevation: 4,
                                     child: ClipRRect(
@@ -89,8 +93,8 @@ class slideStory extends StatelessWidget {
                                         imageBuilder:
                                             (context, imageProvider) =>
                                                 Container(
-                                          height: 70,
-                                          width: 70,
+                                          height: 68,
+                                          width: 68,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 const BorderRadius.all(
@@ -104,8 +108,8 @@ class slideStory extends StatelessWidget {
                                         progressIndicatorBuilder:
                                             (context, url, progress) => Center(
                                           child: SizedBox(
-                                            height: 70,
-                                            width: 70,
+                                            height: 68,
+                                            width: 68,
                                             child: CircularProgressIndicator(
                                               color: Colors.white,
                                               strokeWidth: 1,
@@ -152,39 +156,15 @@ class slideStory extends StatelessWidget {
   }
 }
 
-class slideStorySettings extends StatelessWidget {
-  List<StoryModel> listStory = [];
+class slideInterestsSettings extends StatelessWidget {
+  List<InterestsModel> listStory = [];
 
   late UserModel userModel;
 
-  slideStorySettings(this.listStory, this.userModel, {super.key});
+  slideInterestsSettings(this.listStory, this.userModel, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    // listInterests.clear();
-    // Future<void> _imageRemove(int index) async {
-    //   print(index);
-    //   print(listStory.length);
-    //   listStory.removeAt(index);
-    //
-    //   listStory.removeAt(index);
-    //
-    //   listStory.forEach((element) {
-    //     listInterests.add(element.name);
-    //   });
-    //
-    //   final docUser = FirebaseFirestore.instance
-    //       .collection('User')
-    //       .doc(FirebaseAuth.instance.currentUser?.uid);
-    //
-    //   final json = {'listInterests': listInterests};
-    //
-    //   docUser.update(json).then((value) {
-    //     Navigator.pushReplacement(
-    //         context, FadeRouteAnimation(const ProfileSettingScreen()));
-    //   });
-    // }
-
     return Column(
       children: [
         Container(
@@ -270,8 +250,8 @@ class slideStorySettings extends StatelessWidget {
                                                 (context, url, progress) =>
                                                     Center(
                                               child: SizedBox(
-                                                height: 70,
-                                                width: 70,
+                                                height: 68,
+                                                width: 68,
                                                 child:
                                                     CircularProgressIndicator(
                                                   color: Colors.white,
@@ -332,7 +312,7 @@ class slideStorySettings extends StatelessWidget {
                                           ),
                                         ),
                                       if (listStory.length <= index &&
-                                          listStory.length >= 1)
+                                          listStory.isNotEmpty)
                                         InkWell(
                                           splashColor: Colors.transparent,
                                           highlightColor: Colors.transparent,
@@ -396,6 +376,7 @@ class photoProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Column(
       children: [
         Container(
@@ -440,8 +421,8 @@ class photoProfile extends StatelessWidget {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   side: const BorderSide(
-                                    width: 0.8,
-                                    color: Colors.white38,
+                                    width: 0.6,
+                                    color: Colors.white30,
                                   )),
                               elevation: 6,
                               child: CachedNetworkImage(
@@ -495,71 +476,8 @@ class photoProfileSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _uploadImage() async {
-      final picker = ImagePicker();
-      XFile? pickedImage;
-      try {
-        pickedImage = await picker.pickImage(
-            source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+    var size = MediaQuery.of(context).size;
 
-        final String fileName = path.basename(pickedImage!.path);
-        File imageFile = File(pickedImage.path);
-
-        try {
-          var task = storage.ref(fileName).putFile(imageFile);
-
-          if (task == null) return;
-
-          final snapshot = await task.whenComplete(() {});
-          final urlDownload = await snapshot.ref.getDownloadURL();
-
-          await storage.ref(userModel.userImagePath[0]).delete();
-
-          userModel.userImageUrl.removeAt(0);
-          userModel.userImagePath.removeAt(0);
-
-          listImagePath.add(fileName);
-          listImageUri.add(urlDownload);
-
-          listImagePath.addAll(userModel.userImagePath);
-          listImageUri.addAll(userModel.userImageUrl);
-
-          final docUser = FirebaseFirestore.instance
-              .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid);
-
-          final json = {
-            'listImageUri': listImageUri,
-            'listImagePath': listImagePath
-          };
-
-          docUser.update(json).then((value) {
-            Navigator.pushReplacement(
-                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
-                name: '',
-                uid: '',
-                myCity: '',
-                ageTime: Timestamp.now(),
-                userPol: '',
-                searchPol: '',
-                searchRangeStart: 0,
-                userImageUrl: [],
-                userImagePath: [],
-                imageBackground: '',
-                userInterests: [],
-                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
-          });
-        } on FirebaseException catch (error) {
-          if (kDebugMode) {
-            print(error);
-          }
-        }
-      } catch (err) {
-        if (kDebugMode) {
-          print(err);
-        }
-      }
-    }
 
     Future<void> _uploadImageAdd() async {
       final picker = ImagePicker();
@@ -593,19 +511,25 @@ class photoProfileSettings extends StatelessWidget {
 
           docUser.update(json).then((value) {
             Navigator.pushReplacement(
-                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
-                name: '',
-                uid: '',
-                myCity: '',
-                ageTime: Timestamp.now(),
-                userPol: '',
-                searchPol: '',
-                searchRangeStart: 0,
-                userImageUrl: [],
-                userImagePath: [],
-                imageBackground: '',
-                userInterests: [],
-                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
+                context,
+                FadeRouteAnimation(ProfileScreen(
+                  userModel: UserModel(
+                      name: '',
+                      uid: '',
+                      myCity: '',
+                      ageTime: Timestamp.now(),
+                      userPol: '',
+                      searchPol: '',
+                      searchRangeStart: 0,
+                      userImageUrl: [],
+                      userImagePath: [],
+                      imageBackground: '',
+                      userInterests: [],
+                      searchRangeEnd: 0,
+                      ageInt: 0),
+                  isBack: false,
+                  idUser: '',
+                )));
           });
         } on FirebaseException catch (error) {
           if (kDebugMode) {
@@ -637,19 +561,25 @@ class photoProfileSettings extends StatelessWidget {
 
           docUser.update(json).then((value) {
             Navigator.pushReplacement(
-                context, FadeRouteAnimation(ProfileScreen(userModel: UserModel(
-                name: '',
-                uid: '',
-                myCity: '',
-                ageTime: Timestamp.now(),
-                userPol: '',
-                searchPol: '',
-                searchRangeStart: 0,
-                userImageUrl: [],
-                userImagePath: [],
-                imageBackground: '',
-                userInterests: [],
-                searchRangeEnd: 0, ageInt: 0), isBack: false, idUser: '',)));
+                context,
+                FadeRouteAnimation(ProfileScreen(
+                  userModel: UserModel(
+                      name: '',
+                      uid: '',
+                      myCity: '',
+                      ageTime: Timestamp.now(),
+                      userPol: '',
+                      searchPol: '',
+                      searchRangeStart: 0,
+                      userImageUrl: [],
+                      userImagePath: [],
+                      imageBackground: '',
+                      userInterests: [],
+                      searchRangeEnd: 0,
+                      ageInt: 0),
+                  isBack: false,
+                  idUser: '',
+                )));
           });
         } on FirebaseException catch (error) {
           if (kDebugMode) {
@@ -745,7 +675,7 @@ class photoProfileSettings extends StatelessWidget {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                        _uploadImage();
+                                      uploadImage(context, userModel, false);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(4),
@@ -806,12 +736,12 @@ class photoProfileSettings extends StatelessWidget {
   }
 }
 
-class buttonComponent extends StatelessWidget {
+class buttonAuth extends StatelessWidget {
   String name;
   double width;
   VoidCallback voidCallback;
 
-  buttonComponent(this.name, this.width, this.voidCallback, {super.key});
+  buttonAuth(this.name, this.width, this.voidCallback, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -830,11 +760,318 @@ class buttonComponent extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(.05),
+              border: Border.all(color: color_white10, width: 0.5),
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Text(
-              name,
-              style: TextStyle(color: Colors.white.withOpacity(.8)),
+            child: RichText(
+              text: TextSpan(
+                text: name,
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white.withOpacity(.8),
+                      fontSize: 12,
+                      letterSpacing: .5),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SlideFadeTransition extends StatefulWidget {
+  ///The child on which to apply the given [SlideFadeTransition]
+  final Widget child;
+
+  ///The offset by which to slide and [child] into view from [Direction].
+  ///Defaults to 1.0
+  final double offset;
+
+  ///The curve used to animate the [child] into view.
+  ///Defaults to [Curves.easeIn]
+  final Curve curve;
+
+  ///The direction from which to animate the [child] into view. [Direction.horizontal]
+  ///will make the child slide on x-axis by [offset] and [Direction.vertical] on y-axis.
+  ///Defaults to [Direction.vertical]
+  final Direction direction;
+
+  ///The delay with which to animate the [child]. Takes in a [Duration] and
+  /// defaults to 0.0 seconds
+  final Duration delayStart;
+
+  ///The total duration in which the animation completes. Defaults to 800 milliseconds
+  final Duration animationDuration;
+
+  SlideFadeTransition({
+    required this.child,
+    this.offset = 1.0,
+    this.curve = Curves.easeIn,
+    this.direction = Direction.vertical,
+    this.delayStart = const Duration(seconds: 0),
+    this.animationDuration = const Duration(milliseconds: 800),
+  });
+
+  @override
+  _SlideFadeTransitionState createState() => _SlideFadeTransitionState();
+}
+
+enum Direction { vertical, horizontal }
+
+class _SlideFadeTransitionState extends State<SlideFadeTransition>
+    with SingleTickerProviderStateMixin {
+  late Animation<Offset> _animationSlide;
+
+  late AnimationController _animationController;
+
+  late Animation<double> _animationFade;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: widget.animationDuration,
+    );
+
+    //configure the animation controller as per the direction
+    if (widget.direction == Direction.vertical) {
+      _animationSlide =
+          Tween<Offset>(begin: Offset(0, widget.offset), end: Offset(0, 0))
+              .animate(CurvedAnimation(
+        curve: widget.curve,
+        parent: _animationController,
+      ));
+    } else {
+      _animationSlide =
+          Tween<Offset>(begin: Offset(widget.offset, 0), end: Offset(0, 0))
+              .animate(CurvedAnimation(
+        curve: widget.curve,
+        parent: _animationController,
+      ));
+    }
+
+    _animationFade =
+        Tween<double>(begin: -1.0, end: 1.0).animate(CurvedAnimation(
+      curve: widget.curve,
+      parent: _animationController,
+    ));
+
+    Timer(widget.delayStart, () {
+      _animationController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _animationFade,
+      child: SlideTransition(
+        position: _animationSlide,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class infoPanelWidget extends StatelessWidget {
+  UserModel userModel;
+
+  infoPanelWidget({Key? key, required this.userModel}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 48),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SlideFadeTransition(
+                delayStart: const Duration(milliseconds: 50),
+                animationDuration: const Duration(milliseconds: 1000),
+                child: RichText(
+                  text: TextSpan(
+                    text: userModel.userImageUrl.length.toString(),
+                    style: GoogleFonts.lato(
+                      textStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14.5,
+                          letterSpacing: .5),
+                    ),
+                  ),
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  text: 'Фото',
+                  style: GoogleFonts.lato(
+                    textStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 11,
+                        letterSpacing: .1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 24,
+            child: VerticalDivider(
+              endIndent: 4,
+              color: Colors.white.withOpacity(0.7),
+              thickness: 1,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('Like')
+                    .where(userModel.uid, isEqualTo: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasData) {
+                    return SlideFadeTransition(
+                        delayStart: const Duration(milliseconds: 50),
+                        animationDuration: const Duration(milliseconds: 1000),
+                        child: RichText(
+                          text: TextSpan(
+                            text: snapshot.data!.size.toString().toString(),
+                            style: GoogleFonts.lato(
+                              textStyle: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14.5,
+                                  letterSpacing: .5),
+                            ),
+                          ),
+                        ));
+                  }
+                  return const SizedBox();
+                },
+              ),
+              RichText(
+                text: TextSpan(
+                  text: 'Лайки',
+                  style: GoogleFonts.lato(
+                    textStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 11,
+                        letterSpacing: .1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 24,
+            child: VerticalDivider(
+              endIndent: 4,
+              color: Colors.white.withOpacity(0.7),
+              thickness: 1,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SlideFadeTransition(
+                delayStart: const Duration(milliseconds: 50),
+                animationDuration: const Duration(milliseconds: 1300),
+                child: RichText(
+                  text: TextSpan(
+                    text: userModel.userInterests.length.toString(),
+                    style: GoogleFonts.lato(
+                      textStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14.5,
+                          letterSpacing: .5),
+                    ),
+                  ),
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  text: 'Интересы',
+                  style: GoogleFonts.lato(
+                    textStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 11,
+                        letterSpacing: .1),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class buttonProfile extends StatelessWidget {
+  UserModel userModel;
+  bool isProprietor;
+
+  buttonProfile({Key? key, required this.userModel, required this.isProprietor})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(right: 20),
+      height: 40,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(
+              width: 0.7, color: Colors.white30),
+          gradient: const LinearGradient(
+              colors: [Colors.blueAccent, Colors.purpleAccent]),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            if (isProprietor) {
+              Navigator.push(
+                  context,
+                  FadeRouteAnimation(EditProfileScreen(
+                    isFirst: false,
+                    userModel: userModel,
+                  )));
+            } else {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ThatUserScreen(
+                        friendId: userModel.uid,
+                        friendName: userModel.name,
+                        friendImage: userModel.userImageUrl[0],
+                      )));
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            shadowColor: Colors.transparent,
+            backgroundColor: Colors.transparent,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          ),
+          child: RichText(
+            text: TextSpan(
+              text: isProprietor ? 'Редактировать' : 'Написать',
+              style: GoogleFonts.lato(
+                textStyle: const TextStyle(
+                    color: Colors.white, fontSize: 11, letterSpacing: .1),
+              ),
             ),
           ),
         ),

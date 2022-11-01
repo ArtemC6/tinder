@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../data/const.dart';
+import '../../config/const.dart';
 
 class MessageTextField extends StatefulWidget {
   final String currentId;
@@ -79,7 +79,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () {
-                if (_controllerMessage.text.length >= 1) {
+                if (_controllerMessage.text.isNotEmpty) {
                   String message = _controllerMessage.text;
                   _controllerMessage.clear();
                   final docMessage = FirebaseFirestore.instance

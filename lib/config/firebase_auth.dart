@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
+import '../main.dart';
+import 'const.dart';
 
 class FirebaseAuthMethods {
   final FirebaseAuth _auth;
@@ -20,16 +21,16 @@ class FirebaseAuthMethods {
     required BuildContext context,
   }) async {
     try {
+      showAlertDialogLoading(context);
       await _auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .then((value) async {
-        // showAlertDialogLoad(context);
         final docUser = FirebaseFirestore.instance
             .collection('User')
-            .doc(FirebaseAuth.instance.currentUser!.uid);
+            .doc(FirebaseAuth.instance.currentUser?.uid);
 
         final json = {
-          'uid': FirebaseAuth.instance.currentUser!.uid,
+          'uid': FirebaseAuth.instance.currentUser?.uid,
           'name': name,
           'email': email,
           'myPol': '',
@@ -49,7 +50,7 @@ class FirebaseAuthMethods {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Manager()));
       }).onError((error, stackTrace) {
-        // Navigator.pop(context);
+        Navigator.pop(context);
       });
     } on FirebaseAuthException {}
   }
@@ -60,15 +61,14 @@ class FirebaseAuthMethods {
     required BuildContext context,
   }) async {
     try {
+      showAlertDialogLoading(context);
       await _auth
           .signInWithEmailAndPassword(email: email, password: password)
           .then((value) {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Manager()));
-      })
-          .onError((error, stackTrace) {
-        // showAlertDialogLoad(context);
-        // Navigator.pop(context);
+      }).onError((error, stackTrace) {
+        Navigator.pop(context);
       });
     } on FirebaseAuthException {}
   }

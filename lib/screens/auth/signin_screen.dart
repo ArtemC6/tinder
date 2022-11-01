@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:tinder/screens/auth/signup_screen.dart';
 import 'dart:async';
 import 'dart:ui';
-import '../data/const.dart';
-import '../data/firebase_auth.dart';
+import '../../config/const.dart';
+import '../../config/firebase_auth.dart';
 import '../widget/component_widget.dart';
+import '../widget/textField_widget.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -16,20 +17,14 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
-  late AnimationController controller1;
-  late AnimationController controller2;
-  late Animation<double> animation1;
-  late Animation<double> animation2;
-  late Animation<double> animation3;
-  late Animation<double> animation4;
-
-  String _email = "", _password = "";
-  bool _isHidden = true;
+  late AnimationController controller1, controller2;
+  late Animation<double> animation1, animation2, animation3, animation4;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
     controller1 = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -177,120 +172,19 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(
-                                sigmaY: 15,
-                                sigmaX: 15,
-                              ),
-                              child: Container(
-                                height: size.width / 8,
-                                width: size.width / 1.2,
-                                alignment: Alignment.center,
-                                padding:
-                                    EdgeInsets.only(right: size.width / 30),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(.05),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: TextField(
-                                  style: TextStyle(
-                                      color: Colors.white.withOpacity(.8)),
-                                  cursorColor: Colors.white,
-                                  // keyboardType:
-                                  // isEmail ? TextInputType.emailAddress : TextInputType.text,
-                                  decoration: InputDecoration(
-                                    prefixIcon: Icon(
-                                      Icons.email_outlined,
-                                      color: Colors.white.withOpacity(.7),
-                                    ),
-                                    border: InputBorder.none,
-                                    hintMaxLines: 1,
-                                    hintText: 'Email...',
-                                    hintStyle: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white.withOpacity(.5)),
-                                  ),
-
-                                  onChanged: (changed) {
-                                    setState(() {
-                                      _email = changed;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(
-                                sigmaY: 15,
-                                sigmaX: 15,
-                              ),
-                              child: Container(
-                                height: size.width / 8,
-                                width: size.width / 1.2,
-                                alignment: Alignment.center,
-                                padding:
-                                    EdgeInsets.only(right: size.width / 30),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(.05),
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: TextField(
-                                  style: TextStyle(
-                                      color: Colors.white.withOpacity(.8)),
-                                  cursorColor: Colors.white,
-                                  obscureText: _isHidden,
-                                  decoration: InputDecoration(
-                                    suffixIcon: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _isHidden = !_isHidden;
-                                        });
-                                      },
-                                      child: _isHidden
-                                          ? Icon(
-                                              Icons.remove_red_eye_sharp,
-                                              color:
-                                                  Colors.white.withOpacity(.5),
-                                            )
-                                          : const Icon(
-                                              Icons.remove_red_eye,
-                                              color: Colors.blueAccent,
-                                            ),
-                                    ),
-                                    prefixIcon: Icon(
-                                      Icons.lock_open_outlined,
-                                      color: Colors.white.withOpacity(.7),
-                                    ),
-                                    border: InputBorder.none,
-                                    hintMaxLines: 1,
-                                    hintText: 'Password...',
-                                    hintStyle: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white.withOpacity(.5)),
-                                  ),
-                                  onChanged: (changed) {
-                                    setState(() {
-                                      _password = changed;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
+                          textFieldAuth('Email...', _emailController,
+                              Icons.email_outlined, size, false, 26),
+                          textFieldAuth('Password...', _passwordController,
+                              Icons.lock_open_outlined, size, true, 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              buttonComponent('Войти', 2.4, () {
+                              buttonAuth('Войти', 2.4, () {
                                 context
                                     .read<FirebaseAuthMethods>()
                                     .loginWithEmail(
-                                        email: _email,
-                                        password: _password,
+                                        email: _emailController.text,
+                                        password: _passwordController.text,
                                         context: context);
                               }),
                             ],
@@ -303,7 +197,7 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          buttonComponent('Зарегистрировать аккаунт', 1.8, () {
+                          buttonAuth('Зарегистрировать аккаунт', 1.8, () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => const SignUpScreen()));
                           }),
@@ -315,122 +209,6 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget componentTextField(IconData icon, String hintText, bool isPassword) {
-    Size size = MediaQuery.of(context).size;
-
-    if (isPassword) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaY: 15,
-            sigmaX: 15,
-          ),
-          child: Container(
-            height: size.width / 8,
-            width: size.width / 1.2,
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(right: size.width / 30),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.05),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: TextField(
-              style: TextStyle(color: Colors.white.withOpacity(.8)),
-              cursorColor: Colors.white,
-              obscureText: _isHidden,
-              decoration: InputDecoration(
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isHidden = !_isHidden;
-                    });
-                  },
-                  child: _isHidden
-                      ? Icon(
-                          Icons.remove_red_eye_sharp,
-                          color: Colors.white.withOpacity(.5),
-                        )
-                      : const Icon(
-                          Icons.remove_red_eye,
-                          color: Colors.blueAccent,
-                        ),
-                ),
-                prefixIcon: Icon(
-                  icon,
-                  color: Colors.white.withOpacity(.7),
-                ),
-                border: InputBorder.none,
-                hintMaxLines: 1,
-                hintText: hintText,
-                hintStyle: TextStyle(
-                    fontSize: 14, color: Colors.white.withOpacity(.5)),
-              ),
-              onChanged: (changed) {
-                setState(() {
-                  if (hintText == 'Email...') {
-                    _email = changed;
-                  }
-                  if (hintText == 'Password...') {
-                    _password = changed;
-                  }
-                });
-              },
-            ),
-          ),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaY: 15,
-          sigmaX: 15,
-        ),
-        child: Container(
-          height: size.width / 8,
-          width: size.width / 1.2,
-          alignment: Alignment.center,
-          padding: EdgeInsets.only(right: size.width / 30),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(.05),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: TextField(
-            style: TextStyle(color: Colors.white.withOpacity(.8)),
-            cursorColor: Colors.white,
-            // keyboardType:
-            // isEmail ? TextInputType.emailAddress : TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                icon,
-                color: Colors.white.withOpacity(.7),
-              ),
-              border: InputBorder.none,
-              hintMaxLines: 1,
-              hintText: hintText,
-              hintStyle:
-                  TextStyle(fontSize: 14, color: Colors.white.withOpacity(.5)),
-            ),
-
-            onChanged: (changed) {
-              setState(() {
-                if (hintText == 'Email...') {
-                  _email = changed;
-                }
-                if (hintText == 'Password...') {
-                  _password = changed;
-                }
-              });
-            },
           ),
         ),
       ),
@@ -465,7 +243,6 @@ class MyPainter extends CustomPainter {
 }
 
 class MyBehavior extends ScrollBehavior {
-  @override
   Widget buildViewportChrome(
       BuildContext context, Widget child, AxisDirection axisDirection) {
     return child;

@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import '../data/const.dart';
-import '../home_manager.dart';
+import '../../config/const.dart';
+import '../manager_screen.dart';
 
 class EditImageProfileScreen extends StatefulWidget {
   String bacImage;
@@ -27,14 +27,6 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   _EditImageProfileScreen(this.bacImage);
 
-  // SlideFadeTransition(
-  // delayStart: Duration(milliseconds: 800),
-  // child: Text(
-  // '0',
-  // style: Theme.of(context).textTheme.headline4,
-  // ),
-  // ),
-
   Future<void> _uploadImage(String uri) async {
     try {
       try {
@@ -50,27 +42,8 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
           Navigator.pushReplacement(
               context,
               FadeRouteAnimation(
-                HomeMain(currentIndex: 3),
+                ManagerScreen(currentIndex: 3),
               ));
-          // Navigator.pushReplacement(
-          //     context,
-          //     FadeRouteAnimation(ProfileScreen(
-          //       userModel: UserModel(
-          //           name: '',
-          //           uid: '',
-          //           myCity: '',
-          //           ageTime: Timestamp.now(),
-          //           userPol: '',
-          //           searchPol: '',
-          //           searchRangeStart: 0,
-          //           userImageUrl: [],
-          //           userImagePath: [],
-          //           imageBackground: '',
-          //           userInterests: [],
-          //           searchRangeEnd: 0,
-          //           ageInt: 0),
-          //       isBack: false,
-          //     )));
         });
 
         setState(() {});
@@ -97,10 +70,6 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
       });
     });
 
-    // if (bacImage == '') {
-    //   _uploadImage(listImageUri[0]);
-    // }
-
     setState(() {
       if (bacImage != '') {
         indexImage = listImageUri.indexWhere((element) => element == bacImage);
@@ -122,7 +91,6 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
         backgroundColor: color_data_input,
         body: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
-
           child: Column(
             children: [
               Container(
@@ -132,19 +100,19 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if(bacImage != '')
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            FadeRouteAnimation(
-                              HomeMain(currentIndex: 3),
-                            ));
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20),
-                      color: Colors.white,
-                    ),
+                    if (bacImage != '')
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              FadeRouteAnimation(
+                                ManagerScreen(currentIndex: 3),
+                              ));
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                            size: 20),
+                        color: Colors.white,
+                      ),
                     Container(
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.only(),
@@ -241,7 +209,8 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                         ),
                                       ),
                                     ),
-                                    if (indexImage == index && indexImage != 100)
+                                    if (indexImage == index &&
+                                        indexImage != 100)
                                       InkWell(
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,

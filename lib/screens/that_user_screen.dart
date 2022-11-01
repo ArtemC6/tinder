@@ -6,8 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/widget/message_tem.dart';
 import 'package:tinder/screens/widget/message_textfield.dart';
-import 'data/const.dart';
-import 'data/model/sympathy_model.dart';
+import '../config/const.dart';
+import '../model/sympathy_model.dart';
 
 class ThatUserScreen extends StatefulWidget {
   final String friendId;
@@ -16,7 +16,6 @@ class ThatUserScreen extends StatefulWidget {
 
   const ThatUserScreen({
     super.key,
-    // required this.currentUser,
     required this.friendId,
     required this.friendName,
     required this.friendImage,
@@ -32,8 +31,6 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
   final String friendName;
   final String friendImage;
   bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
-  String _selectedLocation = ''; // Option 2
-  final List<String> _locations = ['A', 'B', 'C', 'D']; // Option 2
   List<SympathyModel> listSympathy = [];
 
   _ThatUserScreenState(this.friendId, this.friendName, this.friendImage);
@@ -56,8 +53,11 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
         BuildContext context, AsyncSnapshot snapshot, int index) {
       // set up the buttons
       Widget cancelButton = TextButton(
+
         child: const Text("Отмена"),
         onPressed: () {
+          print(snapshot.data.docs[index]['idDoc']);
+
           Navigator.pop(context);
         },
       );
@@ -263,35 +263,6 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
                                           ),
                                         ],
                                       ),
-                                      Container(
-                                          alignment: Alignment.center,
-                                          width: 16,
-                                          height: 16,
-                                          child: IconButton(
-                                            color: Colors.white,
-                                            onPressed: () {
-                                              DropdownButton(
-                                                hint: const Text(
-                                                    'Please choose a location'),
-                                                // Not necessary for Option 1
-                                                value: _selectedLocation,
-                                                onChanged: (newValue) {
-                                                  setState(() {
-                                                    _selectedLocation =
-                                                        newValue!;
-                                                  });
-                                                },
-                                                items:
-                                                    _locations.map((location) {
-                                                  return DropdownMenuItem(
-                                                    value: location,
-                                                    child: Text(location),
-                                                  );
-                                                }).toList(),
-                                              );
-                                            },
-                                            icon: const Icon(Icons.more_vert),
-                                          )),
                                     ],
                                   ),
                                 ),
@@ -363,7 +334,7 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
                   )),
                   MessageTextField(
                       FirebaseAuth.instance.currentUser!.uid, friendId),
-                  SizedBox(
+                  const SizedBox(
                     width: .09,
                   )
                 ],

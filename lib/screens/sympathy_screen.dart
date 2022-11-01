@@ -8,27 +8,32 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
-import 'data/const.dart';
-import 'data/model/sympathy_model.dart';
-import 'data/model/user_model.dart';
-import 'home_manager.dart';
+import '../config/const.dart';
+import '../model/sympathy_model.dart';
+import '../model/user_model.dart';
+import 'manager_screen.dart';
 
 class SympathyScreen extends StatefulWidget {
-  const SympathyScreen({Key? key}) : super(key: key);
+  late UserModel userModelCurrent;
+
+  SympathyScreen({Key? key, required this.userModelCurrent}) : super(key: key);
 
   @override
-  State<SympathyScreen> createState() => _SympathyScreenState();
+  State<SympathyScreen> createState() => _SympathyScreenState(userModelCurrent);
 }
 
 class _SympathyScreenState extends State<SympathyScreen> {
   bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
   List<SympathyModel> listSympathy = [];
+  UserModel userModelCurrent;
+
+  _SympathyScreenState(this.userModelCurrent);
 
   void readFirebase() async {
     await FirebaseFirestore.instance
-        .collection('Sympathy')
+        .collection('User')
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('Like')
+        .collection('sympathy')
         .get()
         .then((querySnapshot) {
       for (var result in querySnapshot.docs) {
@@ -53,16 +58,53 @@ class _SympathyScreenState extends State<SympathyScreen> {
 
   Future<void> deleteSympathy(String id) async {
     final docUser = FirebaseFirestore.instance
-        .collection("Sympathy")
+        .collection("User")
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('Like');
+        .collection('sympathy');
     docUser.doc(id).delete().then((value) {
       Navigator.pushReplacement(
           context,
           FadeRouteAnimation(
-            HomeMain(currentIndex: 1),
+            ManagerScreen(currentIndex: 1),
           ));
     });
+  }
+
+  Future<void> createSympathy(UserModel userModel) async {
+    bool isEmptySympathy = false;
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(userModel.uid)
+        .collection('sympathy')
+        .get()
+        .then((querySnapshot) {
+      for (var result in querySnapshot.docs) {
+        Map<String, dynamic> data = result.data();
+
+        if (userModelCurrent.uid == data['uid']) {
+          setState(() {
+            isEmptySympathy = true;
+          });
+        }
+      }
+    });
+
+    if (!isEmptySympathy) {
+      final docUser = FirebaseFirestore.instance
+          .collection("User")
+          .doc(userModel.uid)
+          .collection('sympathy')
+          .doc();
+      docUser.set({
+        'id_doc': docUser.id,
+        'uid': userModelCurrent.uid,
+        'time': DateTime.now(),
+        'image_uri': userModelCurrent.userImageUrl[0],
+        'name': userModelCurrent.name,
+        'age': userModelCurrent.ageInt,
+        'city': userModelCurrent.myCity
+      });
+    }
   }
 
   @override
@@ -230,48 +272,97 @@ class _SympathyScreenState extends State<SympathyScreen> {
                               ),
                             ],
                           ),
-                          Container(
-                            alignment: Alignment.centerRight,
-                            // padding: const EdgeInsets.only(bottom: 20),
-                            height: 40,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(colors: [
-                                  Colors.blueAccent,
-                                  Colors.purpleAccent,
-                                  Colors.orangeAccent
-                                ]),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => ThatUserScreen(
-                                            friendId: sympathyModel.uid,
-                                            friendName: sympathyModel.name,
-                                            friendImage: sympathyModel.uri,
-                                          )));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  shadowColor: Colors.transparent,
-                                  backgroundColor: Colors.transparent,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20)),
-                                ),
-                                child: RichText(
-                                  text: TextSpan(
-                                    text: 'Написать',
-                                    style: GoogleFonts.lato(
-                                      textStyle: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          letterSpacing: .1),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                alignment: Alignment.centerRight,
+                                // padding: const EdgeInsets.only(bottom: 20),
+                                height: 40,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(colors: [
+                                      Colors.blueAccent,
+                                      Colors.purpleAccent,
+                                      Colors.orangeAccent
+                                    ]),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => ThatUserScreen(
+                                                friendId: sympathyModel.uid,
+                                                friendName: sympathyModel.name,
+                                                friendImage: sympathyModel.uri,
+                                              )));
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      shadowColor: Colors.transparent,
+                                      backgroundColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        text: 'Принять',
+                                        style: GoogleFonts.lato(
+                                          textStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              letterSpacing: .1),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
+                              Container(
+                                alignment: Alignment.centerRight,
+                                // padding: const EdgeInsets.only(bottom: 20),
+                                height: 40,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(colors: [
+                                      Colors.blueAccent,
+                                      Colors.purpleAccent,
+                                      Colors.orangeAccent
+                                    ]),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(
+                                          builder: (context) => ThatUserScreen(
+                                            friendId: sympathyModel.uid,
+                                            friendName: sympathyModel.name,
+                                            friendImage: sympathyModel.uri,
+                                          )));
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      shadowColor: Colors.transparent,
+                                      backgroundColor: Colors.transparent,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                    child: RichText(
+                                      text: TextSpan(
+                                        text: 'Написать',
+                                        style: GoogleFonts.lato(
+                                          textStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              letterSpacing: .1),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
+
+
                         ],
                       ),
                     ),

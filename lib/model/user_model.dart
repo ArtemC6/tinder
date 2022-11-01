@@ -7,14 +7,13 @@ class UserModel {
   String searchPol;
   String myCity;
   String imageBackground;
-  Timestamp ageTime;
-
   num ageInt;
   num searchRangeStart;
   num searchRangeEnd;
   List<String> userInterests;
   List<String> userImageUrl;
   List<String> userImagePath;
+  Timestamp ageTime;
 
   UserModel(
       {required this.name,

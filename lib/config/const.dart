@@ -1,49 +1,16 @@
+import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
-import 'model/story_model.dart';
+import '../model/interests_model.dart';
 
 const color_auth = Color(0xff192028);
 const color_data_input = Color(0xff212428);
-// const color_data_input = Color(0xff3E3F5D);
 const black_86 = Color(0xFF2D2D2D);
-
-showAlertDialogLoad(BuildContext context) {
-  AlertDialog alert = AlertDialog(
-      content: Container(
-    decoration: const BoxDecoration(
-      shape: BoxShape.rectangle,
-      color: Color(0xFFFFFF),
-      borderRadius: BorderRadius.all(Radius.circular(32.0)),
-    ),
-    child: Row(
-      children: [
-        const CircularProgressIndicator(),
-        Container(
-            margin: const EdgeInsets.only(left: 18),
-            child: const Text("Загрузка...")),
-      ],
-    ),
-  ));
-  showDialog(
-    barrierDismissible: false,
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}
-
-class Animal {
-  final int id;
-  final String name;
-
-  Animal({
-    required this.id,
-    required this.name,
-  });
-}
+const color_white10 = Colors.white10;
 
 class FadeRouteAnimation extends PageRouteBuilder {
   final Widget page;
@@ -101,73 +68,73 @@ const List months = [
   'Декобря'
 ];
 
-List<StoryModel> listStoryMain = [
-  StoryModel(
+List<InterestsModel> listStoryMain = [
+  InterestsModel(
       name: 'Кулинария',
       id: '',
       uri: 'https://images.satu.kz/119785076_w640_h640_smes-dlya-kolbasok.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Музыка',
       id: '',
       uri: 'https://i.ytimg.com/vi/ZOZPDcafLc0/maxresdefault.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Книги',
       id: '',
       uri: 'https://cdn.cadelta.ru/media/covers/8/id8159/cover.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Фильмы',
       id: '',
       uri: 'https://pbs.twimg.com/media/Ev3SWW4WEAQY29Q.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Спорт',
       id: '',
       uri: 'https://images.satu.kz/134017387_w640_h640_trenazhery.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Путешествие',
       id: '',
       uri:
           'https://destinationkarakol.com/wp-content/uploads/2021/03/Alakul-lake-22000-x-1333-300x200.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Киберспорт',
       id: '',
       uri:
           'https://sportx.kz/wp-content/uploads/2022/07/WhatsApp-Image-2022-07-27-at-15.34.16-scaled.jpeg'),
-  StoryModel(
+  InterestsModel(
       name: 'Мотоциклы',
       id: '',
       uri:
           'https://i.pinimg.com/736x/f0/f0/95/f0f09554c77d52330106dfb4c4f03f78.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Киберспорт',
       id: '',
       uri:
           'https://sportx.kz/wp-content/uploads/2022/07/WhatsApp-Image-2022-07-27-at-15.34.16-scaled.jpeg'),
-  StoryModel(
+  InterestsModel(
       name: 'Искусство',
       id: '',
       uri:
           'http://2.bp.blogspot.com/-ExUR8Gle6wY/UjC7xPLj-JI/AAAAAAAAAB0/X4dHTbmFxLk/s320/road-to-happiness.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Автомобили',
       id: '',
       uri:
           'https://autorating.ru/upload/iblock/5a8/5a8240679d5480a38f0a977550ae2310.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'Волонтёрство',
       id: '',
       uri:
           'https://sun1-88.userapi.com/s/v1/ig2/mxScRpUTIpONkIoXf5mwojDx8pYiz7ZH1DAZ-rW14UFfMcHcsoN2vazoqtNrdpqaUmYGsVnrPXiTTTFq5rOhXcN8.jpg?size=200x0&quality=96&crop=265,0,1708,1708&ava=1'),
-  StoryModel(
+  InterestsModel(
       name: 'Велоспорт',
       id: '',
       uri:
           'https://sportishka.com/uploads/posts/2022-03/1648589724_6-sportishka-com'
           '-p-velosiped-dlya-triatlona-sport-krasivie-fo-6.jpg'),
-  StoryModel(
+  InterestsModel(
       name: 'TikTok',
       id: '',
       uri: 'https://pbs.twimg.com/media/EMK6NtfXsAAZsrS.png:large'),
-  StoryModel(
+  InterestsModel(
       name: 'Instagram',
       id: '',
       uri:
@@ -189,3 +156,25 @@ List<IconData> listOfIcons = [
   Icons.messenger_outline,
   Icons.person_rounded,
 ];
+
+showAlertDialogLoading(BuildContext context) {
+  AlertDialog alert = AlertDialog(
+    backgroundColor: Colors.transparent,
+    actions: [
+      Center(
+          child: LoadingAnimationWidget.dotsTriangle(
+        size: 44,
+        color: Colors.blueAccent,
+      )),
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}

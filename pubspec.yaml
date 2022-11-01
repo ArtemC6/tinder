@@ -42,40 +42,27 @@ dependencies:
   syncfusion_flutter_sliders: ^20.2.49
   flutter_datetime_picker: ^1.5.1
   multi_select_flutter: ^4.1.2
-  tcard: ^1.3.5
-  simple_animations: ^5.0.0+2
-  animator: ^2.0.2
   flutter_tindercard: ^0.2.0
   carousel_slider: ^4.1.1
   staggered_grid_view_flutter: ^0.0.4
   flutter_staggered_animations: ^1.1.1
-  flutter_rating_bar: ^4.0.1
   flutter_carousel_slider: ^1.0.9
   cached_network_image: ^3.2.2
   loading_animation_widget: ^1.2.0+3
   google_fonts: ^3.0.1
   modal_bottom_sheet: ^2.1.2
   flutter_phone_direct_caller: ^2.1.1
-  device_info_plus: ^3.2.0
   avatar_glow: ^2.0.2
   smooth_star_rating: ^1.0.4+2
   dropdown_button2: ^1.8.0
   easy_localization: ^3.0.1
   zoomable_photo_gallery: ^1.0.2+1
-  latlong2: ^0.8.1
-  url_launcher: ^6.1.6
-  animations: ^2.0.6
   flutter_staggered_grid_view: ^0.6.2
   image_picker: ^0.8.4+9
   like_button: ^2.0.5
   firebase_storage: ^10.2.7
-  cupertino_list_tile: ^0.2.1
-  uuid: ^3.0.4
-  mobx: ^2.0.6+1
-  flutter_mobx: ^2.0.4
-  path_provider: ^2.0.9
-  google_sign_in: ^5.0.7
-  message_item: ^0.0.4
+  shared_preferences: ^2.0.15
+
 
 
 dev_dependencies:

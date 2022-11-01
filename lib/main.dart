@@ -6,14 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:tinder/screens/auth/data_input_screen.dart';
 import 'package:tinder/screens/auth/signin_screen.dart';
-import 'package:tinder/screens/data/firebase_auth.dart';
-import 'package:tinder/screens/data/model/user_model.dart';
-import 'package:tinder/screens/home_manager.dart';
+import 'package:tinder/config/firebase_auth.dart';
+import 'package:tinder/screens/manager_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
+import 'model/user_model.dart';
 
 void main() async {
   CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
@@ -93,22 +92,6 @@ class _Manager extends State<Manager> {
               isEmptyData = true;
             });
           }
-          // if (documentSnapshot['myPol'] != null) {
-          //   setState(() {
-          //     isEmpty = true;
-          //   });
-          // }
-          //
-          // if (List<String>.from(documentSnapshot['listImageUri']).isNotEmpty) {
-          //   setState(() {
-          //     isEmptyData = true;
-          //   });
-          // }
-          // if (documentSnapshot['imageBackground'] != '') {
-          //   setState(() {
-          //     isEmptyImageBck = true;
-          //   });
-          // }
         }
       });
     }
@@ -118,7 +101,6 @@ class _Manager extends State<Manager> {
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: FirebaseAuth.instance.userChanges(),
-        // ignore: missing_return
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -130,7 +112,7 @@ class _Manager extends State<Manager> {
           } else if (snapshot.hasData) {
             if (isEmptyData) {
               if (isEmptyImageBackground) {
-                return HomeMain(
+                return ManagerScreen(
                   currentIndex: 0,
                 );
               } else {
@@ -157,42 +139,6 @@ class _Manager extends State<Manager> {
                     searchRangeEnd: 0),
               );
             }
-            //   if (isEmpty) {
-            //
-            //     if (isEmptyData) {
-            //       if (isEmptyImageBck) {
-            //         return HomeMain(
-            //           currentIndex: 0,
-            //         );
-            //       } else {
-            //         return EditImageProfileScreen(
-            //           bacImage: '',
-            //         );
-            //       }
-            //     } else {
-            //       return EditProfileScreen(
-            //         isFirst: true,
-            //         userModel: UserModel(
-            //             name: '',
-            //             uid: '',
-            //             myCity: '',
-            //             ageTime: Timestamp.now(),
-            //             ageInt: 0,
-            //             userPol: '',
-            //             searchPol: '',
-            //             searchRangeStart: 0,
-            //             userImageUrl: [],
-            //             userImagePath: [],
-            //             imageBackground: '',
-            //             userInterests: [],
-            //             searchRangeEnd: 0),
-            //       );
-            //     }
-            //   } else {
-            //     return const DataInputUser();
-            //   }
-            // } else {
-            //   return const SignInScreen();
           } else {
             return const SignInScreen();
           }

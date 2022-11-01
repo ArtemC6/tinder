@@ -7,9 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
-import 'data/const.dart';
-import 'data/model/sympathy_model.dart';
-import 'home_manager.dart';
+import '../config/const.dart';
+import '../model/sympathy_model.dart';
+import 'manager_screen.dart';
 
 class ThatScreen extends StatefulWidget {
   const ThatScreen({Key? key}) : super(key: key);
@@ -39,7 +39,7 @@ class _ThatScreenState extends State<ThatScreen> {
       Navigator.pushReplacement(
           context,
           FadeRouteAnimation(
-            HomeMain(currentIndex: 1),
+            ManagerScreen(currentIndex: 1),
           ));
     });
   }
@@ -324,14 +324,10 @@ class _ThatScreenState extends State<ThatScreen> {
                                 }),
                           );
                         }
-                        return const Center(
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 0.8,
-                            ),
+                        return Center(
+                          child: LoadingAnimationWidget.dotsTriangle(
+                            size: 44,
+                            color: Colors.blueAccent,
                           ),
                         );
                       }),
