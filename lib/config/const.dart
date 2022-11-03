@@ -160,6 +160,9 @@ List<IconData> listOfIcons = [
 showAlertDialogLoading(BuildContext context) {
   AlertDialog alert = AlertDialog(
     backgroundColor: Colors.transparent,
+    shadowColor:  Colors.transparent,
+    surfaceTintColor: Colors.transparent,
+
     actions: [
       Center(
           child: LoadingAnimationWidget.dotsTriangle(

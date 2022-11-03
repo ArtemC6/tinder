@@ -34,16 +34,12 @@ class MessagesItem extends StatelessWidget {
                       child: Container(
                         decoration: isUserMassage
                             ? BoxDecoration(
-                                gradient: const LinearGradient(colors: [
-                                  Colors.deepPurpleAccent,
-                                  Colors.deepPurple,
-                                ]),
-                                borderRadius: BorderRadius.circular(20),
+                            color: Colors.deepPurpleAccent.withOpacity(.72),
+                            borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                     color: Colors.white10, width: 0.9))
                             : BoxDecoration(
-                                gradient: const LinearGradient(
-                                    colors: [color_data_input, color_auth]),
+                               color: Colors.white.withOpacity(.02),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                     color: Colors.white10, width: 0.9)),

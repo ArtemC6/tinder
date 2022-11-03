@@ -103,11 +103,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                     if (bacImage != '')
                       IconButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                              context,
-                              FadeRouteAnimation(
-                                ManagerScreen(currentIndex: 3),
-                              ));
+                        Navigator.pop(context);
                         },
                         icon: const Icon(Icons.arrow_back_ios_new_rounded,
                             size: 20),

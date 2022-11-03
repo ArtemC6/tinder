@@ -9,9 +9,9 @@ import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
 import '../config/const.dart';
+import '../config/firestore_operations.dart';
 import '../model/sympathy_model.dart';
 import '../model/user_model.dart';
-import 'manager_screen.dart';
 
 class SympathyScreen extends StatefulWidget {
   late UserModel userModelCurrent;
@@ -23,89 +23,21 @@ class SympathyScreen extends StatefulWidget {
 }
 
 class _SympathyScreenState extends State<SympathyScreen> {
-  bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
+  bool isLike = false,
+      isLikeButton = false,
+      isLook = false,
+      isLoading = false;
   List<SympathyModel> listSympathy = [];
   UserModel userModelCurrent;
 
   _SympathyScreenState(this.userModelCurrent);
 
   void readFirebase() async {
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('sympathy')
-        .get()
-        .then((querySnapshot) {
-      for (var result in querySnapshot.docs) {
-        Map<String, dynamic> data = result.data();
-
-        setState(() {
-          listSympathy.add(SympathyModel(
-              name: data['name'],
-              uid: data['uid'],
-              city: data['city'],
-              uri: data['image_uri'],
-              age: data['age'],
-              time: data['time'],
-              id_doc: data['id_doc']));
-        });
-      }
-    });
     setState(() {
       isLoading = true;
     });
   }
 
-  Future<void> deleteSympathy(String id) async {
-    final docUser = FirebaseFirestore.instance
-        .collection("User")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('sympathy');
-    docUser.doc(id).delete().then((value) {
-      Navigator.pushReplacement(
-          context,
-          FadeRouteAnimation(
-            ManagerScreen(currentIndex: 1),
-          ));
-    });
-  }
-
-  Future<void> createSympathy(UserModel userModel) async {
-    bool isEmptySympathy = false;
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(userModel.uid)
-        .collection('sympathy')
-        .get()
-        .then((querySnapshot) {
-      for (var result in querySnapshot.docs) {
-        Map<String, dynamic> data = result.data();
-
-        if (userModelCurrent.uid == data['uid']) {
-          setState(() {
-            isEmptySympathy = true;
-          });
-        }
-      }
-    });
-
-    if (!isEmptySympathy) {
-      final docUser = FirebaseFirestore.instance
-          .collection("User")
-          .doc(userModel.uid)
-          .collection('sympathy')
-          .doc();
-      docUser.set({
-        'id_doc': docUser.id,
-        'uid': userModelCurrent.uid,
-        'time': DateTime.now(),
-        'image_uri': userModelCurrent.userImageUrl[0],
-        'name': userModelCurrent.name,
-        'age': userModelCurrent.ageInt,
-        'city': userModelCurrent.myCity
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -115,263 +47,297 @@ class _SympathyScreenState extends State<SympathyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget cardSympathy(SympathyModel sympathyModel) {
-      double width = MediaQuery.of(context).size.width;
-      return Container(
-        height: width / 2.3,
-        width: width,
-        padding: EdgeInsets.only(
-            left: width / 20, top: 0, right: width / 20, bottom: width / 20),
-        child: Card(
-          color: color_data_input,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
-              side: const BorderSide(
-                width: 0.8,
-                color: Colors.white10,
-              )),
-          elevation: 14,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () {
-                Navigator.push(
-                    context,
-                    FadeRouteAnimation(ProfileScreen(
-                      userModel: UserModel(
-                          name: '',
-                          uid: '',
-                          myCity: '',
-                          ageTime: Timestamp.now(),
-                          userPol: '',
-                          searchPol: '',
-                          searchRangeStart: 0,
-                          userImageUrl: [],
-                          userImagePath: [],
-                          imageBackground: '',
-                          userInterests: [],
-                          searchRangeEnd: 0,
-                          ageInt: 0),
-                      isBack: true,
-                      idUser: sympathyModel.uid,
-                    )));
-              },
-              child: Padding(
-                padding: EdgeInsets.all(width / 50),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Card(
-                      shadowColor: Colors.white38,
-                      color: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                          side: const BorderSide(
-                            width: 0.8,
-                            color: Colors.white30,
-                          )),
-                      elevation: 10,
-                      child: CachedNetworkImage(
-                        progressIndicatorBuilder: (context, url, progress) =>
-                            Center(
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 0.8,
-                              value: progress.progress,
-                            ),
-                          ),
-                        ),
-                        imageUrl: sympathyModel.uri,
-                        imageBuilder: (context, imageProvider) => Container(
-                          height: 110,
-                          width: 110,
-                          decoration: BoxDecoration(
+    Widget cardSympathy(SympathyModel sympathyModel, int index) {
+      double width = MediaQuery
+          .of(context)
+          .size
+          .width;
+
+      return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('User')
+            .doc(sympathyModel.uid)
+            .collection('sympathy')
+            .snapshots(),
+
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          bool isMutually = false;
+
+          try {
+            for (int i = 0; i < snapshot.data.docs.length; i++) {
+              isMutually = snapshot.data.docs[i]['uid'] ==
+                  userModelCurrent.uid;
+            }
+          } catch (E) {}
+
+          // print(snapshot.data.docs[index]['name']);
+          return Container(
+            height: width / 2.3,
+            width: width,
+            padding: EdgeInsets.only(
+                left: width / 20,
+                top: 0,
+                right: width / 20,
+                bottom: width / 20),
+            child: Card(
+              color: color_data_input,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  side: const BorderSide(
+                    width: 0.8,
+                    color: Colors.white10,
+                  )),
+              elevation: 14,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: InkWell(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        FadeRouteAnimation(ProfileScreen(
+                          userModel: UserModel(
+                              name: '',
+                              uid: '',
+                              myCity: '',
+                              ageTime: Timestamp.now(),
+                              userPol: '',
+                              searchPol: '',
+                              searchRangeStart: 0,
+                              userImageUrl: [],
+                              userImagePath: [],
+                              imageBackground: '',
+                              userInterests: [],
+                              searchRangeEnd: 0,
+                              ageInt: 0),
+                          isBack: true,
+                          idUser: sympathyModel.uid, userModelCurrent: userModelCurrent,
+                        )));
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(width / 50),
+                    child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 100,
+                          width: 100,
+                          child: Card(
+                            shadowColor: Colors.white38,
                             color: Colors.transparent,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(14)),
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: width / 40),
-                    SizedBox(
-                      width: width / 2.05,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      text:
-                                          '${sympathyModel.name}, ${sympathyModel.age}',
-                                      style: GoogleFonts.lato(
-                                        textStyle: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: width / 30,
-                                            letterSpacing: .5),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(50),
+                                side: const BorderSide(
+                                  width: 0.8,
+                                  color: Colors.white30,
+                                )),
+                            elevation: 4,
+                            child: CachedNetworkImage(
+                              progressIndicatorBuilder:
+                                  (context, url, progress) =>
+                                  Center(
+                                    child: SizedBox(
+                                      height: 100,
+                                      width: 100,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 0.8,
+                                        value: progress.progress,
                                       ),
                                     ),
                                   ),
-                                  RichText(
-                                    text: TextSpan(
-                                      text: sympathyModel.city,
-                                      style: GoogleFonts.lato(
-                                        textStyle: TextStyle(
-                                            color: Colors.white.withOpacity(.8),
-                                            fontSize: width / 40,
-                                            letterSpacing: .5),
+                              imageUrl: sympathyModel.uri,
+                              imageBuilder: (context, imageProvider) =>
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(50)),
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover,
                                       ),
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: width / 40),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                    children: [
+                                      RichText(
+                                        text: TextSpan(
+                                          text:
+                                          '${sympathyModel
+                                              .name}, ${sympathyModel.age}',
+                                          style: GoogleFonts.lato(
+                                            textStyle: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                letterSpacing: .9),
+                                          ),
+                                        ),
+                                      ),
+                                      RichText(
+                                        text: TextSpan(
+                                          text: sympathyModel.city,
+                                          style: GoogleFonts.lato(
+                                            textStyle: TextStyle(
+                                                color: Colors.white
+                                                    .withOpacity(.8),
+                                                fontSize: width / 40,
+                                                letterSpacing: .5),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        bottom: 20, left: 10),
+                                    alignment: Alignment.topRight,
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          height: 40,
+                                          width: 40,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              deleteSympathy(
+                                                  sympathyModel.id_doc,
+                                                  userModelCurrent.uid);
+                                              setState(() {
+                                                listSympathy.removeAt(index);
+                                              });
+                                            },
+                                            icon: const Icon(Icons.close,
+                                                size: 20),
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 38),
-                                alignment: Alignment.topRight,
-                                child: Row(
-                                  children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        text:
-                                            '${getDataTimeDate(sympathyModel.time).day} ${months[getDataTimeDate(sympathyModel.time).month]}',
-                                        style: GoogleFonts.lato(
-                                          textStyle: TextStyle(
-                                              color:
-                                                  Colors.white.withOpacity(.8),
-                                              fontSize: width / 40,
-                                              letterSpacing: .5),
+                              const SizedBox(),
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(left: 10),
+                                    height: 40,
+                                    child: DecoratedBox(
+                                      decoration: isMutually
+                                          ? BoxDecoration(
+                                        gradient: const LinearGradient(
+                                            colors: [
+                                              Colors.blueAccent,
+                                              Colors.purpleAccent,
+                                              Colors.orangeAccent
+                                            ]),
+                                        borderRadius:
+                                        BorderRadius.circular(20),
+                                        border: Border.all(
+                                            width: 0.7,
+                                            color: Colors.white30),
+                                      )
+                                          : BoxDecoration(
+                                        color:
+                                        Colors.white.withOpacity(.08),
+                                        borderRadius:
+                                        BorderRadius.circular(20),
+                                        border: Border.all(
+                                            width: 0.7,
+                                            color: Colors.white30),
+                                      ),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          if (!isMutually) {
+                                            createSympathy(sympathyModel.uid,
+                                                userModelCurrent);
+                                            setState(() {
+                                              isMutually = !isMutually;
+                                            });
+                                          } else {
+                                            deleteSympathyPartner(
+                                                sympathyModel.uid,
+                                                userModelCurrent.uid);
+                                            setState(() {
+                                              isMutually = !isMutually;
+                                            });
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          shadowColor: Colors.transparent,
+                                          backgroundColor: Colors.transparent,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(20)),
+                                        ),
+                                        child: RichText(
+                                          text: TextSpan(
+                                            text: isMutually
+                                                ? 'У вас взаимно'
+                                                : 'Принять симпатию',
+                                            style: GoogleFonts.lato(
+                                              textStyle: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  letterSpacing: .1),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    IconButton(
-                                      onPressed: () {
-                                        deleteSympathy(listSympathy[0].id_doc);
-                                      },
-                                      icon: const Icon(Icons.close, size: 20),
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    child: IconButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ThatUserScreen(
+                                                        friendId:
+                                                        sympathyModel.uid,
+                                                        friendName:
+                                                        sympathyModel.name,
+                                                        friendImage:
+                                                        sympathyModel.uri,
+                                                      )));
+                                        },
+                                        icon:
+                                        Image.asset('images/ic_send.png')),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                alignment: Alignment.centerRight,
-                                // padding: const EdgeInsets.only(bottom: 20),
-                                height: 40,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [
-                                      Colors.blueAccent,
-                                      Colors.purpleAccent,
-                                      Colors.orangeAccent
-                                    ]),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ThatUserScreen(
-                                                friendId: sympathyModel.uid,
-                                                friendName: sympathyModel.name,
-                                                friendImage: sympathyModel.uri,
-                                              )));
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shadowColor: Colors.transparent,
-                                      backgroundColor: Colors.transparent,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20)),
-                                    ),
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: 'Принять',
-                                        style: GoogleFonts.lato(
-                                          textStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              letterSpacing: .1),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                alignment: Alignment.centerRight,
-                                // padding: const EdgeInsets.only(bottom: 20),
-                                height: 40,
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [
-                                      Colors.blueAccent,
-                                      Colors.purpleAccent,
-                                      Colors.orangeAccent
-                                    ]),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).push(MaterialPageRoute(
-                                          builder: (context) => ThatUserScreen(
-                                            friendId: sympathyModel.uid,
-                                            friendName: sympathyModel.name,
-                                            friendImage: sympathyModel.uri,
-                                          )));
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shadowColor: Colors.transparent,
-                                      backgroundColor: Colors.transparent,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(20)),
-                                    ),
-                                    child: RichText(
-                                      text: TextSpan(
-                                        text: 'Написать',
-                                        style: GoogleFonts.lato(
-                                          textStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              letterSpacing: .1),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       );
     }
 
@@ -397,29 +363,78 @@ class _SympathyScreenState extends State<SympathyScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: AnimationLimiter(
-                    child: ListView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        itemCount: listSympathy.length,
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          return AnimationConfiguration.staggeredList(
-                              position: index,
-                              delay: const Duration(milliseconds: 600),
-                              child: SlideAnimation(
-                                  duration: const Duration(milliseconds: 2200),
-                                  verticalOffset: 200,
-                                  curve: Curves.ease,
-                                  child: FadeInAnimation(
-                                      curve: Curves.easeOut,
-                                      duration:
-                                          const Duration(milliseconds: 2500),
-                                      child:
-                                          cardSympathy(listSympathy[index]))));
-                        }),
-                  ),
+                  height: MediaQuery
+                      .of(context)
+                      .size
+                      .height,
+                  child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('User')
+                          .doc(userModelCurrent.uid)
+                          .collection('sympathy')
+                          .snapshots(),
+                      builder: (context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasData) {
+                          if (snapshot.data.docs.length < 1) {
+                            return const Center(
+                              child: Text(""),
+                            );
+                          }
+                          return AnimationLimiter(
+                            child: ListView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                itemCount: snapshot.data.docs.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  if (snapshot.hasData) {
+                                    return AnimationConfiguration.staggeredList(
+                                        position: index,
+                                        delay: const Duration(
+                                            milliseconds: 600),
+                                        child: SlideAnimation(
+                                          duration: const Duration(milliseconds:
+                                          2200),
+                                          verticalOffset: 200,
+                                          curve: Curves.ease,
+                                          child: FadeInAnimation(
+                                              curve: Curves.easeOut,
+                                              duration: const Duration(
+                                                  milliseconds: 2500),
+                                              child: cardSympathy(SympathyModel(
+                                                  name: snapshot.data
+                                                      .docs[index]['name'],
+                                                  id_doc: snapshot.data
+                                                      .docs[index]['id_doc'],
+                                                  uid: snapshot.data
+                                                      .docs[index]['uid'],
+                                                  city: snapshot.data
+                                                      .docs[index]['city'],
+                                                  uri: snapshot.data
+                                                      .docs[index]['image_uri'],
+                                                  age: snapshot.data
+                                                      .docs[index]['age'],
+                                                  time: snapshot.data
+                                                      .docs[index]['time']
+                                              )
+                                                  ,
+                                                  index
+                                              )
+                                          ),
+                                        )
+                                    );
+                                  }
+                                }),
+
+                          );
+                        }
+                        return Center(
+                          child: LoadingAnimationWidget.dotsTriangle(
+                            size: 44,
+                            color: Colors.blueAccent,
+                          ),
+                        );
+                      }),
                 ),
               ],
             ),

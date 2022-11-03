@@ -221,7 +221,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                             ],
                           ),
                         ),
-                        buttonProfile(userModel: userModel, isProprietor: true),
+                        buttonProfileMy(userModel),
                         const SizedBox()
                       ],
                     ),

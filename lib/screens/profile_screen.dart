@@ -15,26 +15,32 @@ import '../model/user_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   UserModel userModel;
+  UserModel userModelCurrent;
   bool isBack;
   String idUser;
 
   ProfileScreen(
-      {required this.userModel, required this.isBack, required this.idUser});
+      {required this.userModel,
+      required this.isBack,
+      required this.idUser,
+      required this.userModelCurrent});
 
   @override
   State<ProfileScreen> createState() =>
-      _ProfileScreen(userModel, isBack, idUser);
+      _ProfileScreen(userModel, isBack, idUser, userModelCurrent);
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
   bool isLoading = false, isLike = false, isBack, isProprietor = false;
-  late UserModel userModel;
+  UserModel userModel;
+  UserModel userModelCurrent;
   String idUser;
   List<InterestsModel> listStory = [];
   List<String> listImageUri = [], listImagePath = [];
   FirebaseStorage storage = FirebaseStorage.instance;
 
-  _ProfileScreen(this.userModel, this.isBack, this.idUser);
+  _ProfileScreen(
+      this.userModel, this.isBack, this.idUser, this.userModelCurrent);
 
   Future<void> _putLike() async {
     final docUser = FirebaseFirestore.instance.collection('Like').doc();
@@ -363,9 +369,12 @@ class _ProfileScreen extends State<ProfileScreen> {
                                   ],
                                 ),
                               ),
-                              buttonProfile(
-                                  userModel: userModel,
-                                  isProprietor: isProprietor),
+                              if (isProprietor) buttonProfileMy(userModel),
+                              if (!isProprietor)
+                                buttonProfileUser(
+                                  userModel,
+                                  userModelCurrent,
+                                ),
                               const SizedBox()
                             ],
                           ),

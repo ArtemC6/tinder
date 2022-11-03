@@ -248,7 +248,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                             .read<FirebaseAuthMethods>()
                                             .signOut(context);
 
-                                        Navigator.pushReplacement(
+                                         Navigator.pushReplacement(
                                             context,
                                             FadeRouteAnimation(
                                                 const SignInScreen()));

@@ -30,6 +30,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                 gradient: const LinearGradient(colors: [
                   Colors.pinkAccent,
                   Colors.purpleAccent,
+                  // Colors.,
                   Colors.blueAccent,
                 ]),
                 // ),
@@ -40,8 +41,9 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   1.4,
                 ),
                 child: Container(
+                  alignment: Alignment.center,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                      const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                   decoration: BoxDecoration(
                     color: color_data_input,
                     border: Border.all(color: color_data_input),
@@ -56,6 +58,18 @@ class _MessageTextFieldState extends State<MessageTextField> {
                     minLines: 1,
                     maxLines: 4,
                     decoration: InputDecoration(
+
+                        // suffixIcon: InkWell(
+                        //   onTap: () {
+                        //
+                        //
+                        //
+                        //   },
+                        //   child: const Icon(
+                        //     Icons.emoji_emotions_outlined,
+                        //     color: Colors.grey,
+                        //   ), // icon is 48px widget.
+                        // ),
                         border: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -64,10 +78,11 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         contentPadding: const EdgeInsets.only(
                             left: 15, bottom: 5, top: 11, right: 15),
                         counterStyle: const TextStyle(color: Colors.white),
+
                         hintStyle:
                             TextStyle(color: Colors.white.withOpacity(0.9)),
                         hintText: "Сообщение..."),
-                    style: const TextStyle(
+                    style:  TextStyle(
                       fontSize: 15.5,
                       color: Colors.white,
                     ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import '../config/const.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
@@ -34,43 +35,6 @@ class _HomeScreen extends State<HomeScreen>
   UserModel userModelCurrent;
 
   _HomeScreen(this.userModelCurrent);
-
-  Future<void> createSympathy(UserModel userModel) async {
-    bool isEmptySympathy = false;
-    await FirebaseFirestore.instance
-        .collection('User')
-        .doc(userModel.uid)
-        .collection('sympathy')
-        .get()
-        .then((querySnapshot) {
-      for (var result in querySnapshot.docs) {
-        Map<String, dynamic> data = result.data();
-
-        if (userModelCurrent.uid == data['uid']) {
-          setState(() {
-            isEmptySympathy = true;
-          });
-        }
-      }
-    });
-
-    if (!isEmptySympathy) {
-      final docUser = FirebaseFirestore.instance
-          .collection("User")
-          .doc(userModel.uid)
-          .collection('sympathy')
-          .doc();
-      docUser.set({
-        'id_doc': docUser.id,
-        'uid': userModelCurrent.uid,
-        'time': DateTime.now(),
-        'image_uri': userModelCurrent.userImageUrl[0],
-        'name': userModelCurrent.name,
-        'age': userModelCurrent.ageInt,
-        'city': userModelCurrent.myCity
-      });
-    }
-  }
 
   void readFirebase() async {
 
@@ -192,7 +156,7 @@ class _HomeScreen extends State<HomeScreen>
                                                         userModel:
                                                             userModel[index],
                                                         isBack: true,
-                                                        idUser: '',
+                                                        idUser: '', userModelCurrent: userModelCurrent,
                                                       )));
                                         },
                                         child: Card(
@@ -319,9 +283,11 @@ class _HomeScreen extends State<HomeScreen>
                                     },
                                     swipeCompleteCallback:
                                         (CardSwipeOrientation orientation,
-                                            int index) {
+                                            int index) async {
                                       if (orientation.toString() ==
                                           'CardSwipeOrientation.LEFT') {
+
+                                        await CachedNetworkImage.evictFromCache(userModel[index].userImageUrl[0]);
                                         // setState(() {
                                         //   isLike = false;
                                         //   isLook = true;
@@ -340,7 +306,9 @@ class _HomeScreen extends State<HomeScreen>
 
                                       if (orientation.toString() ==
                                           'CardSwipeOrientation.RIGHT') {
-                                        createSympathy(userModel[index]);
+                                        createSympathy(userModel[index].uid, userModelCurrent);
+                                        // await CachedNetworkImage.evictFromCache(userModel[index].userImageUrl[0]);
+
                                         // setState(() {
                                         //   isLike = true;
                                         //   isLook = true;

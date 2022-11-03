@@ -89,7 +89,7 @@ class _ManagerScreen extends State<ManagerScreen> {
           child = ProfileScreen(
             userModel: userModelCurrent,
             isBack: false,
-            idUser: '',
+            idUser: '', userModelCurrent: userModelCurrent,
           );
           break;
       }

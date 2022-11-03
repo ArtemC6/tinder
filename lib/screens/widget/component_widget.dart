@@ -376,7 +376,6 @@ class photoProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     return Column(
       children: [
         Container(
@@ -476,122 +475,9 @@ class photoProfileSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
 
 
-    Future<void> _uploadImageAdd() async {
-      final picker = ImagePicker();
-      XFile? pickedImage;
-      try {
-        pickedImage = await picker.pickImage(
-            source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
 
-        final String fileName = path.basename(pickedImage!.path);
-        File imageFile = File(pickedImage.path);
-
-        try {
-          var task = storage.ref(fileName).putFile(imageFile);
-
-          if (task == null) return;
-
-          final snapshot = await task.whenComplete(() {});
-          final urlDownload = await snapshot.ref.getDownloadURL();
-
-          userModel.userImageUrl.add(urlDownload);
-          userModel.userImagePath.add(fileName);
-
-          final docUser = FirebaseFirestore.instance
-              .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid);
-
-          final json = {
-            'listImageUri': userModel.userImageUrl,
-            'listImagePath': userModel.userImagePath
-          };
-
-          docUser.update(json).then((value) {
-            Navigator.pushReplacement(
-                context,
-                FadeRouteAnimation(ProfileScreen(
-                  userModel: UserModel(
-                      name: '',
-                      uid: '',
-                      myCity: '',
-                      ageTime: Timestamp.now(),
-                      userPol: '',
-                      searchPol: '',
-                      searchRangeStart: 0,
-                      userImageUrl: [],
-                      userImagePath: [],
-                      imageBackground: '',
-                      userInterests: [],
-                      searchRangeEnd: 0,
-                      ageInt: 0),
-                  isBack: false,
-                  idUser: '',
-                )));
-          });
-        } on FirebaseException catch (error) {
-          if (kDebugMode) {
-            print(error);
-          }
-        }
-      } catch (err) {
-        if (kDebugMode) {
-          print(err);
-        }
-      }
-    }
-
-    Future<void> _imageRemove(int index) async {
-      try {
-        try {
-          await storage.ref(userModel.userImagePath[index]).delete();
-
-          userModel.userImageUrl.removeAt(index);
-          userModel.userImagePath.removeAt(index);
-          final docUser = FirebaseFirestore.instance
-              .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid);
-
-          final json = {
-            'listImageUri': userModel.userImageUrl,
-            'listImagePath': userModel.userImagePath
-          };
-
-          docUser.update(json).then((value) {
-            Navigator.pushReplacement(
-                context,
-                FadeRouteAnimation(ProfileScreen(
-                  userModel: UserModel(
-                      name: '',
-                      uid: '',
-                      myCity: '',
-                      ageTime: Timestamp.now(),
-                      userPol: '',
-                      searchPol: '',
-                      searchRangeStart: 0,
-                      userImageUrl: [],
-                      userImagePath: [],
-                      imageBackground: '',
-                      userInterests: [],
-                      searchRangeEnd: 0,
-                      ageInt: 0),
-                  isBack: false,
-                  idUser: '',
-                )));
-          });
-        } on FirebaseException catch (error) {
-          if (kDebugMode) {
-            print(error);
-          }
-        }
-      } catch (err) {
-        if (kDebugMode) {
-          print(err);
-        }
-      }
-    }
 
     return Column(
       children: [
@@ -675,7 +561,7 @@ class photoProfileSettings extends StatelessWidget {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                      uploadImage(context, userModel, false);
+                                        uploadImage(context, userModel, false);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(4),
@@ -692,7 +578,7 @@ class photoProfileSettings extends StatelessWidget {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                        _imageRemove(index);
+                                        imageRemove(index, context, userModel);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(2),
@@ -709,7 +595,7 @@ class photoProfileSettings extends StatelessWidget {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                        _uploadImageAdd();
+                                        uploadImageAdd(context, userModel);
                                       },
                                       child: Padding(
                                         padding: const EdgeInsets.all(6),
@@ -1021,12 +907,148 @@ class infoPanelWidget extends StatelessWidget {
   }
 }
 
-class buttonProfile extends StatelessWidget {
+class buttonProfileUser extends StatefulWidget {
   UserModel userModel;
-  bool isProprietor;
+  UserModel userModelCurrent;
 
-  buttonProfile({Key? key, required this.userModel, required this.isProprietor})
-      : super(key: key);
+  buttonProfileUser(
+    this.userModelCurrent,
+    this.userModel, {
+    Key? key,
+  });
+
+  @override
+  State<buttonProfileUser> createState() =>
+      _buttonProfileState(userModel, userModelCurrent);
+}
+
+class _buttonProfileState extends State<buttonProfileUser> {
+  UserModel userModel;
+  UserModel userModelCurrent;
+
+  _buttonProfileState(this.userModel, this.userModelCurrent);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget button(String name, color, onTap) {
+      return Container(
+        padding: const EdgeInsets.only(right: 20),
+        height: 40,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(width: 0.8, color: Colors.white38),
+            gradient: LinearGradient(colors: color),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ElevatedButton(
+            onPressed: onTap,
+            style: ElevatedButton.styleFrom(
+              shadowColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+            ),
+            child: RichText(
+              text: TextSpan(
+                text: name,
+                style: GoogleFonts.lato(
+                  textStyle: const TextStyle(
+                      color: Colors.white, fontSize: 11, letterSpacing: .1),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('User')
+            .doc(userModelCurrent.uid)
+            .collection('sympathy')
+            .snapshots(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          bool isMutuallyMain = false;
+
+          try {
+            for (int i = 0; i < snapshot.data.docs.length; i++) {
+              isMutuallyMain = snapshot.data.docs[i]['uid'] ==
+                  FirebaseAuth.instance.currentUser!.uid;
+            }
+          } catch (E) {}
+          return StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('User')
+                  .doc(userModel.uid)
+                  .collection('sympathy')
+                  .snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                bool isMutually = false;
+
+                try {
+                  for (int i = 0; i < snapshot.data.docs.length; i++) {
+                    isMutually =
+                        snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
+                  }
+                } catch (E) {}
+
+                if (isMutuallyMain && !isMutually) {
+                  return button('Ожидайте ответа',
+                      [Colors.blueAccent, Colors.purpleAccent], () {
+                    if (!isMutuallyMain) {
+                      createSympathy(userModelCurrent.uid, userModel);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    } else {
+                      deleteSympathyPartner(
+                          userModelCurrent.uid, userModel.uid);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    }
+                  });
+                } else if (!isMutuallyMain && !isMutually) {
+                  return button(
+                      'Оставить симпатию', [Colors.white30, Colors.white30],
+                      () {
+                    if (!isMutuallyMain) {
+                      createSympathy(userModelCurrent.uid, userModel);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    } else {
+                      deleteSympathyPartner(
+                          userModelCurrent.uid, userModel.uid);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    }
+                  });
+                } else {
+                  return button('Написать', [
+                    Colors.blueAccent,
+                    Colors.purpleAccent,
+                    Colors.orangeAccent
+                  ], () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => ThatUserScreen(
+                              friendId: userModel.uid,
+                              friendName: userModel.name,
+                              friendImage: userModel.userImageUrl[0],
+                            )));
+                  });
+                }
+              });
+        });
+  }
+}
+
+class buttonProfileMy extends StatelessWidget {
+  UserModel userModel;
+
+  buttonProfileMy(this.userModel);
 
   @override
   Widget build(BuildContext context) {
@@ -1035,29 +1057,19 @@ class buttonProfile extends StatelessWidget {
       height: 40,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border.all(
-              width: 0.7, color: Colors.white30),
+          border: Border.all(width: 0.7, color: Colors.white30),
           gradient: const LinearGradient(
               colors: [Colors.blueAccent, Colors.purpleAccent]),
           borderRadius: BorderRadius.circular(20),
         ),
         child: ElevatedButton(
           onPressed: () {
-            if (isProprietor) {
-              Navigator.push(
-                  context,
-                  FadeRouteAnimation(EditProfileScreen(
-                    isFirst: false,
-                    userModel: userModel,
-                  )));
-            } else {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ThatUserScreen(
-                        friendId: userModel.uid,
-                        friendName: userModel.name,
-                        friendImage: userModel.userImageUrl[0],
-                      )));
-            }
+            Navigator.push(
+                context,
+                FadeRouteAnimation(EditProfileScreen(
+                  isFirst: false,
+                  userModel: userModel,
+                )));
           },
           style: ElevatedButton.styleFrom(
             shadowColor: Colors.transparent,
@@ -1067,7 +1079,7 @@ class buttonProfile extends StatelessWidget {
           ),
           child: RichText(
             text: TextSpan(
-              text: isProprietor ? 'Редактировать' : 'Написать',
+              text: 'Редактировать',
               style: GoogleFonts.lato(
                 textStyle: const TextStyle(
                     color: Colors.white, fontSize: 11, letterSpacing: .1),
