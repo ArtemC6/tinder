@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -19,8 +20,9 @@ import '../../config/firestore_operations.dart';
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
 import '../../model/user_model.dart';
+import '../../widget/button_widget.dart';
+import '../../widget/textField_widget.dart';
 import '../manager_screen.dart';
-import '../widget/textField_widget.dart';
 
 class EditProfileScreen extends StatefulWidget {
   bool isFirst;
@@ -92,6 +94,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         userPhoto &&
         userAge &&
         ageRange) {
+      String? token;
+      await FirebaseMessaging.instance.getToken().then((value) {
+        token = value;
+      });
+
       final docUser = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid);
@@ -107,6 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'rangeStart': _valuesAge.start,
         'rangeEnd': _valuesAge.end,
         'myCity': _localController.text,
+        'token': token,
       };
 
       docUser.update(json).then((value) {
@@ -130,6 +138,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void settingsValue() {
+    _nameController.text = modelUser.name;
+    _ageRangController.text = modelUser.searchRangeStart == 0
+        ? ' '
+        : 'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
+
+    _ageController.text =
+        modelUser.ageInt == 0 ? ' ' : modelUser.ageInt.toString();
+
+    _valuesAge = SfRangeValues(
+        modelUser.searchRangeStart == 0 ? 16 : modelUser.searchRangeStart,
+        modelUser.searchRangeEnd == 0 ? 30 : modelUser.searchRangeEnd);
+    _myPolController.text = modelUser.userPol == '' ? ' ' : modelUser.userPol;
+    _localController.text = modelUser.myCity == '' ? ' ' : modelUser.myCity;
+    if (modelUser.searchPol == '') {
+      _searchPolController.text = ' ';
+    } else {
+      _searchPolController.text =
+          modelUser.searchPol == 'Мужской' ? 'С парнем' : 'С девушкой';
+    }
+
+    if (modelUser.userImageUrl.isNotEmpty) {
+      isPhoto = true;
+    }
+
+    _selectedInterests = modelUser.userInterests;
+    interestsCount = modelUser.userInterests.length;
+    _dateTimeBirthday = getDataTimeDate(modelUser.ageTime);
+  }
+
   void readFirebase() async {
     if (modelUser.uid == '') {
       await FirebaseFirestore.instance
@@ -142,6 +180,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         setState(() {
           modelUser = UserModel(
+              state: data['state'],
               name: data['name'],
               uid: data['uid'],
               ageTime: data['ageTime'],
@@ -160,34 +199,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     setState(() {
-      _nameController.text = modelUser.name;
-      _ageRangController.text = modelUser.searchRangeStart == 0
-          ? ' '
-          : 'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
-
-      _ageController.text =
-          modelUser.ageInt == 0 ? ' ' : modelUser.ageInt.toString();
-
-      _valuesAge = SfRangeValues(
-          modelUser.searchRangeStart == 0 ? 16 : modelUser.searchRangeStart,
-          modelUser.searchRangeEnd == 0 ? 50 : modelUser.searchRangeEnd);
-      _myPolController.text = modelUser.userPol == '' ? ' ' : modelUser.userPol;
-      _localController.text = modelUser.myCity == '' ? ' ' : modelUser.myCity;
-      if (modelUser.searchPol == '') {
-        _searchPolController.text = ' ';
-      } else {
-        _searchPolController.text =
-            modelUser.searchPol == 'Мужской' ? 'С парнем' : 'С девушкой';
-      }
-
-      if (modelUser.userImageUrl.isNotEmpty) {
-        isPhoto = true;
-      }
-
       isLoading = true;
-      _selectedInterests = modelUser.userInterests;
-      interestsCount = modelUser.userInterests.length;
-      _dateTimeBirthday = getDataTimeDate(modelUser.ageTime);
+      settingsValue();
     });
   }
 
@@ -238,27 +251,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           Icons.arrow_back_ios_new_rounded,
                                           size: 20),
                                     ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () async {
-                                        await context
-                                            .read<FirebaseAuthMethods>()
-                                            .signOut(context);
+                                  customIconButton(
+                                    path: 'images/ic_log_out.png',
+                                    width: 30,
+                                    height: 30,
+                                    onTap: () async {
+                                      await context
+                                          .read<FirebaseAuthMethods>()
+                                          .signOut(context);
 
-                                         Navigator.pushReplacement(
-                                            context,
-                                            FadeRouteAnimation(
-                                                const SignInScreen()));
-                                      },
-                                      child: Image.asset(
-                                        'images/ic_log_out.png',
-                                        height: 30,
-                                        width: 30,
-                                      ),
-                                    ),
+                                      Navigator.pushReplacement(
+                                          context,
+                                          FadeRouteAnimation(
+                                              const SignInScreen()));
+                                    },
+                                    padding: 0,
                                   ),
                                 ],
                               ),
@@ -315,39 +322,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         ),
                                       ),
                                     if (modelUser.userImageUrl.isEmpty)
-                                      InkWell(
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        onTap: () {
+                                      customIconButton(
+                                        path: 'images/ic_add.png',
+                                        width: 23,
+                                        height: 23,
+                                        onTap: () async {
                                           uploadFirstImage(
                                               context,
                                               modelUser.userImageUrl,
                                               modelUser.userImagePath);
                                         },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6),
-                                          child: Image.asset(
-                                            'images/ic_add.png',
-                                            height: 23,
-                                            width: 23,
-                                          ),
-                                        ),
+                                        padding: 6,
                                       ),
                                     if (modelUser.userImageUrl.isNotEmpty)
-                                      InkWell(
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        onTap: () {
+                                      customIconButton(
+                                        path: 'images/edit_icon.png',
+                                        width: 25,
+                                        height: 25,
+                                        onTap: () async {
                                           uploadImage(context, modelUser, true);
                                         },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(6),
-                                          child: Image.asset(
-                                            'images/edit_icon.png',
-                                            height: 25,
-                                            width: 25,
-                                          ),
-                                        ),
+                                        padding: 3,
                                       ),
                                   ],
                                 ),
@@ -363,6 +358,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   height: 40,
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.white38,
+                                          blurRadius: 5.0,
+                                          spreadRadius: 0.0,
+                                          offset: Offset(
+                                            0.0,
+                                            1.0,
+                                          ),
+                                        )
+                                      ],
                                       border: Border.all(
                                           width: 0.7, color: Colors.white30),
                                       gradient: const LinearGradient(colors: [
@@ -792,70 +798,73 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     });
                                   });
                             }),
-                            Card(
-                              color: color_data_input,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  side: const BorderSide(
-                                    width: 0.8,
-                                    color: Colors.white38,
-                                  )),
-                              elevation: 10,
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(top: 8, bottom: 8),
-                                child: MultiSelectBottomSheetField(
-                                  initialValue: modelUser.userInterests,
-                                  searchHintStyle:
-                                      const TextStyle(color: Colors.white),
-                                  buttonText: Text(
-                                    'Выбрать $interestsCount максимум (6)',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  buttonIcon: const Icon(
-                                    Icons.arrow_forward_ios_outlined,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  backgroundColor: color_data_input,
-                                  checkColor: Colors.white,
-                                  confirmText: const Text('Выбрать'),
-                                  cancelText: const Text('Закрыть'),
-                                  searchIcon: const Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                  ),
-                                  closeSearchIcon: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                  ),
-                                  searchHint: 'Поиск',
-                                  searchTextStyle:
-                                      const TextStyle(color: Colors.white),
-                                  initialChildSize: 0.4,
-                                  listType: MultiSelectListType.CHIP,
-                                  searchable: true,
-                                  title: Text(
-                                    "Ваши интересы ${interestsCount.toString()} максимум (6)",
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  items: items,
-                                  onSelectionChanged: (value) {
-                                    setState(() {
-                                      interestsCount = value.length;
-                                    });
-                                  },
-                                  onConfirm: (values) {
-                                    setState(() {
-                                      _selectedInterests = values;
-                                    });
-                                  },
-                                  chipDisplay: MultiSelectChipDisplay(
-                                    onTap: (value) {
+                            Theme(
+                              data: ThemeData.light(),
+                              child: Card(
+                                color: color_data_input,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                    side: const BorderSide(
+                                      width: 0.8,
+                                      color: Colors.white38,
+                                    )),
+                                elevation: 10,
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.only(top: 8, bottom: 8),
+                                  child: MultiSelectBottomSheetField(
+                                    initialValue: modelUser.userInterests,
+                                    searchHintStyle:
+                                        const TextStyle(color: Colors.white),
+                                    buttonText: Text(
+                                      'Выбрать $interestsCount максимум (6)',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    buttonIcon: const Icon(
+                                      Icons.arrow_forward_ios_outlined,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                    backgroundColor: color_data_input,
+                                    checkColor: Colors.white,
+                                    confirmText: const Text('Выбрать'),
+                                    cancelText: const Text('Закрыть'),
+                                    searchIcon: const Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                    ),
+                                    closeSearchIcon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                    ),
+                                    searchHint: 'Поиск',
+                                    searchTextStyle:
+                                        const TextStyle(color: Colors.white),
+                                    initialChildSize: 0.4,
+                                    listType: MultiSelectListType.CHIP,
+                                    searchable: true,
+                                    title: Text(
+                                      "Ваши интересы ${interestsCount.toString()} максимум (6)",
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    items: items,
+                                    onSelectionChanged: (value) {
                                       setState(() {
-                                        _selectedInterests.remove(value);
+                                        interestsCount = value.length;
                                       });
                                     },
+                                    onConfirm: (values) {
+                                      setState(() {
+                                        _selectedInterests = values;
+                                      });
+                                    },
+                                    chipDisplay: MultiSelectChipDisplay(
+                                      onTap: (value) {
+                                        setState(() {
+                                          _selectedInterests.remove(value);
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),

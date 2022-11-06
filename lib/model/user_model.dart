@@ -7,6 +7,7 @@ class UserModel {
   String searchPol;
   String myCity;
   String imageBackground;
+  String state;
   num ageInt;
   num searchRangeStart;
   num searchRangeEnd;
@@ -18,6 +19,7 @@ class UserModel {
   UserModel(
       {required this.name,
       required this.uid,
+      required this.state,
       required this.myCity,
       required this.ageInt,
       required this.ageTime,

@@ -1,13 +1,13 @@
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../config/const.dart';
-import '../manager_screen.dart';
+import '../../config/firestore_operations.dart';
+import '../../widget/button_widget.dart';
 
 class EditImageProfileScreen extends StatefulWidget {
   String bacImage;
@@ -26,38 +26,6 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
   int indexImage = 100;
 
   _EditImageProfileScreen(this.bacImage);
-
-  Future<void> _uploadImage(String uri) async {
-    try {
-      try {
-        final docUser = FirebaseFirestore.instance
-            .collection('User')
-            .doc(FirebaseAuth.instance.currentUser?.uid);
-
-        final json = {
-          'imageBackground': uri,
-        };
-
-        docUser.update(json).then((value) {
-          Navigator.pushReplacement(
-              context,
-              FadeRouteAnimation(
-                ManagerScreen(currentIndex: 3),
-              ));
-        });
-
-        setState(() {});
-      } on FirebaseException catch (error) {
-        if (kDebugMode) {
-          print(error);
-        }
-      }
-    } catch (err) {
-      if (kDebugMode) {
-        print(err);
-      }
-    }
-  }
 
   void readFirebase() async {
     await FirebaseFirestore.instance
@@ -90,7 +58,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
       return Scaffold(
         backgroundColor: color_data_input,
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               Container(
@@ -103,7 +71,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                     if (bacImage != '')
                       IconButton(
                         onPressed: () {
-                        Navigator.pop(context);
+                          Navigator.pop(context);
                         },
                         icon: const Icon(Icons.arrow_back_ios_new_rounded,
                             size: 20),
@@ -153,14 +121,11 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                       splashColor: Colors.transparent,
                                       highlightColor: Colors.transparent,
                                       onTap: () {
-                                        _uploadImage(listImageUri[index]);
+                                        uploadImagePhotoProfile(
+                                            listImageUri[index], context);
                                       },
                                       child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 4,
-                                            left: 4,
-                                            right: 4,
-                                            top: 4),
+                                        padding: const EdgeInsets.all(4),
                                         child: Card(
                                           shadowColor: Colors.white30,
                                           color: color_data_input,
@@ -207,27 +172,22 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                     ),
                                     if (indexImage == index &&
                                         indexImage != 100)
-                                      InkWell(
-                                        splashColor: Colors.transparent,
-                                        highlightColor: Colors.transparent,
-                                        onTap: () {
-                                          _uploadImage(listImageUri[index]);
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Image.asset(
-                                            'images/ic_save.png',
-                                            height: 24,
-                                            width: 24,
-                                          ),
-                                        ),
-                                      ),
+                                      customIconButton(
+                                          height: 24,
+                                          width: 24,
+                                          padding: 4,
+                                          path: 'images/ic_save.png',
+                                          onTap: () {
+                                            uploadImagePhotoProfile(
+                                                listImageUri[index], context);
+                                          }),
                                     if (indexImage != index)
                                       InkWell(
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () {
-                                          _uploadImage(listImageUri[index]);
+                                          uploadImagePhotoProfile(
+                                              listImageUri[index], context);
                                         },
                                         child: Container(
                                           height: 23,

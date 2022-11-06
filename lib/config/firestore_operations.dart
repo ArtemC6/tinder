@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import '../model/user_model.dart';
@@ -64,7 +64,8 @@ Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
                   imageBackground: '',
                   userInterests: [],
                   searchRangeEnd: 0,
-                  ageInt: 0),
+                  ageInt: 0,
+                  state: ''),
             )));
       });
     } on FirebaseException {
@@ -138,7 +139,8 @@ Future<void> uploadImage(
                     imageBackground: '',
                     userInterests: [],
                     searchRangeEnd: 0,
-                    ageInt: 0),
+                    ageInt: 0,
+                    state: ''),
               )));
         } else {
           Navigator.pushReplacement(
@@ -159,44 +161,48 @@ Future<void> uploadImage(
 Future<void> createSympathy(
     String idPartner, UserModel userModelCurrent) async {
   bool isSympathy = false;
-  await FirebaseFirestore.instance
-      .collection('User')
-      .doc(idPartner)
-      .collection('sympathy')
-      .get()
-      .then((querySnapshot) {
-    for (var result in querySnapshot.docs) {
-      Map<String, dynamic> data = result.data();
-      if (userModelCurrent.uid == data['uid']) {
-        isSympathy = true;
+  try {
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(idPartner)
+        .collection('sympathy')
+        .get()
+        .then((querySnapshot) {
+      for (var result in querySnapshot.docs) {
+        Map<String, dynamic> data = result.data();
+        if (userModelCurrent.uid == data['uid']) {
+          isSympathy = true;
+        }
       }
-    }
 
-    if (!isSympathy) {
-      final docUser = FirebaseFirestore.instance
-          .collection("User")
-          .doc(idPartner)
-          .collection('sympathy')
-          .doc();
-      docUser.set({
-        'id_doc': docUser.id,
-        'uid': userModelCurrent.uid,
-        'time': DateTime.now(),
-        'image_uri': userModelCurrent.userImageUrl[0],
-        'name': userModelCurrent.name,
-        'age': userModelCurrent.ageInt,
-        'city': userModelCurrent.myCity
-      });
-    }
-  });
+      if (!isSympathy) {
+        final docUser = FirebaseFirestore.instance
+            .collection("User")
+            .doc(idPartner)
+            .collection('sympathy')
+            .doc();
+        docUser.set({
+          'id_doc': docUser.id,
+          'uid': userModelCurrent.uid,
+          'time': DateTime.now(),
+          'image_uri': userModelCurrent.userImageUrl[0],
+          'name': userModelCurrent.name,
+          'age': userModelCurrent.ageInt,
+          'city': userModelCurrent.myCity
+        });
+      }
+    });
+  } on FirebaseException {}
 }
 
 Future<void> deleteSympathy(String idDoc, idUser) async {
-  final docUser = FirebaseFirestore.instance
-      .collection("User")
-      .doc(idUser)
-      .collection('sympathy');
-  docUser.doc(idDoc).delete().then((value) {});
+  try {
+    final docUser = FirebaseFirestore.instance
+        .collection("User")
+        .doc(idUser)
+        .collection('sympathy');
+    docUser.doc(idDoc).delete().then((value) {});
+  } on FirebaseException {}
 }
 
 Future<void> deleteSympathyPartner(String idPartner, String idUser) async {
@@ -270,7 +276,8 @@ Future<void> uploadImageAdd(BuildContext context, UserModel userModel) async {
                   imageBackground: '',
                   userInterests: [],
                   searchRangeEnd: 0,
-                  ageInt: 0),
+                  ageInt: 0,
+                  state: ''),
               isBack: false,
               idUser: '',
               userModelCurrent: userModel,
@@ -318,7 +325,8 @@ Future<void> imageRemove(
                   imageBackground: '',
                   userInterests: [],
                   searchRangeEnd: 0,
-                  ageInt: 0),
+                  ageInt: 0,
+                  state: ''),
               isBack: false,
               idUser: '',
               userModelCurrent: userModel,
@@ -328,4 +336,269 @@ Future<void> imageRemove(
       Navigator.pop(context);
     }
   } catch (err) {}
+}
+
+Future<void> setStateFirebase(String state) async {
+  try {
+    final docUser = FirebaseFirestore.instance
+        .collection('User')
+        .doc(FirebaseAuth.instance.currentUser?.uid);
+
+    final json = {
+      'state': state,
+    };
+    docUser.update(json);
+  } on FirebaseException {}
+}
+
+showAlertDialogDeleteThat(
+    BuildContext context, String friendId, String friendName, bool isBack) {
+  bool isDelete = false;
+  Widget cancelButton = TextButton(
+    child: const Text("Отмена"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = TextButton(
+    child: const Text("Удалить"),
+    onPressed: () {
+      if (isBack) {
+        Navigator.pop(context);
+      }
+
+      if (isDelete) {
+        FirebaseFirestore.instance
+            .collection('User')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('messages')
+            .doc(friendId)
+            .delete()
+            .then((value) async {
+          if (isBack) {
+            Navigator.pop(context);
+          }
+          var collection = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('messages')
+              .doc(friendId)
+              .collection('chats');
+          var snapshots = await collection.get();
+          for (var doc in snapshots.docs) {
+            await doc.reference.delete();
+          }
+        }).then((value) {
+          FirebaseFirestore.instance
+              .collection('User')
+              .doc(friendId)
+              .collection('messages')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .delete();
+        }).then((value) async {
+          var collection = FirebaseFirestore.instance
+              .collection('User')
+              .doc(friendId)
+              .collection('messages')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('chats');
+          var snapshots = await collection.get();
+          for (var doc in snapshots.docs) {
+            await doc.reference.delete();
+          }
+        });
+      } else {
+        FirebaseFirestore.instance
+            .collection('User')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('messages')
+            .doc(friendId)
+            .delete()
+            .then((value) async {
+          Navigator.pop(context);
+
+          var collection = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .collection('messages')
+              .doc(friendId)
+              .collection('chats');
+          var snapshots = await collection.get();
+          for (var doc in snapshots.docs) {
+            await doc.reference.delete();
+          }
+        });
+      }
+    },
+  );
+
+  showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: color_data_input,
+              title: RichText(
+                text: TextSpan(
+                  text: 'Удалить чат',
+                  style: GoogleFonts.lato(
+                    textStyle: const TextStyle(
+                        color: Colors.white, fontSize: 17, letterSpacing: .8),
+                  ),
+                ),
+              ),
+              content: CheckboxListTile(
+                activeColor: Colors.blue,
+                title: RichText(
+                  text: TextSpan(
+                    text: "Также удалить для $friendName",
+                    style: GoogleFonts.lato(
+                      textStyle: const TextStyle(
+                          color: Colors.white, fontSize: 12, letterSpacing: .3),
+                    ),
+                  ),
+                ),
+                value: isDelete,
+                onChanged: (newValue) {
+                  setState(() {
+                    isDelete = !isDelete;
+                  });
+                },
+                controlAffinity:
+                    ListTileControlAffinity.leading, //  <-- leading Checkbox
+              ),
+              actions: <Widget>[
+                cancelButton,
+                continueButton,
+              ],
+            );
+          },
+        );
+      });
+}
+
+Future<void> uploadImagePhotoProfile(String uri, BuildContext context) async {
+  try {
+    final docUser = FirebaseFirestore.instance
+        .collection('User')
+        .doc(FirebaseAuth.instance.currentUser?.uid);
+
+    final json = {
+      'imageBackground': uri,
+    };
+
+    docUser.update(json).then((value) {
+      Navigator.pushReplacement(
+          context,
+          FadeRouteAnimation(
+            ManagerScreen(currentIndex: 3),
+          ));
+    });
+  } on FirebaseException catch (error) {}
+}
+
+Future<UserModel> readUserFirebase(String uri, BuildContext context) async {
+  UserModel userModel = UserModel(
+      name: '',
+      uid: '',
+      state: '',
+      myCity: '',
+      ageInt: 0,
+      ageTime: Timestamp.now(),
+      userPol: '',
+      searchPol: '',
+      searchRangeStart: 0,
+      userImageUrl: [],
+      userImagePath: [],
+      imageBackground: '',
+      userInterests: [],
+      searchRangeEnd: 0);
+  try {
+    await FirebaseFirestore.instance
+        .collection('User')
+        .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .limit(1)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((document) async {
+        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+        userModel = UserModel(
+            name: data['name'],
+            uid: data['uid'],
+            ageTime: data['ageTime'],
+            userPol: data['myPol'],
+            searchPol: data['searchPol'],
+            searchRangeStart: data['rangeStart'],
+            userInterests: List<String>.from(data['listInterests']),
+            userImagePath: List<String>.from(data['listImagePath']),
+            userImageUrl: List<String>.from(data['listImageUri']),
+            searchRangeEnd: data['rangeEnd'],
+            myCity: data['myCity'],
+            imageBackground: data['imageBackground'],
+            ageInt: data['ageInt'],
+            state: data['state']);
+      });
+    });
+  } on FirebaseException catch (error) {}
+  return userModel;
+}
+
+showAlertDialogDeleteMessage(
+    BuildContext context, AsyncSnapshot snapshot, int index, String friendId) {
+  Widget cancelButton = TextButton(
+    child: const Text("Отмена"),
+    onPressed: () {
+      Navigator.pop(context);
+    },
+  );
+  Widget continueButton = TextButton(
+    child: const Text("Удалить"),
+    onPressed: () {
+      Navigator.pop(context);
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('messages')
+          .doc(friendId)
+          .collection('chats')
+          .doc(snapshot.data.docs[index]['idDoc'])
+          .delete()
+          .then((value) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(friendId)
+            .collection('messages')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('chats')
+            .doc(snapshot.data.docs[index]['idDoc'])
+            .delete();
+      });
+    },
+  );
+
+  AlertDialog alert = AlertDialog(
+    backgroundColor: color_data_input,
+    title: RichText(
+      text: TextSpan(
+        text: 'Удалить сообщение',
+        style: GoogleFonts.lato(
+          textStyle: const TextStyle(
+              color: Colors.white, fontSize: 17, letterSpacing: .4),
+        ),
+      ),
+    ),
+    actions: [
+      cancelButton,
+      continueButton,
+    ],
+  );
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
 }

@@ -4,8 +4,8 @@ import 'dart:async';
 import 'package:tinder/screens/auth/signin_screen.dart';
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
-import '../widget/component_widget.dart';
-import '../widget/textField_widget.dart';
+import '../../widget/button_widget.dart';
+import '../../widget/textField_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);

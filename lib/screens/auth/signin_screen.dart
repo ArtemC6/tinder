@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:tinder/screens/auth/signup_screen.dart';
 import 'dart:async';
-import 'dart:ui';
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
-import '../widget/component_widget.dart';
-import '../widget/textField_widget.dart';
+import '../../widget/button_widget.dart';
+import '../../widget/textField_widget.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);

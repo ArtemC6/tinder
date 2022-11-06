@@ -8,7 +8,9 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
 import '../config/const.dart';
+import '../config/firestore_operations.dart';
 import '../model/sympathy_model.dart';
+import '../widget/component_widget.dart';
 import 'manager_screen.dart';
 
 class ThatScreen extends StatefulWidget {
@@ -52,186 +54,136 @@ class _ThatScreenState extends State<ThatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget cardSympathy(friend, friendId, lastMessage, date) {
+    Widget cartUser(friend, friendId, lastMessage, date) {
       double width = MediaQuery.of(context).size.width;
-      return Container(
-        height: width / 3.7,
-        width: width,
-        padding: EdgeInsets.only(
-            left: width / 30, top: 0, right: width / 30, bottom: width / 30),
-        child: Card(
-          // shadowColor: Colors.white30,
-          color: color_data_input,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            // side: const BorderSide(
-            //   width: 0.8,
-            //   color: Colors.white10,
-            // )
-          ),
-          elevation: 14,
-          child: Container(
-            padding:
-                const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 10),
-            child: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ThatUserScreen(
-                          friendId: friendId,
-                          friendName: friend['name'],
-                          friendImage: friend['listImageUri'][0],
-                        )));
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: [
-                      SizedBox(
-                        child: Card(
-                          shadowColor: Colors.white38,
-                          color: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              side: const BorderSide(
-                                width: 0.8,
-                                color: Colors.white30,
-                              )),
-                          elevation: 4,
-                          child: CachedNetworkImage(
-                            progressIndicatorBuilder:
-                                (context, url, progress) => Center(
-                              child: SizedBox(
-                                height: 58,
-                                width: 58,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 0.8,
-                                  value: progress.progress,
-                                ),
-                              ),
-                            ),
-                            imageUrl: friend['listImageUri'][0],
-                            imageBuilder: (context, imageProvider) => Container(
-                              height: 58,
-                              width: 58,
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(50)),
-                                image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () {
-                          // _uploadFirstImage();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(0),
-                          child: Image.asset(
-                            'images/ic_green_dot.png',
-
-                            // 'images/ic_orange_dot.png',
-                            height: 27,
-                            width: 27,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(width: width / 40),
-                  SizedBox(
-                    width: width / 1.6,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      return InkWell(
+        onLongPress: () {
+          showAlertDialogDeleteThat(context, friendId, friend['name'], false);
+        },
+        child: Container(
+          height: width / 3.7,
+          width: width,
+          padding: EdgeInsets.only(
+              left: width / 30, top: 0, right: width / 30, bottom: width / 30),
+          child: Card(
+            color: color_data_input,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 14,
+            child: Container(
+              padding:
+                  const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 10),
+              child: InkWell(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ThatUserScreen(
+                            friendId: friendId,
+                            friendName: friend['name'],
+                            friendImage: friend['listImageUri'][0],
+                          )));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomLeft,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                text: friend['name'],
-                                style: GoogleFonts.lato(
-                                  textStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      letterSpacing: .5),
-                                ),
-                              ),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text:
-                                    '${getDataTimeDate(date).hour}: ${getDataTimeDate(date).minute}',
-                                style: GoogleFonts.lato(
-                                  textStyle: TextStyle(
-                                      color: Colors.white.withOpacity(.4),
-                                      fontSize: 10.5,
-                                      letterSpacing: .5),
-                                ),
-                              ),
-                            ),
-                          ],
+                        SizedBox(
+                          child: photoUser(
+                            uri: friend['listImageUri'][0],
+                            width: 58,
+                            height: 58,
+                            state: friend['state'], padding: 0,
+                          ),
                         ),
-                        const SizedBox(
-                          height: 4,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            SizedBox(
-                              width: width / 1.9,
-                              child: RichText(
-                                maxLines: 2,
+                      ],
+                    ),
+                    SizedBox(width: width / 40),
+                    SizedBox(
+                      width: width / 1.6,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              RichText(
                                 text: TextSpan(
-                                  text: lastMessage,
+                                  text: friend['name'],
                                   style: GoogleFonts.lato(
-                                    textStyle: TextStyle(
-                                        color: Colors.white.withOpacity(.4),
-                                        fontSize: 11,
+                                    textStyle: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
                                         letterSpacing: .5),
                                   ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              alignment: Alignment.center,
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  color: Colors.deepPurpleAccent),
-                              child: RichText(
+                              RichText(
                                 text: TextSpan(
-                                  text: '1',
+                                  text:
+                                      '${getDataTimeDate(date).hour}: ${getDataTimeDate(date).minute}',
                                   style: GoogleFonts.lato(
-                                    textStyle: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 9,
-                                        letterSpacing: .0),
+                                    textStyle: TextStyle(
+                                        color: Colors.white.withOpacity(.4),
+                                        fontSize: 10.5,
+                                        letterSpacing: .5),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 4,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(
+                                width: width / 1.9,
+                                child: RichText(
+                                  maxLines: 2,
+                                  text: TextSpan(
+                                    text: lastMessage,
+                                    style: GoogleFonts.lato(
+                                      textStyle: TextStyle(
+                                          color: Colors.white.withOpacity(.4),
+                                          fontSize: 11,
+                                          letterSpacing: .5),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                alignment: Alignment.center,
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(50),
+                                    color: Colors.deepPurpleAccent),
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: '1',
+                                    style: GoogleFonts.lato(
+                                      textStyle: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          letterSpacing: .0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -289,10 +241,10 @@ class _ThatScreenState extends State<ThatScreen> {
                                   var date = snapshot.data.docs[index]['date'];
                                   return AnimationConfiguration.staggeredList(
                                       position: index,
-                                      delay: const Duration(milliseconds: 700),
+                                      delay: const Duration(milliseconds: 500),
                                       child: SlideAnimation(
                                           duration: const Duration(
-                                              milliseconds: 2200),
+                                              milliseconds: 1800),
                                           verticalOffset: 140,
                                           curve: Curves.ease,
                                           child: FadeInAnimation(
@@ -312,7 +264,7 @@ class _ThatScreenState extends State<ThatScreen> {
                                                     var friend =
                                                         asyncSnapshot.data;
 
-                                                    return cardSympathy(
+                                                    return cartUser(
                                                         friend,
                                                         friendId,
                                                         lastMsg,

@@ -1,6 +1,6 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,16 +27,31 @@ class _HomeScreen extends State<HomeScreen>
   late CardController controllerCard;
   late AnimationController controllerHeart;
   late CurvedAnimation curveHeart, curveCancel;
-  bool isLike = false,
-      isLikeButton = false,
-      isLook = false,
-      isLoading = false;
+  bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
   List<UserModel> userModel = [];
   UserModel userModelCurrent;
 
   _HomeScreen(this.userModelCurrent);
 
   void readFirebase() async {
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Notification"),
+              content: Text(event.notification!.body!),
+              actions: [
+                TextButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });
+    });
 
     await FirebaseFirestore.instance
         .collection('User')
@@ -64,7 +79,8 @@ class _HomeScreen extends State<HomeScreen>
                 searchRangeEnd: data['rangeEnd'],
                 myCity: data['myCity'],
                 imageBackground: data['imageBackground'],
-                ageInt: data['ageInt']));
+                ageInt: data['ageInt'],
+                state: data['state']));
           });
         }
       });
@@ -93,7 +109,6 @@ class _HomeScreen extends State<HomeScreen>
   @override
   void dispose() {
     controllerHeart.dispose();
-
     super.dispose();
   }
 
@@ -156,7 +171,9 @@ class _HomeScreen extends State<HomeScreen>
                                                         userModel:
                                                             userModel[index],
                                                         isBack: true,
-                                                        idUser: '', userModelCurrent: userModelCurrent,
+                                                        idUser: '',
+                                                        userModelCurrent:
+                                                            userModelCurrent,
                                                       )));
                                         },
                                         child: Card(
@@ -208,36 +225,30 @@ class _HomeScreen extends State<HomeScreen>
                                                             .width),
                                               ),
                                               Container(
-                                                // color: Colors.black12,
+                                                alignment: Alignment.bottomLeft,
                                                 padding: const EdgeInsets.only(
                                                     bottom: 20, left: 20),
-                                                alignment: Alignment.bottomLeft,
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    text:
-                                                        '${userModel[index].name}, ${userModel[index].ageInt} \n${userModel[index].myCity}',
-                                                    style: GoogleFonts.lato(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 14,
-                                                              letterSpacing:
-                                                                  .1),
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        text:
+                                                            '${userModel[index].name}, ${userModel[index].ageInt} \n${userModel[index].myCity}',
+                                                        style: GoogleFonts.lato(
+                                                          textStyle:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 14,
+                                                                  letterSpacing:
+                                                                      .0),
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
+                                                  ],
                                                 ),
-                                                // RichText(
-                                                //   text: TextSpan(
-                                                //     text: '${userModel[index].myCity}',
-                                                //     style: GoogleFonts.lato(
-                                                //       textStyle: const TextStyle(
-                                                //           color: Colors.white,
-                                                //           fontSize: 14,
-                                                //           letterSpacing: .1),
-                                                //     ),
-                                                //   ),
-                                                // ),
                                               ),
                                             ],
                                           ),
@@ -286,8 +297,8 @@ class _HomeScreen extends State<HomeScreen>
                                             int index) async {
                                       if (orientation.toString() ==
                                           'CardSwipeOrientation.LEFT') {
-
-                                        await CachedNetworkImage.evictFromCache(userModel[index].userImageUrl[0]);
+                                        await CachedNetworkImage.evictFromCache(
+                                            userModel[index].userImageUrl[0]);
                                         // setState(() {
                                         //   isLike = false;
                                         //   isLook = true;
@@ -306,7 +317,8 @@ class _HomeScreen extends State<HomeScreen>
 
                                       if (orientation.toString() ==
                                           'CardSwipeOrientation.RIGHT') {
-                                        createSympathy(userModel[index].uid, userModelCurrent);
+                                        createSympathy(userModel[index].uid,
+                                            userModelCurrent);
                                         // await CachedNetworkImage.evictFromCache(userModel[index].userImageUrl[0]);
 
                                         // setState(() {
@@ -353,7 +365,7 @@ class _HomeScreen extends State<HomeScreen>
                                       child: FadeTransition(
                                         opacity: curveHeart,
                                         child: Image.asset(
-                                            'images/ic_cancel.png',
+                                            'images/ic_remove.png',
                                             fit: BoxFit.contain),
                                       ),
                                     ),

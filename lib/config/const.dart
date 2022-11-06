@@ -1,7 +1,5 @@
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
@@ -14,7 +12,6 @@ const color_white10 = Colors.white10;
 
 class FadeRouteAnimation extends PageRouteBuilder {
   final Widget page;
-
   FadeRouteAnimation(this.page)
       : super(
           pageBuilder: (
@@ -68,7 +65,7 @@ const List months = [
   'Декобря'
 ];
 
-List<InterestsModel> listStoryMain = [
+final List<InterestsModel> listStoryMain = [
   InterestsModel(
       name: 'Кулинария',
       id: '',
@@ -150,7 +147,7 @@ DateTime getDataTimeDate(Timestamp startDate) {
   return dateTimeStart;
 }
 
-List<IconData> listOfIcons = [
+const List<IconData> listOfIcons = [
   Icons.home_rounded,
   Icons.favorite_rounded,
   Icons.messenger_outline,
@@ -172,7 +169,6 @@ showAlertDialogLoading(BuildContext context) {
     ],
   );
 
-  // show the dialog
   showDialog(
     barrierDismissible: false,
     context: context,

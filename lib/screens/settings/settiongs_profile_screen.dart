@@ -6,7 +6,8 @@ import '../../config/const.dart';
 import '../../config/firestore_operations.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
-import '../widget/component_widget.dart';
+import '../../widget/button_widget.dart';
+import '../../widget/component_widget.dart';
 import 'edit_image_profile_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
   bool isLoading = false, isLike = false;
   late UserModel userModel;
   List<InterestsModel> listStory = [];
+
   _ProfileSettingScreen(this.userModel);
 
   void readFirebase() async {
@@ -163,17 +165,14 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                                 ),
                               ),
                             ),
-                            InkWell(
-                              splashColor: Colors.transparent,
-                              highlightColor: Colors.transparent,
-                              onTap: () {
+                            customIconButton(
+                              path: 'images/edit_icon.png',
+                              width: 25,
+                              height: 25,
+                              onTap: () async {
                                 uploadImage(context, userModel, false);
                               },
-                              child: Image.asset(
-                                'images/edit_icon.png',
-                                height: 24,
-                                width: 24,
-                              ),
+                              padding: 0,
                             ),
                           ]),
                         ],

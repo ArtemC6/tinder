@@ -8,10 +8,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:like_button/like_button.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/settings/settiongs_profile_screen.dart';
-import 'package:tinder/screens/widget/component_widget.dart';
 import '../config/const.dart';
 import '../model/interests_model.dart';
 import '../model/user_model.dart';
+import '../widget/button_widget.dart';
+import '../widget/component_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   UserModel userModel;
@@ -20,7 +21,7 @@ class ProfileScreen extends StatefulWidget {
   String idUser;
 
   ProfileScreen(
-      {required this.userModel,
+      {super.key, required this.userModel,
       required this.isBack,
       required this.idUser,
       required this.userModelCurrent});
@@ -30,7 +31,7 @@ class ProfileScreen extends StatefulWidget {
       _ProfileScreen(userModel, isBack, idUser, userModelCurrent);
 }
 
-class _ProfileScreen extends State<ProfileScreen> {
+class _ProfileScreen extends State<ProfileScreen>  {
   bool isLoading = false, isLike = false, isBack, isProprietor = false;
   UserModel userModel;
   UserModel userModelCurrent;
@@ -63,7 +64,9 @@ class _ProfileScreen extends State<ProfileScreen> {
     });
     _putLike();
     return Future.value(!isLike);
+
   }
+
 
   void readFirebase() async {
     if (userModel.uid == '' && idUser == '') {
@@ -77,34 +80,7 @@ class _ProfileScreen extends State<ProfileScreen> {
 
         setState(() {
           userModel = UserModel(
-              name: data['name'],
-              uid: data['uid'],
-              ageTime: data['ageTime'],
-              userPol: data['myPol'],
-              searchPol: data['searchPol'],
-              searchRangeStart: data['rangeStart'],
-              userInterests: List<String>.from(data['listInterests']),
-              userImagePath: List<String>.from(data['listImagePath']),
-              userImageUrl: List<String>.from(data['listImageUri']),
-              searchRangeEnd: data['rangeEnd'],
-              myCity: data['myCity'],
-              imageBackground: data['imageBackground'],
-              ageInt: data['ageInt']);
-        });
-      });
-    }
-
-    if (userModel.uid == '' && idUser != '') {
-      await FirebaseFirestore.instance
-          .collection('User')
-          .doc(idUser)
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        Map<String, dynamic> data =
-            documentSnapshot.data() as Map<String, dynamic>;
-
-        setState(() {
-          userModel = UserModel(
+              state: data['state'],
               name: data['name'],
               uid: data['uid'],
               ageTime: data['ageTime'],
@@ -132,24 +108,6 @@ class _ProfileScreen extends State<ProfileScreen> {
       }
     }
 
-    FirebaseFirestore.instance
-        .collection('Like')
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((document) async {
-        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-
-        if (data[FirebaseAuth.instance.currentUser!.uid] == null) {
-          setState(() {
-            isLike = false;
-          });
-        } else {
-          setState(() {
-            isLike = true;
-          });
-        }
-      });
-    });
 
     setState(() {
       if (FirebaseAuth.instance.currentUser?.uid == userModel.uid) {
@@ -168,8 +126,9 @@ class _ProfileScreen extends State<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)  {
     var size = MediaQuery.of(context).size;
+
     if (isLoading) {
       return Scaffold(
           backgroundColor: color_data_input,

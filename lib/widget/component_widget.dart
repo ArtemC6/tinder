@@ -1,25 +1,17 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:tinder/config/firestore_operations.dart';
-
 import '../../config/const.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
-import '../profile_screen.dart';
-import '../settings/edit_profile_screen.dart';
-import '../that_user_screen.dart';
+import '../screens/settings/edit_profile_screen.dart';
+import 'button_widget.dart';
 
 class slideInterests extends StatelessWidget {
   List<InterestsModel> listStory = [];
@@ -33,7 +25,7 @@ class slideInterests extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 22, top: 22, bottom: 22),
+          padding: const EdgeInsets.all(22),
           child: RichText(
             text: TextSpan(
               text: 'Интересы',
@@ -169,7 +161,7 @@ class slideInterestsSettings extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 22, top: 22, bottom: 22),
+          padding: const EdgeInsets.all(22),
           child: RichText(
             text: TextSpan(
               text: 'Интересы',
@@ -290,50 +282,36 @@ class slideInterestsSettings extends StatelessWidget {
                                         ),
                                       if (listStory.length > index &&
                                           index != 0)
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                FadeRouteAnimation(
-                                                    EditProfileScreen(
-                                                  isFirst: false,
-                                                  userModel: userModel,
-                                                )));
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(1),
-                                            child: Image.asset(
-                                              'images/ic_remove.png',
-                                              height: 23,
-                                              width: 23,
-                                            ),
-                                          ),
-                                        ),
+                                        customIconButton(
+                                            padding: 1,
+                                            width: 23,
+                                            height: 23,
+                                            path: 'images/ic_remove.png',
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  FadeRouteAnimation(
+                                                      EditProfileScreen(
+                                                    isFirst: false,
+                                                    userModel: userModel,
+                                                  )));
+                                            }),
                                       if (listStory.length <= index &&
                                           listStory.isNotEmpty)
-                                        InkWell(
-                                          splashColor: Colors.transparent,
-                                          highlightColor: Colors.transparent,
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                FadeRouteAnimation(
-                                                    EditProfileScreen(
-                                                  isFirst: false,
-                                                  userModel: userModel,
-                                                )));
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(6),
-                                            child: Image.asset(
-                                              'images/ic_add.png',
-                                              height: 21,
-                                              width: 21,
-                                            ),
-                                          ),
-                                        ),
+                                        customIconButton(
+                                            padding: 6,
+                                            width: 21,
+                                            height: 21,
+                                            path: 'images/ic_add.png',
+                                            onTap: () {
+                                              Navigator.push(
+                                                  context,
+                                                  FadeRouteAnimation(
+                                                      EditProfileScreen(
+                                                    isFirst: false,
+                                                    userModel: userModel,
+                                                  )));
+                                            }),
                                     ],
                                   ),
                                 ),
@@ -371,7 +349,6 @@ class slideInterestsSettings extends StatelessWidget {
 
 class photoProfile extends StatelessWidget {
   List<String> listPhoto = [];
-
   photoProfile(this.listPhoto, {super.key});
 
   @override
@@ -475,10 +452,6 @@ class photoProfileSettings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
-
-
     return Column(
       children: [
         Container(
@@ -574,38 +547,25 @@ class photoProfileSettings extends StatelessWidget {
                                     ),
                                   if (userModel.userImageUrl.length > index &&
                                       index != 0)
-                                    InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () {
-                                        imageRemove(index, context, userModel);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(2),
-                                        child: Image.asset(
-                                          'images/ic_remove.png',
-                                          height: 25,
-                                          width: 25,
-                                        ),
-                                      ),
-                                    ),
+                                    customIconButton(
+                                        padding: 2,
+                                        width: 25,
+                                        height: 25,
+                                        path: 'images/ic_remove.png',
+                                        onTap: () {
+                                          imageRemove(
+                                              index, context, userModel);
+                                        }),
                                   if (userModel.userImageUrl.length <= index &&
                                       userModel.userImageUrl.isNotEmpty)
-                                    InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () {
-                                        uploadImageAdd(context, userModel);
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6),
-                                        child: Image.asset(
-                                          'images/ic_add.png',
-                                          height: 21,
-                                          width: 21,
-                                        ),
-                                      ),
-                                    ),
+                                    customIconButton(
+                                        padding: 6,
+                                        width: 21,
+                                        height: 21,
+                                        path: 'images/ic_add.png',
+                                        onTap: () {
+                                          uploadImageAdd(context, userModel);
+                                        }),
                                 ],
                               ),
                             ),
@@ -622,76 +582,16 @@ class photoProfileSettings extends StatelessWidget {
   }
 }
 
-class buttonAuth extends StatelessWidget {
-  String name;
-  double width;
-  VoidCallback voidCallback;
-
-  buttonAuth(this.name, this.width, this.voidCallback, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaY: 15, sigmaX: 15),
-        child: InkWell(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          onTap: voidCallback,
-          child: Container(
-            height: size.width / 8,
-            width: size.width / width,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.05),
-              border: Border.all(color: color_white10, width: 0.5),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: RichText(
-              text: TextSpan(
-                text: name,
-                style: GoogleFonts.lato(
-                  textStyle: TextStyle(
-                      color: Colors.white.withOpacity(.8),
-                      fontSize: 12,
-                      letterSpacing: .5),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class SlideFadeTransition extends StatefulWidget {
-  ///The child on which to apply the given [SlideFadeTransition]
   final Widget child;
-
-  ///The offset by which to slide and [child] into view from [Direction].
-  ///Defaults to 1.0
   final double offset;
-
-  ///The curve used to animate the [child] into view.
-  ///Defaults to [Curves.easeIn]
   final Curve curve;
-
-  ///The direction from which to animate the [child] into view. [Direction.horizontal]
-  ///will make the child slide on x-axis by [offset] and [Direction.vertical] on y-axis.
-  ///Defaults to [Direction.vertical]
   final Direction direction;
-
-  ///The delay with which to animate the [child]. Takes in a [Duration] and
-  /// defaults to 0.0 seconds
   final Duration delayStart;
-
-  ///The total duration in which the animation completes. Defaults to 800 milliseconds
   final Duration animationDuration;
 
-  SlideFadeTransition({
+  const SlideFadeTransition({
+    super.key,
     required this.child,
     this.offset = 1.0,
     this.curve = Curves.easeIn,
@@ -724,16 +624,16 @@ class _SlideFadeTransitionState extends State<SlideFadeTransition>
 
     //configure the animation controller as per the direction
     if (widget.direction == Direction.vertical) {
-      _animationSlide =
-          Tween<Offset>(begin: Offset(0, widget.offset), end: Offset(0, 0))
-              .animate(CurvedAnimation(
+      _animationSlide = Tween<Offset>(
+              begin: Offset(0, widget.offset), end: const Offset(0, 0))
+          .animate(CurvedAnimation(
         curve: widget.curve,
         parent: _animationController,
       ));
     } else {
-      _animationSlide =
-          Tween<Offset>(begin: Offset(widget.offset, 0), end: Offset(0, 0))
-              .animate(CurvedAnimation(
+      _animationSlide = Tween<Offset>(
+              begin: Offset(widget.offset, 0), end: const Offset(0, 0))
+          .animate(CurvedAnimation(
         curve: widget.curve,
         parent: _animationController,
       ));
@@ -907,187 +807,69 @@ class infoPanelWidget extends StatelessWidget {
   }
 }
 
-class buttonProfileUser extends StatefulWidget {
-  UserModel userModel;
-  UserModel userModelCurrent;
+class photoUser extends StatelessWidget {
+  String uri, state;
+  double height, width, padding;
 
-  buttonProfileUser(
-    this.userModelCurrent,
-    this.userModel, {
-    Key? key,
-  });
-
-  @override
-  State<buttonProfileUser> createState() =>
-      _buttonProfileState(userModel, userModelCurrent);
-}
-
-class _buttonProfileState extends State<buttonProfileUser> {
-  UserModel userModel;
-  UserModel userModelCurrent;
-
-  _buttonProfileState(this.userModel, this.userModelCurrent);
+  photoUser(
+      {Key? key,
+      required this.uri,
+      required this.height,
+      required this.width,
+      required this.padding,
+      required this.state})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Widget button(String name, color, onTap) {
-      return Container(
-        padding: const EdgeInsets.only(right: 20),
-        height: 40,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border.all(width: 0.8, color: Colors.white38),
-            gradient: LinearGradient(colors: color),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: ElevatedButton(
-            onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
+    return Stack(
+      alignment: Alignment.bottomRight,
+      children: [
+        Card(
+          shadowColor: Colors.white30,
+          color: color_data_input,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+              side: const BorderSide(
+                width: 0.8,
+                color: Colors.white30,
+              )),
+          elevation: 6,
+          child: CachedNetworkImage(
+            progressIndicatorBuilder: (context, url, progress) => Center(
+              child: SizedBox(
+                height: height,
+                width: width,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 0.8,
+                  value: progress.progress,
+                ),
+              ),
             ),
-            child: RichText(
-              text: TextSpan(
-                text: name,
-                style: GoogleFonts.lato(
-                  textStyle: const TextStyle(
-                      color: Colors.white, fontSize: 11, letterSpacing: .1),
+            imageUrl: uri,
+            imageBuilder: (context, imageProvider) => Container(
+              height: height,
+              width: width,
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: const BorderRadius.all(Radius.circular(50)),
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
           ),
         ),
-      );
-    }
-
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('User')
-            .doc(userModelCurrent.uid)
-            .collection('sympathy')
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          bool isMutuallyMain = false;
-
-          try {
-            for (int i = 0; i < snapshot.data.docs.length; i++) {
-              isMutuallyMain = snapshot.data.docs[i]['uid'] ==
-                  FirebaseAuth.instance.currentUser!.uid;
-            }
-          } catch (E) {}
-          return StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('User')
-                  .doc(userModel.uid)
-                  .collection('sympathy')
-                  .snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                bool isMutually = false;
-
-                try {
-                  for (int i = 0; i < snapshot.data.docs.length; i++) {
-                    isMutually =
-                        snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                  }
-                } catch (E) {}
-
-                if (isMutuallyMain && !isMutually) {
-                  return button('Ожидайте ответа',
-                      [Colors.blueAccent, Colors.purpleAccent], () {
-                    if (!isMutuallyMain) {
-                      createSympathy(userModelCurrent.uid, userModel);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    } else {
-                      deleteSympathyPartner(
-                          userModelCurrent.uid, userModel.uid);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    }
-                  });
-                } else if (!isMutuallyMain && !isMutually) {
-                  return button(
-                      'Оставить симпатию', [Colors.white30, Colors.white30],
-                      () {
-                    if (!isMutuallyMain) {
-                      createSympathy(userModelCurrent.uid, userModel);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    } else {
-                      deleteSympathyPartner(
-                          userModelCurrent.uid, userModel.uid);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    }
-                  });
-                } else {
-                  return button('Написать', [
-                    Colors.blueAccent,
-                    Colors.purpleAccent,
-                    Colors.orangeAccent
-                  ], () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ThatUserScreen(
-                              friendId: userModel.uid,
-                              friendName: userModel.name,
-                              friendImage: userModel.userImageUrl[0],
-                            )));
-                  });
-                }
-              });
-        });
-  }
-}
-
-class buttonProfileMy extends StatelessWidget {
-  UserModel userModel;
-
-  buttonProfileMy(this.userModel);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(right: 20),
-      height: 40,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(width: 0.7, color: Colors.white30),
-          gradient: const LinearGradient(
-              colors: [Colors.blueAccent, Colors.purpleAccent]),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                FadeRouteAnimation(EditProfileScreen(
-                  isFirst: false,
-                  userModel: userModel,
-                )));
-          },
-          style: ElevatedButton.styleFrom(
-            shadowColor: Colors.transparent,
-            backgroundColor: Colors.transparent,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          ),
-          child: RichText(
-            text: TextSpan(
-              text: 'Редактировать',
-              style: GoogleFonts.lato(
-                textStyle: const TextStyle(
-                    color: Colors.white, fontSize: 11, letterSpacing: .1),
-              ),
-            ),
-          ),
-        ),
-      ),
+        if (state == 'online')
+          customIconButton(
+              padding: padding,
+              width: 27,
+              height: 27,
+              path: 'images/ic_green_dot.png',
+              onTap: () {}),
+      ],
     );
   }
 }
