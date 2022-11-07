@@ -1,9 +1,9 @@
 # Tinder Karakol
 
-+ Firebase database
++ Backend is built on
   + Firebase Authentication
-  + Firebase Cloud-Storage 
-  + Firebase Realtime Database 
+  + Firebase Cloud-Storage
+  + Firebase Realtime Database
 
 [Anroid Apk](https://drive.google.com/drive/folders/1F6rqRSiczG_B6GQAPkRxZh09hUUThbk2?usp=sharing) 
 
