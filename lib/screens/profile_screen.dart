@@ -21,7 +21,8 @@ class ProfileScreen extends StatefulWidget {
   String idUser;
 
   ProfileScreen(
-      {super.key, required this.userModel,
+      {super.key,
+      required this.userModel,
       required this.isBack,
       required this.idUser,
       required this.userModelCurrent});
@@ -31,7 +32,7 @@ class ProfileScreen extends StatefulWidget {
       _ProfileScreen(userModel, isBack, idUser, userModelCurrent);
 }
 
-class _ProfileScreen extends State<ProfileScreen>  {
+class _ProfileScreen extends State<ProfileScreen> {
   bool isLoading = false, isLike = false, isBack, isProprietor = false;
   UserModel userModel;
   UserModel userModelCurrent;
@@ -64,40 +65,9 @@ class _ProfileScreen extends State<ProfileScreen>  {
     });
     _putLike();
     return Future.value(!isLike);
-
   }
 
-
-  void readFirebase() async {
-    if (userModel.uid == '' && idUser == '') {
-      await FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        Map<String, dynamic> data =
-            documentSnapshot.data() as Map<String, dynamic>;
-
-        setState(() {
-          userModel = UserModel(
-              state: data['state'],
-              name: data['name'],
-              uid: data['uid'],
-              ageTime: data['ageTime'],
-              userPol: data['myPol'],
-              searchPol: data['searchPol'],
-              searchRangeStart: data['rangeStart'],
-              userInterests: List<String>.from(data['listInterests']),
-              userImagePath: List<String>.from(data['listImagePath']),
-              userImageUrl: List<String>.from(data['listImageUri']),
-              searchRangeEnd: data['rangeEnd'],
-              myCity: data['myCity'],
-              imageBackground: data['imageBackground'],
-              ageInt: data['ageInt']);
-        });
-      });
-    }
-
+  Future readFirebase() async {
     for (var elementMain in userModel.userInterests) {
       for (var element in listStoryMain) {
         if (elementMain == element.name) {
@@ -107,7 +77,6 @@ class _ProfileScreen extends State<ProfileScreen>  {
         }
       }
     }
-
 
     setState(() {
       if (FirebaseAuth.instance.currentUser?.uid == userModel.uid) {
@@ -126,12 +95,12 @@ class _ProfileScreen extends State<ProfileScreen>  {
   }
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
     if (isLoading) {
       return Scaffold(
-          backgroundColor: color_data_input,
+          backgroundColor: color_black_88,
           body: SingleChildScrollView(
               child: AnimationLimiter(
                   child: AnimationConfiguration.staggeredList(
@@ -200,7 +169,6 @@ class _ProfileScreen extends State<ProfileScreen>  {
                             margin: const EdgeInsets.only(left: 20),
                             alignment: Alignment.centerLeft,
                             color: Colors.transparent,
-                            // padding: const EdgeInsets.only(top: 50),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -210,7 +178,7 @@ class _ProfileScreen extends State<ProfileScreen>  {
                                   width: 110,
                                   child: Card(
                                     shadowColor: Colors.white38,
-                                    color: color_data_input,
+                                    color: color_black_88,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                         side: const BorderSide(
@@ -305,24 +273,16 @@ class _ProfileScreen extends State<ProfileScreen>  {
                                         ),
                                       ),
                                     ),
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          RichText(
-                                            text: TextSpan(
-                                              text: userModel.myCity,
-                                              style: GoogleFonts.lato(
-                                                textStyle: TextStyle(
-                                                    color: Colors.white
-                                                        .withOpacity(0.8),
-                                                    fontSize: 11,
-                                                    letterSpacing: .5),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                    RichText(
+                                      text: TextSpan(
+                                        text: userModel.myCity,
+                                        style: GoogleFonts.lato(
+                                          textStyle: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontSize: 11,
+                                              letterSpacing: .5),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -341,7 +301,7 @@ class _ProfileScreen extends State<ProfileScreen>  {
                             margin: const EdgeInsets.only(top: 20),
                             alignment: Alignment.topLeft,
                             decoration: const BoxDecoration(
-                                color: color_data_input,
+                                color: color_black_88,
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(22),
                                     topRight: Radius.circular(22))),
@@ -364,7 +324,7 @@ class _ProfileScreen extends State<ProfileScreen>  {
           ))));
     }
     return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: Center(
           child: LoadingAnimationWidget.dotsTriangle(
             size: 44,

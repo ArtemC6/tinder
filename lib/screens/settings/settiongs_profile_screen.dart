@@ -53,7 +53,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
     var size = MediaQuery.of(context).size;
     if (isLoading) {
       return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: SingleChildScrollView(
           child: Stack(
             children: [
@@ -88,24 +88,21 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
               if (isLoading)
                 Positioned(
                   child: Container(
-                    padding: const EdgeInsets.only(top: 24, right: 24),
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            FadeRouteAnimation(EditImageProfileScreen(
-                              bacImage: userModel.imageBackground,
-                            )));
-                      },
-                      icon: Image.asset(
-                        'images/ic_image.png',
+                      padding: const EdgeInsets.only(top: 24, right: 24),
+                      alignment: Alignment.centerRight,
+                      child: customIconButton(
                         height: 25,
                         width: 25,
-                      ),
-                      color: Colors.white,
-                    ),
-                  ),
+                        path: 'images/ic_image.png',
+                        padding: 0,
+                        onTap: () {
+                          Navigator.pushReplacement(
+                              context,
+                              FadeRouteAnimation(EditImageProfileScreen(
+                                bacImage: userModel.imageBackground,
+                              )));
+                        },
+                      )),
                 ),
               Container(
                 margin: EdgeInsets.only(top: size.height * .20),
@@ -126,7 +123,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                               width: 110,
                               child: Card(
                                 shadowColor: Colors.white38,
-                                color: color_data_input,
+                                color: color_black_88,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                     side: const BorderSide(
@@ -228,7 +225,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                       margin: const EdgeInsets.only(top: 20),
                       alignment: Alignment.topLeft,
                       decoration: const BoxDecoration(
-                          color: color_data_input,
+                          color: color_black_88,
                           borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(22),
                               topRight: Radius.circular(22))),
@@ -252,7 +249,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
       );
     }
     return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: Center(
           child: LoadingAnimationWidget.dotsTriangle(
             size: 44,

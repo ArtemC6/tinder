@@ -2,11 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/sympathy_model.dart';
-import '../widget/component_widget.dart';
+import '../widget/card_widget.dart';
 import '../widget/message_tem.dart';
 import '../widget/message_textfield.dart';
 
@@ -28,31 +27,14 @@ class ThatUserScreen extends StatefulWidget {
 }
 
 class _ThatUserScreenState extends State<ThatUserScreen> {
-  final String friendId;
-  final String friendName;
-  final String friendImage;
-  bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
+  final String friendId, friendName, friendImage;
   List<SympathyModel> listSympathy = [];
-
   _ThatUserScreenState(this.friendId, this.friendName, this.friendImage);
-
-  void readFirebase() async {
-    setState(() {
-      isLoading = true;
-    });
-  }
-
-  @override
-  void initState() {
-    readFirebase();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
       return Scaffold(
-          backgroundColor: color_data_input,
+          backgroundColor: color_black_88,
           body: SingleChildScrollView(
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
@@ -60,7 +42,7 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    color: color_data_input,
+                    color: color_black_88,
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.only(
                         left: MediaQuery.of(context).size.width / 30,
@@ -210,7 +192,7 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
                       child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: const BoxDecoration(
-                        color: color_data_input,
+                        color: color_black_88,
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(25),
                             topRight: Radius.circular(25))),
@@ -272,13 +254,4 @@ class _ThatUserScreenState extends State<ThatUserScreen> {
             ),
           ));
     }
-    return Scaffold(
-        backgroundColor: color_data_input,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
-  }
 }

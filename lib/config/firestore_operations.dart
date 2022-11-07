@@ -438,7 +438,7 @@ showAlertDialogDeleteThat(
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: color_data_input,
+              backgroundColor: color_black_88,
               title: RichText(
                 text: TextSpan(
                   text: 'Удалить чат',
@@ -495,7 +495,7 @@ Future<void> uploadImagePhotoProfile(String uri, BuildContext context) async {
             ManagerScreen(currentIndex: 3),
           ));
     });
-  } on FirebaseException catch (error) {}
+  } on FirebaseException {}
 }
 
 Future<UserModel> readUserFirebase(String uri, BuildContext context) async {
@@ -541,7 +541,7 @@ Future<UserModel> readUserFirebase(String uri, BuildContext context) async {
             state: data['state']);
       });
     });
-  } on FirebaseException catch (error) {}
+  } on FirebaseException {}
   return userModel;
 }
 
@@ -579,7 +579,7 @@ showAlertDialogDeleteMessage(
   );
 
   AlertDialog alert = AlertDialog(
-    backgroundColor: color_data_input,
+    backgroundColor: color_black_88,
     title: RichText(
       text: TextSpan(
         text: 'Удалить сообщение',

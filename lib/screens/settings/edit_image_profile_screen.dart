@@ -27,7 +27,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   _EditImageProfileScreen(this.bacImage);
 
-  void readFirebase() async {
+  Future readFirebaseImageProfile() async {
     await FirebaseFirestore.instance
         .collection('ImageProfile')
         .doc('Image')
@@ -48,7 +48,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   @override
   void initState() {
-    readFirebase();
+    readFirebaseImageProfile();
     super.initState();
   }
 
@@ -56,7 +56,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
@@ -77,9 +77,8 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                             size: 20),
                         color: Colors.white,
                       ),
-                    Container(
+                    Align(
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(),
                       child: RichText(
                         text: TextSpan(
                           text: 'Фон',
@@ -128,7 +127,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                         padding: const EdgeInsets.all(4),
                                         child: Card(
                                           shadowColor: Colors.white30,
-                                          color: color_data_input,
+                                          color: color_black_88,
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(12),
@@ -217,7 +216,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
       );
     }
     return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: Center(
           child: LoadingAnimationWidget.dotsTriangle(
             size: 44,

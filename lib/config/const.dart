@@ -5,13 +5,12 @@ import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 import '../model/interests_model.dart';
 
-const color_auth = Color(0xff192028);
-const color_data_input = Color(0xff212428);
-const black_86 = Color(0xFF2D2D2D);
-const color_white10 = Colors.white10;
+const color_blue_90 = Color(0xff192028);
+const color_black_88 = Color(0xff212428);
 
 class FadeRouteAnimation extends PageRouteBuilder {
   final Widget page;
+
   FadeRouteAnimation(this.page)
       : super(
           pageBuilder: (
@@ -157,9 +156,8 @@ const List<IconData> listOfIcons = [
 showAlertDialogLoading(BuildContext context) {
   AlertDialog alert = AlertDialog(
     backgroundColor: Colors.transparent,
-    shadowColor:  Colors.transparent,
+    shadowColor: Colors.transparent,
     surfaceTintColor: Colors.transparent,
-
     actions: [
       Center(
           child: LoadingAnimationWidget.dotsTriangle(

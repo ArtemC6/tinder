@@ -5,7 +5,6 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -41,7 +40,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late UserModel modelUser;
 
   _EditProfileScreenState(this.isFirst, this.modelUser);
-
   bool isLoading = false, isError = false, isPhoto = false;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
@@ -53,12 +51,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   DateTime _dateTimeBirthday = DateTime.now();
   late SfRangeValues _valuesAge;
   int interestsCount = 0;
-  FirebaseStorage storage = FirebaseStorage.instance;
 
   void showDatePicker() {
     DatePicker.showDatePicker(context,
         theme: const DatePickerTheme(
-            backgroundColor: color_data_input,
+            backgroundColor: color_black_88,
             cancelStyle: TextStyle(color: Colors.white),
             itemStyle: TextStyle(color: Colors.white)),
         showTitleActions: true,
@@ -158,17 +155,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _searchPolController.text =
           modelUser.searchPol == 'Мужской' ? 'С парнем' : 'С девушкой';
     }
-
     if (modelUser.userImageUrl.isNotEmpty) {
       isPhoto = true;
     }
-
     _selectedInterests = modelUser.userInterests;
     interestsCount = modelUser.userInterests.length;
     _dateTimeBirthday = getDataTimeDate(modelUser.ageTime);
   }
 
-  void readFirebase() async {
+  Future readFirebase() async {
     if (modelUser.uid == '') {
       await FirebaseFirestore.instance
           .collection('User')
@@ -216,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     var height = MediaQuery.of(context).size.height;
     if (isLoading) {
       return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Container(
@@ -275,7 +270,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               width: 120,
                               child: Card(
                                 shadowColor: Colors.white30,
-                                color: color_data_input,
+                                color: color_black_88,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(100),
                                     side: const BorderSide(
@@ -433,7 +428,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               showCupertinoModalBottomSheet(
                                   topRadius: const Radius.circular(30),
                                   duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_data_input,
+                                  backgroundColor: color_black_88,
                                   context: context,
                                   builder: (context) {
                                     return StatefulBuilder(
@@ -447,7 +442,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           children: [
                                             Card(
                                               shadowColor: Colors.white30,
-                                              color: color_data_input,
+                                              color: color_black_88,
                                               shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(14),
@@ -541,7 +536,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               showCupertinoModalBottomSheet(
                                   topRadius: const Radius.circular(30),
                                   duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_data_input,
+                                  backgroundColor: color_black_88,
                                   context: context,
                                   builder: (context) {
                                     return StatefulBuilder(
@@ -554,7 +549,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           children: [
                                             Card(
                                               shadowColor: Colors.white30,
-                                              color: color_data_input,
+                                              color: color_black_88,
                                               shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(14),
@@ -646,7 +641,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               showCupertinoModalBottomSheet(
                                   topRadius: const Radius.circular(30),
                                   duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_data_input,
+                                  backgroundColor: color_black_88,
                                   context: context,
                                   builder: (context) {
                                     return StatefulBuilder(
@@ -659,7 +654,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           children: [
                                             Card(
                                               shadowColor: Colors.white30,
-                                              color: color_data_input,
+                                              color: color_black_88,
                                               shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(14),
@@ -750,7 +745,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               showCupertinoModalBottomSheet(
                                   topRadius: const Radius.circular(30),
                                   duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_data_input,
+                                  backgroundColor: color_black_88,
                                   context: context,
                                   builder: (context) {
                                     return StatefulBuilder(
@@ -801,7 +796,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Theme(
                               data: ThemeData.light(),
                               child: Card(
-                                color: color_data_input,
+                                color: color_black_88,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18),
                                     side: const BorderSide(
@@ -825,7 +820,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       color: Colors.white,
                                       size: 18,
                                     ),
-                                    backgroundColor: color_data_input,
+                                    backgroundColor: color_black_88,
                                     checkColor: Colors.white,
                                     confirmText: const Text('Выбрать'),
                                     cancelText: const Text('Закрыть'),
@@ -882,7 +877,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     return Scaffold(
-        backgroundColor: color_data_input,
+        backgroundColor: color_black_88,
         body: Center(
           child: LoadingAnimationWidget.dotsTriangle(
             size: 44,

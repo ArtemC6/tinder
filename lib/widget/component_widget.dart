@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,6 +10,7 @@ import '../../config/const.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
 import '../screens/settings/edit_profile_screen.dart';
+import 'animation_widget.dart';
 import 'button_widget.dart';
 
 class slideInterests extends StatelessWidget {
@@ -70,7 +70,7 @@ class slideInterests extends StatelessWidget {
                                 if (listStory.length > index)
                                   Card(
                                     shadowColor: Colors.white30,
-                                    color: color_data_input,
+                                    color: color_black_88,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(100),
@@ -207,7 +207,7 @@ class slideInterestsSettings extends StatelessWidget {
                               children: <Widget>[
                                 Card(
                                   shadowColor: Colors.white30,
-                                  color: color_data_input,
+                                  color: color_black_88,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(100),
                                       side: const BorderSide(
@@ -349,6 +349,7 @@ class slideInterestsSettings extends StatelessWidget {
 
 class photoProfile extends StatelessWidget {
   List<String> listPhoto = [];
+
   photoProfile(this.listPhoto, {super.key});
 
   @override
@@ -393,7 +394,7 @@ class photoProfile extends StatelessWidget {
                                 bottom: 5, left: 5, right: 5, top: 5),
                             child: Card(
                               shadowColor: Colors.white30,
-                              color: color_data_input,
+                              color: color_black_88,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   side: const BorderSide(
@@ -405,7 +406,7 @@ class photoProfile extends StatelessWidget {
                                 imageBuilder: (context, imageProvider) =>
                                     Container(
                                   decoration: BoxDecoration(
-                                    color: color_data_input,
+                                    color: color_black_88,
                                     borderRadius: const BorderRadius.all(
                                         Radius.circular(14)),
                                     image: DecorationImage(
@@ -492,7 +493,7 @@ class photoProfileSettings extends StatelessWidget {
                                 bottom: 5, left: 5, right: 5, top: 5),
                             child: Card(
                               shadowColor: Colors.white30,
-                              color: color_data_input,
+                              color: color_black_88,
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                   side: const BorderSide(
@@ -578,92 +579,6 @@ class photoProfileSettings extends StatelessWidget {
               ),
             )),
       ],
-    );
-  }
-}
-
-class SlideFadeTransition extends StatefulWidget {
-  final Widget child;
-  final double offset;
-  final Curve curve;
-  final Direction direction;
-  final Duration delayStart;
-  final Duration animationDuration;
-
-  const SlideFadeTransition({
-    super.key,
-    required this.child,
-    this.offset = 1.0,
-    this.curve = Curves.easeIn,
-    this.direction = Direction.vertical,
-    this.delayStart = const Duration(seconds: 0),
-    this.animationDuration = const Duration(milliseconds: 800),
-  });
-
-  @override
-  _SlideFadeTransitionState createState() => _SlideFadeTransitionState();
-}
-
-enum Direction { vertical, horizontal }
-
-class _SlideFadeTransitionState extends State<SlideFadeTransition>
-    with SingleTickerProviderStateMixin {
-  late Animation<Offset> _animationSlide;
-
-  late AnimationController _animationController;
-
-  late Animation<double> _animationFade;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: widget.animationDuration,
-    );
-
-    //configure the animation controller as per the direction
-    if (widget.direction == Direction.vertical) {
-      _animationSlide = Tween<Offset>(
-              begin: Offset(0, widget.offset), end: const Offset(0, 0))
-          .animate(CurvedAnimation(
-        curve: widget.curve,
-        parent: _animationController,
-      ));
-    } else {
-      _animationSlide = Tween<Offset>(
-              begin: Offset(widget.offset, 0), end: const Offset(0, 0))
-          .animate(CurvedAnimation(
-        curve: widget.curve,
-        parent: _animationController,
-      ));
-    }
-
-    _animationFade =
-        Tween<double>(begin: -1.0, end: 1.0).animate(CurvedAnimation(
-      curve: widget.curve,
-      parent: _animationController,
-    ));
-
-    Timer(widget.delayStart, () {
-      _animationController.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _animationFade,
-      child: SlideTransition(
-        position: _animationSlide,
-        child: widget.child,
-      ),
     );
   }
 }
@@ -803,73 +718,6 @@ class infoPanelWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class photoUser extends StatelessWidget {
-  String uri, state;
-  double height, width, padding;
-
-  photoUser(
-      {Key? key,
-      required this.uri,
-      required this.height,
-      required this.width,
-      required this.padding,
-      required this.state})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.bottomRight,
-      children: [
-        Card(
-          shadowColor: Colors.white30,
-          color: color_data_input,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(100),
-              side: const BorderSide(
-                width: 0.8,
-                color: Colors.white30,
-              )),
-          elevation: 6,
-          child: CachedNetworkImage(
-            progressIndicatorBuilder: (context, url, progress) => Center(
-              child: SizedBox(
-                height: height,
-                width: width,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 0.8,
-                  value: progress.progress,
-                ),
-              ),
-            ),
-            imageUrl: uri,
-            imageBuilder: (context, imageProvider) => Container(
-              height: height,
-              width: width,
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: const BorderRadius.all(Radius.circular(50)),
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ),
-        if (state == 'online')
-          customIconButton(
-              padding: padding,
-              width: 27,
-              height: 27,
-              path: 'images/ic_green_dot.png',
-              onTap: () {}),
-      ],
     );
   }
 }

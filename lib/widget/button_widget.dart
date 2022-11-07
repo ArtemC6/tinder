@@ -1,16 +1,13 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../screens/settings/edit_profile_screen.dart';
 import '../screens/that_user_screen.dart';
-
 
 class buttonAuth extends StatelessWidget {
   String name;
@@ -36,7 +33,7 @@ class buttonAuth extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(.05),
-              border: Border.all(color: color_white10, width: 0.5),
+              border: Border.all(color: Colors.white10, width: 0.5),
               borderRadius: BorderRadius.circular(15),
             ),
             child: RichText(
@@ -64,11 +61,11 @@ class customIconButton extends StatelessWidget {
 
   customIconButton(
       {Key? key,
-        required this.path,
-        required this.height,
-        required this.width,
-        required this.padding,
-        required this.onTap})
+      required this.path,
+      required this.height,
+      required this.width,
+      required this.padding,
+      required this.onTap})
       : super(key: key);
 
   @override
@@ -94,11 +91,11 @@ class buttonProfileUser extends StatefulWidget {
   UserModel userModelCurrent;
 
   buttonProfileUser(
-      this.userModelCurrent,
-      this.userModel, {
-        super.key,
-        Key,
-      });
+    this.userModelCurrent,
+    this.userModel, {
+    super.key,
+    Key,
+  });
 
   @override
   State<buttonProfileUser> createState() =>
@@ -190,36 +187,36 @@ class _buttonProfileState extends State<buttonProfileUser> {
                 if (isMutuallyMain && !isMutually) {
                   return button('Ожидайте ответа',
                       [Colors.blueAccent, Colors.purpleAccent], () {
-                        if (!isMutuallyMain) {
-                          createSympathy(userModelCurrent.uid, userModel);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        } else {
-                          deleteSympathyPartner(
-                              userModelCurrent.uid, userModel.uid);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        }
+                    if (!isMutuallyMain) {
+                      createSympathy(userModelCurrent.uid, userModel);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
                       });
+                    } else {
+                      deleteSympathyPartner(
+                          userModelCurrent.uid, userModel.uid);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    }
+                  });
                 } else if (!isMutuallyMain && !isMutually) {
                   return button(
                       'Оставить симпатию', [Colors.white30, Colors.white30],
-                          () {
-                        if (!isMutuallyMain) {
-                          createSympathy(userModelCurrent.uid, userModel);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        } else {
-                          deleteSympathyPartner(
-                              userModelCurrent.uid, userModel.uid);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        }
+                      () {
+                    if (!isMutuallyMain) {
+                      createSympathy(userModelCurrent.uid, userModel);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
                       });
+                    } else {
+                      deleteSympathyPartner(
+                          userModelCurrent.uid, userModel.uid);
+                      setState(() {
+                        isMutuallyMain = !isMutuallyMain;
+                      });
+                    }
+                  });
                 } else {
                   return button('Написать', [
                     Colors.blueAccent,
@@ -228,10 +225,10 @@ class _buttonProfileState extends State<buttonProfileUser> {
                   ], () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ThatUserScreen(
-                          friendId: userModelCurrent.uid,
-                          friendName: userModelCurrent.name,
-                          friendImage: userModelCurrent.userImageUrl[0],
-                        )));
+                              friendId: userModelCurrent.uid,
+                              friendName: userModelCurrent.name,
+                              friendImage: userModelCurrent.userImageUrl[0],
+                            )));
                   });
                 }
               });
@@ -267,8 +264,6 @@ class buttonProfileMy extends StatelessWidget {
               colors: [Colors.blueAccent, Colors.purpleAccent]),
           borderRadius: BorderRadius.circular(20),
         ),
-
-
         child: ElevatedButton(
           onPressed: () {
             Navigator.push(
@@ -282,7 +277,7 @@ class buttonProfileMy extends StatelessWidget {
             shadowColor: Colors.transparent,
             backgroundColor: Colors.transparent,
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
           child: RichText(
             text: TextSpan(

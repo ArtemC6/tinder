@@ -127,7 +127,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
 
     if (isLoading) {
       return Scaffold(
-          backgroundColor: color_data_input,
+          backgroundColor: color_black_88,
           bottomNavigationBar: SizedBox(
             height: size.width * .150,
             child: ListView.builder(
@@ -173,7 +173,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
           body: SizedBox.expand(child: childEmployee()));
     }
     return Scaffold(
-      backgroundColor: color_data_input,
+      backgroundColor: color_black_88,
       body: Center(
         child: LoadingAnimationWidget.dotsTriangle(
           size: 44,

@@ -11,6 +11,7 @@ class MessageTextField extends StatefulWidget {
   const MessageTextField(this.currentId, this.friendId, {super.key});
 
   @override
+
   _MessageTextFieldState createState() => _MessageTextFieldState();
 }
 
@@ -45,8 +46,8 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                   decoration: BoxDecoration(
-                    color: color_data_input,
-                    border: Border.all(color: color_data_input),
+                    color: color_black_88,
+                    border: Border.all(color: color_black_88),
                     borderRadius: BorderRadius.circular(26),
                   ),
                   child: TextFormField(
@@ -58,18 +59,6 @@ class _MessageTextFieldState extends State<MessageTextField> {
                     minLines: 1,
                     maxLines: 4,
                     decoration: InputDecoration(
-
-                        // suffixIcon: InkWell(
-                        //   onTap: () {
-                        //
-                        //
-                        //
-                        //   },
-                        //   child: const Icon(
-                        //     Icons.emoji_emotions_outlined,
-                        //     color: Colors.grey,
-                        //   ), // icon is 48px widget.
-                        // ),
                         border: InputBorder.none,
                         focusedBorder: InputBorder.none,
                         enabledBorder: InputBorder.none,
@@ -78,11 +67,10 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         contentPadding: const EdgeInsets.only(
                             left: 15, bottom: 5, top: 11, right: 15),
                         counterStyle: const TextStyle(color: Colors.white),
-
                         hintStyle:
                             TextStyle(color: Colors.white.withOpacity(0.9)),
                         hintText: "Сообщение..."),
-                    style:  TextStyle(
+                    style: const TextStyle(
                       fontSize: 15.5,
                       color: Colors.white,
                     ),

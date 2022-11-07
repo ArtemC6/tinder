@@ -1,16 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import
-'../main.dart';
+import '../main.dart';
 import 'const.dart';
 
 class FirebaseAuthMethods {
   final FirebaseAuth _auth;
 
   FirebaseAuthMethods(this._auth);
+
   User get user => _auth.currentUser!;
+
   Stream<User?> get authState => FirebaseAuth.instance.authStateChanges();
+
   Future<void> signUpWithEmail({
     required String email,
     required String password,

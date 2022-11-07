@@ -105,7 +105,7 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: color_auth,
+      backgroundColor: color_blue_90,
       body: ScrollConfiguration(
         behavior: MyBehavior(),
         child: SingleChildScrollView(
@@ -155,7 +155,7 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
                       child: Padding(
                         padding: EdgeInsets.only(top: size.height * .1),
                         child: Text(
-                          'APP NAME',
+                          'Tinder Karakol',
                           style: TextStyle(
                             color: Colors.white.withOpacity(.7),
                             fontSize: 30,

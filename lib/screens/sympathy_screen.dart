@@ -7,10 +7,9 @@ import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
-import '../model/sympathy_model.dart';
 import '../model/user_model.dart';
 import '../widget/button_widget.dart';
-import '../widget/component_widget.dart';
+import '../widget/card_widget.dart';
 
 class SympathyScreen extends StatefulWidget {
   late UserModel userModelCurrent;
@@ -22,30 +21,14 @@ class SympathyScreen extends StatefulWidget {
 }
 
 class _SympathyScreenState extends State<SympathyScreen> {
-  bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
-  List<SympathyModel> listSympathy = [];
   UserModel userModelCurrent;
-
   _SympathyScreenState(this.userModelCurrent);
-
-  void readFirebase() async {
-    setState(() {
-      isLoading = true;
-    });
-  }
-
-  @override
-  void initState() {
-    readFirebase();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
 
-    Widget button(String name, color, onTap) {
+    Widget buttonSympathy(String name, color, onTap) {
       return SizedBox(
         height: 40,
         child: DecoratedBox(
@@ -116,7 +99,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                   right: width / 20,
                   bottom: width / 20),
               child: Card(
-                color: color_data_input,
+                color: color_black_88,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                     side: const BorderSide(
@@ -158,7 +141,6 @@ class _SympathyScreenState extends State<SympathyScreen> {
                     child: Padding(
                       padding: EdgeInsets.all(width / 50),
                       child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: width / 3.8,
@@ -226,9 +208,6 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                     snapshot.data.docs[index]
                                                         ['id_doc'],
                                                     userModelCurrent.uid);
-                                                setState(() {
-                                                  listSympathy.removeAt(index);
-                                                });
                                               },
                                               icon: const Icon(Icons.close,
                                                   size: 20),
@@ -245,10 +224,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                       MainAxisAlignment.spaceAround,
                                   children: [
                                     if (!isMutuallyMy)
-                                      button('Принять симпатию', [
-                                        color_data_input,
-                                        color_data_input
-                                      ], () {
+                                      buttonSympathy('Принять симпатию',
+                                          [color_black_88, color_black_88], () {
                                         if (!isMutuallyMy) {
                                           createSympathy(
                                               snapshot.data.docs[index]['uid'],
@@ -266,7 +243,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                         }
                                       }),
                                     if (isMutuallyMy)
-                                      button('У вас взаимно', [
+                                      buttonSympathy('У вас взаимно', [
                                         Colors.blueAccent,
                                         Colors.purpleAccent,
                                         Colors.orangeAccent
@@ -322,84 +299,74 @@ class _SympathyScreenState extends State<SympathyScreen> {
           });
     }
 
-    if (isLoading) {
-      return Scaffold(
-          backgroundColor: color_data_input,
-          body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, bottom: 10),
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Симпатии',
-                      style: GoogleFonts.lato(
-                        textStyle: TextStyle(
-                            color: Colors.white.withOpacity(.8),
-                            fontSize: 20,
-                            letterSpacing: .5),
-                      ),
+    return Scaffold(
+        backgroundColor: color_black_88,
+        body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10),
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Симпатии',
+                    style: GoogleFonts.lato(
+                      textStyle: TextStyle(
+                          color: Colors.white.withOpacity(.8),
+                          fontSize: 20,
+                          letterSpacing: .5),
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('User')
-                          .doc(userModelCurrent.uid)
-                          .collection('sympathy')
-                          .snapshots(),
-                      builder: (context, AsyncSnapshot snapshot) {
-                        if (snapshot.hasData) {
-                          return AnimationLimiter(
-                            child: ListView.builder(
-                              physics: const BouncingScrollPhysics(),
-                              scrollDirection: Axis.vertical,
-                              itemCount: snapshot.data.docs.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                if (snapshot.hasData) {
-                                  return AnimationConfiguration.staggeredList(
-                                    position: index,
-                                    delay: const Duration(milliseconds: 600),
-                                    child: SlideAnimation(
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('User')
+                        .doc(userModelCurrent.uid)
+                        .collection('sympathy')
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasData) {
+                        return AnimationLimiter(
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            itemCount: snapshot.data.docs.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              if (snapshot.hasData) {
+                                return AnimationConfiguration.staggeredList(
+                                  position: index,
+                                  delay: const Duration(milliseconds: 600),
+                                  child: SlideAnimation(
+                                    duration:
+                                        const Duration(milliseconds: 2200),
+                                    verticalOffset: 200,
+                                    curve: Curves.ease,
+                                    child: FadeInAnimation(
+                                      curve: Curves.easeOut,
                                       duration:
-                                          const Duration(milliseconds: 2200),
-                                      verticalOffset: 200,
-                                      curve: Curves.ease,
-                                      child: FadeInAnimation(
-                                        curve: Curves.easeOut,
-                                        duration:
-                                            const Duration(milliseconds: 2500),
-                                        child: cardSympathy(snapshot, index),
-                                      ),
+                                          const Duration(milliseconds: 2500),
+                                      child: cardSympathy(snapshot, index),
                                     ),
-                                  );
-                                }
-                              },
-                            ),
-                          );
-                        }
-                        return Center(
-                          child: LoadingAnimationWidget.dotsTriangle(
-                            size: 44,
-                            color: Colors.blueAccent,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         );
-                      }),
-                ),
-              ],
-            ),
-          ));
-    }
-    return Scaffold(
-        backgroundColor: color_data_input,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
+                      }
+                      return Center(
+                        child: LoadingAnimationWidget.dotsTriangle(
+                          size: 44,
+                          color: Colors.blueAccent,
+                        ),
+                      );
+                    }),
+              ),
+            ],
           ),
         ));
   }

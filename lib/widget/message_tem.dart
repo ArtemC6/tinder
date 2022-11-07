@@ -34,12 +34,12 @@ class MessagesItem extends StatelessWidget {
                       child: Container(
                         decoration: isUserMassage
                             ? BoxDecoration(
-                            color: Colors.deepPurpleAccent.withOpacity(.72),
-                            borderRadius: BorderRadius.circular(20),
+                                color: Colors.deepPurpleAccent.withOpacity(.72),
+                                borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                     color: Colors.white10, width: 0.9))
                             : BoxDecoration(
-                               color: Colors.white.withOpacity(.02),
+                                color: Colors.white.withOpacity(.02),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
                                     color: Colors.white10, width: 0.9)),
