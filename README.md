@@ -29,10 +29,9 @@
   </tr>
   <tr>
     <td valign="top"><img src="https://user-images.githubusercontent.com/105007162/200300178-d7360200-d970-483e-9ca9-c1ac8d152ab3.jpg"></td>
-    <td valign="top"><img src="https://user-images.githubusercontent.com/105007162/200300387-9ee477e2-f6cb-4d53-9645-7f3932dbf20b.jpg"></td>
+    <td valign="top"><img src="https://user-images.githubusercontent.com/105007162/200912819-b69cfbd0-2b51-497c-ae31-1c6102d84457.jpg"></td>
     <td valign="top"><img src="https://user-images.githubusercontent.com/105007162/200300470-5fa5e7bc-cd2c-409e-b452-73430b991dd3.jpg"></td>
   </tr>
  </table>
-
 
 
