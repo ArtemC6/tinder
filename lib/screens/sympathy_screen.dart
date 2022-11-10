@@ -2,12 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/that_user_screen.dart';
+
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
+import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
 import '../widget/card_widget.dart';
 
@@ -22,6 +23,7 @@ class SympathyScreen extends StatefulWidget {
 
 class _SympathyScreenState extends State<SympathyScreen> {
   UserModel userModelCurrent;
+
   _SympathyScreenState(this.userModelCurrent);
 
   @override
@@ -149,7 +151,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                               uri: snapshot.data.docs[index]['image_uri'],
                               width: width / 3.8,
                               height: width / 3.8,
-                              state: 'online',
+                              state: 'offline',
                               padding: 5,
                             ),
                           ),
@@ -301,72 +303,85 @@ class _SympathyScreenState extends State<SympathyScreen> {
 
     return Scaffold(
         backgroundColor: color_black_88,
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 10),
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Симпатии',
-                    style: GoogleFonts.lato(
-                      textStyle: TextStyle(
-                          color: Colors.white.withOpacity(.8),
-                          fontSize: 20,
-                          letterSpacing: .5),
-                    ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      RichText(
+                        text: const TextSpan(
+                          text: 'Симпатии',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              letterSpacing: .4),
+                        ),
+                      ),
+                      Container(
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius: BorderRadius.circular(99)),
+                        child: const Icon(
+                          Icons.favorite,
+                          color: Colors.white,
+                          size: 17,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection('User')
-                        .doc(userModelCurrent.uid)
-                        .collection('sympathy')
-                        .snapshots(),
-                    builder: (context, AsyncSnapshot snapshot) {
-                      if (snapshot.hasData) {
-                        return AnimationLimiter(
-                          child: ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            itemCount: snapshot.data.docs.length,
-                            shrinkWrap: true,
-                            itemBuilder: (context, index) {
-                              if (snapshot.hasData) {
-                                return AnimationConfiguration.staggeredList(
-                                  position: index,
-                                  delay: const Duration(milliseconds: 600),
-                                  child: SlideAnimation(
-                                    duration:
-                                        const Duration(milliseconds: 2200),
-                                    verticalOffset: 200,
-                                    curve: Curves.ease,
-                                    child: FadeInAnimation(
-                                      curve: Curves.easeOut,
+                SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection('User')
+                          .doc(userModelCurrent.uid)
+                          .collection('sympathy')
+                          .snapshots(),
+                      builder: (context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasData) {
+                          return AnimationLimiter(
+                            child: ListView.builder(
+                              physics: const BouncingScrollPhysics(),
+                              scrollDirection: Axis.vertical,
+                              itemCount: snapshot.data.docs.length,
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                if (snapshot.hasData) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: index,
+                                    delay: const Duration(milliseconds: 600),
+                                    child: SlideAnimation(
                                       duration:
-                                          const Duration(milliseconds: 2500),
-                                      child: cardSympathy(snapshot, index),
+                                          const Duration(milliseconds: 2200),
+                                      verticalOffset: 200,
+                                      curve: Curves.ease,
+                                      child: FadeInAnimation(
+                                        curve: Curves.easeOut,
+                                        duration:
+                                            const Duration(milliseconds: 2500),
+                                        child: cardSympathy(snapshot, index),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        );
-                      }
-                      return Center(
-                        child: LoadingAnimationWidget.dotsTriangle(
-                          size: 44,
-                          color: Colors.blueAccent,
-                        ),
-                      );
-                    }),
-              ),
-            ],
+                                  );
+                                }
+                                return null;
+                              },
+                            ),
+                          );
+                        }
+                        return const loadingCustom();
+                      }),
+                ),
+              ],
+            ),
           ),
         ));
   }

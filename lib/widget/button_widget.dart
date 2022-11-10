@@ -1,8 +1,11 @@
 import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:like_button/like_button.dart';
+
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
@@ -202,7 +205,7 @@ class _buttonProfileState extends State<buttonProfileUser> {
                   });
                 } else if (!isMutuallyMain && !isMutually) {
                   return button(
-                      'Оставить симпатию', [Colors.white30, Colors.white30],
+                      'Оставить симпатию', [color_black_88, color_black_88],
                       () {
                     if (!isMutuallyMain) {
                       createSympathy(userModelCurrent.uid, userModel);
@@ -289,6 +292,49 @@ class buttonProfileMy extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class buttonLike extends StatelessWidget {
+  bool isLike;
+  UserModel userModelCurrent, userModel;
+
+  buttonLike(
+      {Key? key,
+      required this.isLike,
+      required this.userModelCurrent,
+      required this.userModel})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 30),
+      child: LikeButton(
+        isLiked: isLike,
+        size: 32,
+        circleColor:
+            const CircleColor(start: Colors.pinkAccent, end: Colors.red),
+        bubblesColor: const BubblesColor(
+          dotPrimaryColor: Colors.pink,
+          dotSecondaryColor: Colors.deepPurpleAccent,
+        ),
+        likeBuilder: (bool isLiked) {
+          return Icon(
+            isLiked ? Icons.favorite_outlined : Icons.favorite_border_sharp,
+            color: isLiked ? Colors.red : Colors.white,
+            size: 32,
+          );
+        },
+        onTap: (isLiked) {
+          return putLike(
+            userModelCurrent,
+            userModel,
+            true,
+          );
+        },
       ),
     );
   }

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../main.dart';
 import 'const.dart';
+import 'firestore_operations.dart';
 
 class FirebaseAuthMethods {
   final FirebaseAuth _auth;
@@ -74,7 +76,9 @@ class FirebaseAuthMethods {
 
   Future<void> signOut(BuildContext context) async {
     try {
-      await _auth.signOut();
+      await _auth.signOut().then((value) {
+        setStateFirebase('offline');
+      });
     } on FirebaseAuthException {}
   }
 }

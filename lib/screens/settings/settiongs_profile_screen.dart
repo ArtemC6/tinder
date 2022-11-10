@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+
 import '../../config/const.dart';
 import '../../config/firestore_operations.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
+import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/component_widget.dart';
 import 'edit_image_profile_screen.dart';
@@ -62,6 +63,8 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                   height: size.height * .28,
                   width: size.width,
                   child: CachedNetworkImage(
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                     fit: BoxFit.cover,
                     imageUrl: userModel.imageBackground,
                   ),
@@ -88,20 +91,26 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
               if (isLoading)
                 Positioned(
                   child: Container(
-                      padding: const EdgeInsets.only(top: 24, right: 24),
+                      padding: const EdgeInsets.only(top: 32, right: 28),
                       alignment: Alignment.centerRight,
-                      child: customIconButton(
-                        height: 25,
-                        width: 25,
-                        path: 'images/ic_image.png',
-                        padding: 0,
-                        onTap: () {
-                          Navigator.pushReplacement(
-                              context,
-                              FadeRouteAnimation(EditImageProfileScreen(
-                                bacImage: userModel.imageBackground,
-                              )));
-                        },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white12)),
+                        child: customIconButton(
+                          height: 23,
+                          width: 23,
+                          path: 'images/ic_image.png',
+                          padding: 2,
+                          onTap: () {
+                            Navigator.pushReplacement(
+                                context,
+                                FadeRouteAnimation(EditImageProfileScreen(
+                                  bacImage: userModel.imageBackground,
+                                )));
+                          },
+                        ),
                       )),
                 ),
               Container(
@@ -132,6 +141,8 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                                     )),
                                 elevation: 4,
                                 child: CachedNetworkImage(
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error),
                                   progressIndicatorBuilder:
                                       (context, url, progress) => Center(
                                     child: SizedBox(
@@ -248,13 +259,6 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
         ),
       );
     }
-    return Scaffold(
-        backgroundColor: color_black_88,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
+    return const loadingCustom();
   }
 }

@@ -1,4 +1,5 @@
 // @dart=2.9
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,12 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/config/firebase_auth.dart';
+import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/screens/manager_screen.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
+
 import 'model/user_model.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(message) async {
@@ -53,7 +54,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.light(),
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
         darkTheme: ThemeData.dark(),
         home: const Manager(),
       ),
@@ -143,7 +146,8 @@ class _Manager extends State<Manager> {
                     userImagePath: [],
                     imageBackground: '',
                     userInterests: [],
-                    searchRangeEnd: 0),
+                    searchRangeEnd: 0,
+                    state: ''),
               );
             }
           } else {

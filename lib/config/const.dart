@@ -47,6 +47,11 @@ final List<String> interestsList = [
   "Велоспорт",
   "TikTok",
   "Instagram",
+  'Танцы',
+  'Рукоделие',
+  'Астрология',
+  'Рыбалка',
+  'Поэзия',
 ];
 
 const List months = [
@@ -61,18 +66,40 @@ const List months = [
   'Сентября',
   'Октябтя',
   'Ноября',
-  'Декобря'
+  'Декабря',
 ];
 
 final List<InterestsModel> listStoryMain = [
   InterestsModel(
       name: 'Кулинария',
       id: '',
-      uri: 'https://images.satu.kz/119785076_w640_h640_smes-dlya-kolbasok.jpg'),
+      uri:
+          'https://img4.goodfon.ru/original/1920x1200/1/6b/bliny-iagody-klubnika-miata-golubika-zavarnik.jpg'),
+  InterestsModel(
+      name: 'Поэзия', id: '', uri: 'https://stihi.ru/pics/2018/09/13/7754.jpg'),
+  InterestsModel(
+      name: 'Рыбалка',
+      id: '',
+      uri:
+          'https://1.bp.blogspot.com/-nBjPYBR36p0/Wm6Vmi190ZI/AAAAAAAAP8I/zhwEYeJVs_0ukeNju1uwPT25W4N_mR0HwCLcBGAs/s400/pexels-photo-69224.jpeg'),
+  InterestsModel(
+      name: 'Астрология',
+      id: '',
+      uri: 'https://laverdad.com.mx/wp-content/uploads/2020/08/1.0-24.jpg'),
+  InterestsModel(
+      name: 'Танцы',
+      id: '',
+      uri:
+          'https://c.wallhere.com/photos/0c/82/hip_hop_women_handstand-93440.jpg!d'),
+  InterestsModel(
+      name: 'Рукоделие',
+      id: '',
+      uri:
+          'https://i.pinimg.com/originals/6b/bc/bb/6bbcbbaa54e81a0b4ce77331859914e5.jpg'),
   InterestsModel(
       name: 'Музыка',
       id: '',
-      uri: 'https://i.ytimg.com/vi/ZOZPDcafLc0/maxresdefault.jpg'),
+      uri: 'https://www.5.ua/media/pictures/400x266/223580.jpg?t=1625939573'),
   InterestsModel(
       name: 'Книги',
       id: '',
@@ -101,11 +128,6 @@ final List<InterestsModel> listStoryMain = [
       uri:
           'https://i.pinimg.com/736x/f0/f0/95/f0f09554c77d52330106dfb4c4f03f78.jpg'),
   InterestsModel(
-      name: 'Киберспорт',
-      id: '',
-      uri:
-          'https://sportx.kz/wp-content/uploads/2022/07/WhatsApp-Image-2022-07-27-at-15.34.16-scaled.jpeg'),
-  InterestsModel(
       name: 'Искусство',
       id: '',
       uri:
@@ -114,7 +136,7 @@ final List<InterestsModel> listStoryMain = [
       name: 'Автомобили',
       id: '',
       uri:
-          'https://autorating.ru/upload/iblock/5a8/5a8240679d5480a38f0a977550ae2310.jpg'),
+          'https://i.pinimg.com/736x/da/d9/f6/dad9f66f6d4d4e61355e5f54c32371aa.jpg'),
   InterestsModel(
       name: 'Волонтёрство',
       id: '',
@@ -149,7 +171,7 @@ DateTime getDataTimeDate(Timestamp startDate) {
 const List<IconData> listOfIcons = [
   Icons.home_rounded,
   Icons.favorite_rounded,
-  Icons.messenger_outline,
+  Icons.message,
   Icons.person_rounded,
 ];
 

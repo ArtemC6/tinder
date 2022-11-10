@@ -1,22 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:like_button/like_button.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/screens/settings/settiongs_profile_screen.dart';
+
 import '../config/const.dart';
+import '../config/firestore_operations.dart';
 import '../model/interests_model.dart';
 import '../model/user_model.dart';
+import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
 import '../widget/component_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
-  UserModel userModel;
-  UserModel userModelCurrent;
+  UserModel userModelCurrent, userModel;
   bool isBack;
   String idUser;
 
@@ -34,8 +32,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreen extends State<ProfileScreen> {
   bool isLoading = false, isLike = false, isBack, isProprietor = false;
-  UserModel userModel;
-  UserModel userModelCurrent;
+  UserModel userModel, userModelCurrent;
   String idUser;
   List<InterestsModel> listStory = [];
   List<String> listImageUri = [], listImagePath = [];
@@ -44,47 +41,50 @@ class _ProfileScreen extends State<ProfileScreen> {
   _ProfileScreen(
       this.userModel, this.isBack, this.idUser, this.userModelCurrent);
 
-  Future<void> _putLike() async {
-    final docUser = FirebaseFirestore.instance.collection('Like').doc();
-
-    final json = {FirebaseAuth.instance.currentUser!.uid: true};
-    if (isLike) {
-      final docLike = FirebaseFirestore.instance.collection('Like');
-
-      docLike.doc().delete();
-    } else {
-      docUser.set(json).then((value) {});
+  Future readFirebase() async {
+    if (userModel.uid == '' && idUser != '') {
+      readUserFirebase(idUser).then((user) {
+        setState(() {
+          userModel = UserModel(
+              name: user.name,
+              uid: user.uid,
+              ageTime: user.ageTime,
+              userPol: user.userPol,
+              searchPol: user.searchPol,
+              searchRangeStart: user.searchRangeStart,
+              userInterests: user.userInterests,
+              userImagePath: user.userImagePath,
+              userImageUrl: user.userImageUrl,
+              searchRangeEnd: user.searchRangeEnd,
+              myCity: user.myCity,
+              imageBackground: user.imageBackground,
+              ageInt: user.ageInt,
+              state: user.state);
+          isLoading = true;
+        });
+      });
     }
 
-    setState(() {});
-  }
-
-  Future<bool> changedata(status) async {
-    setState(() {
-      isLike = !isLike;
-    });
-    _putLike();
-    return Future.value(!isLike);
-  }
-
-  Future readFirebase() async {
     for (var elementMain in userModel.userInterests) {
       for (var element in listStoryMain) {
-        if (elementMain == element.name) {
-          if (userModel.userInterests.length != listStory.length) {
-            listStory.add(element);
-          }
+        if (userModel.userInterests.length != listStory.length) {
+          listStory.add(element);
         }
+        if (elementMain == element.name) {}
       }
     }
 
     setState(() {
-      if (FirebaseAuth.instance.currentUser?.uid == userModel.uid) {
+      if (userModelCurrent.uid == userModel.uid) {
         isProprietor = true;
       } else {
         isProprietor = false;
       }
-      isLoading = true;
+      putLike(userModelCurrent, userModel, false).then((value) {
+        setState(() {
+          isLike = !value;
+        });
+      });
     });
   }
 
@@ -97,7 +97,6 @@ class _ProfileScreen extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-
     if (isLoading) {
       return Scaffold(
           backgroundColor: color_black_88,
@@ -120,6 +119,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                         height: size.height * .28,
                         width: size.width,
                         child: CachedNetworkImage(
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                           fit: BoxFit.cover,
                           imageUrl: userModel.imageBackground,
                         ),
@@ -187,6 +188,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                                         )),
                                     elevation: 4,
                                     child: CachedNetworkImage(
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
                                       progressIndicatorBuilder:
                                           (context, url, progress) => Center(
                                         child: SizedBox(
@@ -217,37 +220,10 @@ class _ProfileScreen extends State<ProfileScreen> {
                                     ),
                                   ),
                                 ),
-                                if (!isProprietor)
-                                  Container(
-                                    margin: const EdgeInsets.only(right: 30),
-                                    child: LikeButton(
-                                      isLiked: isLike,
-                                      size: 30,
-                                      circleColor: const CircleColor(
-                                          start: Color(0xff00ddff),
-                                          end: Color(0xff0099cc)),
-                                      bubblesColor: const BubblesColor(
-                                        dotPrimaryColor: Color(0xff33b5e5),
-                                        dotSecondaryColor: Color(0xff0099cc),
-                                      ),
-                                      likeBuilder: (bool isLiked) {
-                                        return Icon(
-                                          isLiked
-                                              ? Icons.favorite
-                                              : Icons.favorite_border_sharp,
-                                          color: isLiked
-                                              ? Colors.red
-                                              : Colors.grey,
-                                          size: 30,
-                                        );
-                                      },
-                                      onTap: (isLiked) {
-                                        return changedata(
-                                          isLiked,
-                                        );
-                                      },
-                                    ),
-                                  ),
+                                buttonLike(
+                                    isLike: isLike,
+                                    userModel: userModel,
+                                    userModelCurrent: userModelCurrent),
                               ],
                             ),
                           ),
@@ -323,13 +299,6 @@ class _ProfileScreen extends State<ProfileScreen> {
             ),
           ))));
     }
-    return Scaffold(
-        backgroundColor: color_black_88,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
+    return const loadingCustom();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -37,6 +36,7 @@ class photoUser extends StatelessWidget {
               )),
           elevation: 6,
           child: CachedNetworkImage(
+            errorWidget: (context, url, error) => const Icon(Icons.error),
             progressIndicatorBuilder: (context, url, progress) => Center(
               child: SizedBox(
                 height: height,
@@ -96,6 +96,8 @@ class _itemUserState extends State<itemUser> {
     double width = MediaQuery.of(context).size.width;
 
     return InkWell(
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       onLongPress: () {
         showAlertDialogDeleteThat(context, friendId, friend['name'], false);
       },

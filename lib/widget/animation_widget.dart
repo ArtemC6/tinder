@@ -1,6 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../config/const.dart';
 
 class SlideFadeTransition extends StatefulWidget {
   final Widget child;
@@ -85,5 +88,21 @@ class _SlideFadeTransitionState extends State<SlideFadeTransition>
         child: widget.child,
       ),
     );
+  }
+}
+
+class loadingCustom extends StatelessWidget {
+  const loadingCustom({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: color_black_88,
+        body: Center(
+          child: LoadingAnimationWidget.dotsTriangle(
+            size: 44,
+            color: Colors.blueAccent,
+          ),
+        ));
   }
 }

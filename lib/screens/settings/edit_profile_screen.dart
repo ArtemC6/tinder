@@ -1,13 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:multi_select_flutter/bottom_sheet/multi_select_bottom_sheet_field.dart';
 import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart';
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
@@ -15,10 +14,12 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
-import '../../config/firestore_operations.dart';
+
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
+import '../../config/firestore_operations.dart';
 import '../../model/user_model.dart';
+import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/textField_widget.dart';
 import '../manager_screen.dart';
@@ -876,13 +877,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     }
 
-    return Scaffold(
-        backgroundColor: color_black_88,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
+    return const loadingCustom();
   }
 }

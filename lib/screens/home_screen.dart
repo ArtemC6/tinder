@@ -1,16 +1,17 @@
 import 'package:avatar_glow/avatar_glow.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_tindercard/flutter_tindercard.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
-import '../config/const.dart';
-import 'package:flutter_tindercard/flutter_tindercard.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
+import '../config/const.dart';
 import '../model/user_model.dart';
+import '../widget/animation_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   UserModel userModelCurrent;
@@ -26,9 +27,12 @@ class _HomeScreen extends State<HomeScreen>
   late CardController controllerCard;
   late AnimationController controllerHeart;
   late CurvedAnimation curveHeart, curveCancel;
-  bool isLike = false, isLikeButton = false, isLook = false, isLoading = false;
+  double colorIndex = 0;
+  int limit = 1;
+  bool isLike = false, isLook = false, isLoading = false;
   List<UserModel> userModel = [];
   UserModel userModelCurrent;
+  final scrollController = ScrollController();
 
   _HomeScreen(this.userModelCurrent);
 
@@ -39,6 +43,7 @@ class _HomeScreen extends State<HomeScreen>
         .where('myPol', isEqualTo: userModelCurrent.searchPol)
         // .where('ageInt', isGreaterThanOrEqualTo: userModelCurrent.searchRangeStart)
         // .where('ageInt', isLessThanOrEqualTo: userModelCurrent.searchRangeStart)
+        .limit(limit)
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((document) async {
@@ -112,6 +117,7 @@ class _HomeScreen extends State<HomeScreen>
             ClipRRect(
               borderRadius: BorderRadius.circular(22),
               child: CachedNetworkImage(
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                   useOldImageOnUrlChange: false,
                   progressIndicatorBuilder: (context, url, progress) => Center(
                         child: SizedBox(
@@ -188,7 +194,7 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeDown: false,
                                   orientation: AmassOrientation.BOTTOM,
                                   allowVerticalMovement: true,
-                                  totalNum: userModel.length,
+                                  totalNum: userModel.length + 1,
                                   stackNum: 3,
                                   swipeEdge: 3.0,
                                   maxWidth:
@@ -199,135 +205,151 @@ class _HomeScreen extends State<HomeScreen>
                                       MediaQuery.of(context).size.width / 1.1,
                                   minHeight:
                                       MediaQuery.of(context).size.width / 1.1,
-                                  cardBuilder: (context, index) => SizedBox(
-                                    child: InkWell(
-                                      splashColor: Colors.transparent,
-                                      highlightColor: Colors.transparent,
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ProfileScreen(
-                                                      userModel:
-                                                          userModel[index],
-                                                      isBack: true,
-                                                      idUser: '',
-                                                      userModelCurrent:
-                                                          userModelCurrent,
-                                                    )));
-                                      },
-                                      child: cardSympathy(index),
-                                    ),
-                                  ),
+                                  cardBuilder: (context, index) {
+                                    if (index < userModel.length) {
+                                      return SizedBox(
+                                        child: InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProfileScreen(
+                                                          userModel:
+                                                              userModel[index],
+                                                          isBack: true,
+                                                          idUser: '',
+                                                          userModelCurrent:
+                                                              userModelCurrent,
+                                                        )));
+                                          },
+                                          child: cardSympathy(index),
+                                        ),
+                                      );
+                                    } else {
+                                      limit += 1;
+                                      readFirebase();
+                                      print('object');
+                                      return Center(
+                                        child:
+                                            LoadingAnimationWidget.dotsTriangle(
+                                          size: 44,
+                                          color: Colors.blueAccent,
+                                        ),
+                                      );
+                                    }
+                                  },
                                   cardController: controllerCard =
                                       CardController(),
                                   swipeUpdateCallback:
                                       (DragUpdateDetails details,
                                           Alignment align) {
                                     if (align.x < 0) {
+                                      int incline = int.parse(align.x
+                                          .toStringAsFixed(1)
+                                          .substring(1, 2));
                                       setState(() {
-                                        isLike = false;
-                                        isLook = true;
-                                      });
-                                      controllerHeart.forward();
-                                      Future.delayed(
-                                          const Duration(milliseconds: 400),
-                                          () {
-                                        controllerHeart.reset();
-                                        setState(() {
+                                        if (incline <= 10 && incline > 3) {
+                                          colorIndex =
+                                              double.parse('0.$incline');
+                                          isLook = true;
+                                          isLike = true;
+                                        } else {
                                           isLook = false;
-                                        });
+                                        }
                                       });
                                     } else if (align.x > 0) {
                                       setState(() {
-                                        isLike = true;
-                                        isLook = true;
-                                      });
-                                      controllerHeart.forward();
-                                      Future.delayed(
-                                          const Duration(milliseconds: 600),
-                                          () {
-                                        controllerHeart.reset();
-                                        setState(() {
+                                        if (align.y.toDouble() < 1 &&
+                                            align.y.toDouble() > 0.3) {
+                                          colorIndex = double.parse(
+                                              '0.${align.x.toInt()}');
+                                          isLook = true;
+                                          isLike = false;
+                                        } else {
                                           isLook = false;
-                                        });
+                                        }
                                       });
                                     }
                                   },
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
+                                    print(index);
+
+                                    if (index < userModel.length + 1) {
+                                      print('Go');
+                                    } else {
+                                      print('No');
+                                    }
+
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
+                                      setState(() {
+                                        isLook = false;
+                                      });
                                       await CachedNetworkImage.evictFromCache(
                                           userModel[index].userImageUrl[0]);
-                                      // setState(() {
-                                      //   isLike = false;
-                                      //   isLook = true;
-                                      // });
-                                      // controllerHeart.forward();
-                                      // Future.delayed(
-                                      //     const Duration(milliseconds: 600),
-                                      //     () {
-                                      //   controllerHeart.reset();
-                                      //   setState(() {
-                                      //     isLook = false;
-                                      //     // isLikeButton = false;
-                                      //   });
-                                      // });
                                     }
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.RIGHT') {
+                                      setState(() {
+                                        isLook = false;
+                                      });
                                       createSympathy(userModel[index].uid,
                                           userModelCurrent);
-                                      // await CachedNetworkImage.evictFromCache(userModel[index].userImageUrl[0]);
-
-                                      // setState(() {
-                                      //   isLike = true;
-                                      //   isLook = true;
-                                      // });
-                                      // controllerHeart.forward();
-                                      // Future.delayed(
-                                      //     const Duration(milliseconds: 600),
-                                      //     () {
-                                      //   controllerHeart.reset();
-                                      //   setState(() {
-                                      //     isLook = false;
-                                      //   });
-                                      // });
                                     }
-
-                                    /// Get orientation & index of swiped card!
                                   },
                                 ),
                               ),
-                              if (isLook)
-                                if (isLike)
-                                  Container(
+                              if (isLook && !isLike)
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isLook = false;
+                                    });
+                                  },
+                                  child: Container(
                                     alignment: Alignment.center,
                                     width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height /
                                         2.9,
-                                    child: FadeTransition(
-                                        opacity: controllerHeart,
-                                        child: Image.asset(
-                                            'images/ic_heart.png',
-                                            fit: BoxFit.contain)),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            image: const AssetImage(
+                                                'images/ic_heart.png'),
+                                            colorFilter: ColorFilter.mode(
+                                              Colors.white
+                                                  .withOpacity(colorIndex),
+                                              BlendMode.modulate,
+                                            ))),
                                   ),
-                              if (isLook)
-                                if (!isLike)
-                                  Container(
+                                ),
+                              if (isLook && isLike)
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      isLook = false;
+                                    });
+                                  },
+                                  child: Container(
                                     alignment: Alignment.center,
                                     width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height /
                                         2.9,
-                                    child: FadeTransition(
-                                      opacity: curveHeart,
-                                      child: Image.asset('images/ic_remove.png',
-                                          fit: BoxFit.contain),
-                                    ),
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            image: const AssetImage(
+                                                'images/ic_remove.png'),
+                                            colorFilter: ColorFilter.mode(
+                                              Colors.white
+                                                  .withOpacity(colorIndex),
+                                              BlendMode.modulate,
+                                            ))),
                                   ),
+                                ),
                             ],
                           ),
                           Row(
@@ -414,14 +436,6 @@ class _HomeScreen extends State<HomeScreen>
             )),
       );
     }
-    return Scaffold(
-      backgroundColor: color_black_88,
-      body: Center(
-        child: LoadingAnimationWidget.dotsTriangle(
-          size: 44,
-          color: Colors.blueAccent,
-        ),
-      ),
-    );
+    return const loadingCustom();
   }
 }

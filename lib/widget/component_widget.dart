@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tinder/config/firestore_operations.dart';
+
 import '../../config/const.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
@@ -82,6 +82,8 @@ class slideInterests extends StatelessWidget {
                                     child: ClipRRect(
                                       borderRadius: BorderRadius.circular(100),
                                       child: CachedNetworkImage(
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
                                         imageBuilder:
                                             (context, imageProvider) =>
                                                 Container(
@@ -93,10 +95,10 @@ class slideInterests extends StatelessWidget {
                                                     Radius.circular(100)),
                                             image: DecorationImage(
                                               image: imageProvider,
-                                              fit: BoxFit.cover,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                         progressIndicatorBuilder:
                                             (context, url, progress) => Center(
                                           child: SizedBox(
@@ -223,6 +225,9 @@ class slideInterestsSettings extends StatelessWidget {
                                           borderRadius:
                                               BorderRadius.circular(100),
                                           child: CachedNetworkImage(
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
                                             imageBuilder:
                                                 (context, imageProvider) =>
                                                     Container(
@@ -234,24 +239,24 @@ class slideInterestsSettings extends StatelessWidget {
                                                         Radius.circular(100)),
                                                 image: DecorationImage(
                                                   image: imageProvider,
-                                                  fit: BoxFit.cover,
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
                                             progressIndicatorBuilder:
                                                 (context, url, progress) =>
-                                                    Center(
-                                              child: SizedBox(
-                                                height: 68,
-                                                width: 68,
-                                                child:
+                                                Center(
+                                                  child: SizedBox(
+                                                    height: 68,
+                                                    width: 68,
+                                                    child:
                                                     CircularProgressIndicator(
-                                                  color: Colors.white,
-                                                  strokeWidth: 1,
-                                                  value: progress.progress,
+                                                      color: Colors.white,
+                                                      strokeWidth: 1,
+                                                      value: progress.progress,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
                                             imageUrl: listStory[index].uri,
                                             fit: BoxFit.cover,
                                             // height: 166,
@@ -403,6 +408,8 @@ class photoProfile extends StatelessWidget {
                                   )),
                               elevation: 6,
                               child: CachedNetworkImage(
+                                errorWidget: (context, url, error) =>
+                                    const Icon(Icons.error),
                                 imageBuilder: (context, imageProvider) =>
                                     Container(
                                   decoration: BoxDecoration(
@@ -414,7 +421,7 @@ class photoProfile extends StatelessWidget {
                                       fit: BoxFit.cover,
                                     ),
                                   ),
-                                ),
+                                    ),
                                 progressIndicatorBuilder:
                                     (context, url, progress) => Center(
                                   child: SizedBox(
@@ -506,6 +513,8 @@ class photoProfileSettings extends StatelessWidget {
                                 children: [
                                   if (userModel.userImageUrl.length > index)
                                     CachedNetworkImage(
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
                                       imageBuilder: (context, imageProvider) =>
                                           Container(
                                         decoration: BoxDecoration(
@@ -640,8 +649,9 @@ class infoPanelWidget extends StatelessWidget {
             children: [
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('Like')
-                    .where(userModel.uid, isEqualTo: true)
+                    .collection('User')
+                    .doc(userModel.uid)
+                    .collection('likes')
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -649,14 +659,22 @@ class infoPanelWidget extends StatelessWidget {
                     return SlideFadeTransition(
                         delayStart: const Duration(milliseconds: 50),
                         animationDuration: const Duration(milliseconds: 1000),
-                        child: RichText(
-                          text: TextSpan(
-                            text: snapshot.data!.size.toString().toString(),
-                            style: GoogleFonts.lato(
-                              textStyle: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 14.5,
-                                  letterSpacing: .5),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          transitionBuilder: ((child, animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
+                          }),
+                          child: RichText(
+                            key: ValueKey<int>(snapshot.data!.size),
+                            text: TextSpan(
+                              text: snapshot.data!.size.toString(),
+                              style: GoogleFonts.lato(
+                                textStyle: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 14.5,
+                                    letterSpacing: .5),
+                              ),
                             ),
                           ),
                         ));
@@ -718,6 +736,34 @@ class infoPanelWidget extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ColorTest extends StatefulWidget {
+  double color;
+
+  ColorTest({super.key, required this.color});
+
+  @override
+  _ColorTest createState() => _ColorTest(color);
+}
+
+class _ColorTest extends State<ColorTest> {
+  double color;
+
+  _ColorTest(this.color);
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    print(color);
+
+    return new Container(
+      width: 100,
+      height: 100,
+      color: Colors.red.withOpacity(color), // its red
     );
   }
 }

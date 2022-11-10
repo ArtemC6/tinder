@@ -1,12 +1,12 @@
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 import '../../config/const.dart';
 import '../../config/firestore_operations.dart';
+import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
 
 class EditImageProfileScreen extends StatefulWidget {
@@ -57,63 +57,85 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_black_88,
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(
-                    top: 30, left: 20, right: 20, bottom: 20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (bacImage != '')
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 20),
-                        color: Colors.white,
-                      ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: RichText(
-                        text: TextSpan(
-                          text: 'Фон',
-                          style: GoogleFonts.lato(
-                            textStyle: TextStyle(
-                                color: Colors.white.withOpacity(1),
-                                fontSize: 18,
-                                letterSpacing: .9),
-                          ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (bacImage != '')
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                              size: 20),
+                          color: Colors.white,
+                        ),
+                      if (bacImage == '') const SizedBox(),
+                      RichText(
+                        text: const TextSpan(
+                          text: 'Фон профиля',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              letterSpacing: .4),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 40),
-                  ],
+
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 14,
+                          bottom: 4,
+                        ),
+                        child: customIconButton(
+                          height: 23,
+                          width: 23,
+                          path: 'images/ic_image.png',
+                          padding: 2,
+                          onTap: () {},
+                        ),
+                      )
+                      // Container(
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: AnimationLimiter(
-                    child: GridView.count(
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(left: 18, right: 18),
-                      crossAxisCount: 2,
-                      children: List.generate(
-                        listImageUri.length,
-                        (int index) {
-                          return AnimationConfiguration.staggeredGrid(
-                            position: index,
-                            duration: const Duration(milliseconds: 1000),
-                            columnCount: 2,
-                            child: ScaleAnimation(
-                              duration: const Duration(milliseconds: 1000),
-                              curve: Curves.fastLinearToSlowEaseIn,
-                              child: FadeInAnimation(
-                                child: Stack(
+                AnimationLimiter(
+                    child: AnimationConfiguration.staggeredList(
+                  position: 1,
+                  delay: const Duration(milliseconds: 250),
+                  child: SlideAnimation(
+                    duration: const Duration(milliseconds: 2200),
+                    horizontalOffset: 250,
+                    curve: Curves.ease,
+                    child: FadeInAnimation(
+                        curve: Curves.easeOut,
+                        duration: const Duration(milliseconds: 3000),
+                        child: SizedBox(
+                          height: MediaQuery.of(context).size.height,
+                          child: GridView.custom(
+                              gridDelegate: SliverQuiltedGridDelegate(
+                                  mainAxisSpacing: 4,
+                                  crossAxisSpacing: 0,
+                                  repeatPattern:
+                                      QuiltedGridRepeatPattern.inverted,
+                                  pattern: [
+                                    const QuiltedGridTile(2, 2),
+                                    const QuiltedGridTile(1, 1),
+                                    const QuiltedGridTile(1, 1),
+                                    const QuiltedGridTile(1, 2),
+                                    const QuiltedGridTile(1, 2),
+                                  ],
+                                  crossAxisCount: 4),
+                              physics: const BouncingScrollPhysics(),
+                              childrenDelegate: SliverChildBuilderDelegate(
+                                  childCount: listImageUri.length,
+                                  (context, index) {
+                                return Stack(
                                   alignment: Alignment.bottomRight,
                                   children: [
                                     InkWell(
@@ -137,6 +159,9 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                               )),
                                           elevation: 6,
                                           child: CachedNetworkImage(
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    const Icon(Icons.error),
                                             imageBuilder:
                                                 (context, imageProvider) =>
                                                     Container(
@@ -148,28 +173,28 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                                   image: imageProvider,
                                                   fit: BoxFit.cover,
                                                 ),
-                                              ),
-                                            ),
+                                                  ),
+                                                ),
                                             progressIndicatorBuilder:
                                                 (context, url, progress) =>
-                                                    Center(
-                                              child: SizedBox(
-                                                height: 26,
-                                                width: 26,
-                                                child:
+                                                Center(
+                                                  child: SizedBox(
+                                                    height: 26,
+                                                    width: 26,
+                                                    child:
                                                     CircularProgressIndicator(
-                                                  color: Colors.white,
-                                                  strokeWidth: 0.8,
-                                                  value: progress.progress,
+                                                      color: Colors.white,
+                                                      strokeWidth: 0.8,
+                                                      value: progress.progress,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
                                             imageUrl: listImageUri[index],
                                           ),
                                         ),
                                       ),
                                     ),
-                                    if (indexImage == index &&
+                                            if (indexImage == index &&
                                         indexImage != 100)
                                       customIconButton(
                                           height: 24,
@@ -202,26 +227,17 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                         ),
                                       ),
                                   ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  )),
-            ],
+                                );
+                              })),
+                        )),
+                  ),
+                ))
+              ],
+            ),
           ),
         ),
       );
     }
-    return Scaffold(
-        backgroundColor: color_black_88,
-        body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
+    return const loadingCustom();
   }
 }

@@ -45,7 +45,7 @@ dependencies:
   syncfusion_flutter_sliders: ^20.2.49
   flutter_datetime_picker: ^1.5.1
   multi_select_flutter: ^4.1.2
-  flutter_tindercard: ^0.2.0
+  flutter_tindercard: ^0.1.9
   carousel_slider: ^4.1.1
   staggered_grid_view_flutter: ^0.0.4
   flutter_staggered_animations: ^1.1.1
@@ -66,6 +66,7 @@ dependencies:
   firebase_storage: ^10.2.7
   shared_preferences: ^2.0.15
   emoji_picker_flutter: ^1.4.0
+  flutter_lints: ^2.0.1
 
 
 
