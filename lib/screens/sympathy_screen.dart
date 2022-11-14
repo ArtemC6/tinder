@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -8,12 +9,11 @@ import 'package:tinder/screens/that_user_screen.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
-import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
 import '../widget/card_widget.dart';
 
 class SympathyScreen extends StatefulWidget {
-  late UserModel userModelCurrent;
+  final UserModel userModelCurrent;
 
   SympathyScreen({Key? key, required this.userModelCurrent}) : super(key: key);
 
@@ -22,56 +22,13 @@ class SympathyScreen extends StatefulWidget {
 }
 
 class _SympathyScreenState extends State<SympathyScreen> {
-  UserModel userModelCurrent;
+  final UserModel userModelCurrent;
 
   _SympathyScreenState(this.userModelCurrent);
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
-    Widget buttonSympathy(String name, color, onTap) {
-      return SizedBox(
-        height: 40,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.white38,
-                blurRadius: 5.0,
-                spreadRadius: 0.0,
-                offset: Offset(
-                  0.0,
-                  1.0,
-                ),
-              )
-            ],
-            border: Border.all(width: 0.8, color: Colors.white38),
-            gradient: LinearGradient(colors: color),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: ElevatedButton(
-            onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-            ),
-            child: RichText(
-              maxLines: 1,
-              text: TextSpan(
-                text: name,
-                style: GoogleFonts.lato(
-                  textStyle: const TextStyle(
-                      color: Colors.white, fontSize: 10.5, letterSpacing: .0),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    Size size = MediaQuery.of(context).size;
 
     Widget cardSympathy(AsyncSnapshot snapshot, int index) {
       return StreamBuilder(
@@ -82,24 +39,25 @@ class _SympathyScreenState extends State<SympathyScreen> {
               .snapshots(),
           builder: (context, AsyncSnapshot asyncSnapshot) {
             bool isMutuallyMy = false;
-
             try {
               for (int i = 0; i < asyncSnapshot.data.docs.length; i++) {
-                setState(() {
-                  isMutuallyMy =
-                      asyncSnapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                });
+                isMutuallyMy =
+                    asyncSnapshot.data.docs[i]['uid'] == userModelCurrent.uid;
+                // print('test ${asyncSnapshot.data.docs[i]['name']}: $i $isMutuallyMy');
+                if (isMutuallyMy) {
+                  setState(() {});
+                }
               }
-            } catch (E) {}
+            } catch (eroor) {}
 
             return Container(
-              height: width / 2.3,
-              width: width,
+              height: size.width / 2.3,
+              width: size.width,
               padding: EdgeInsets.only(
-                  left: width / 20,
+                  left: size.width / 20,
                   top: 0,
-                  right: width / 20,
-                  bottom: width / 20),
+                  right: size.width / 20,
+                  bottom: size.width / 20),
               child: Card(
                 color: color_black_88,
                 shape: RoundedRectangleBorder(
@@ -120,7 +78,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                       Navigator.push(
                           context,
                           FadeRouteAnimation(ProfileScreen(
-                            userModel: UserModel(
+                            userModelPartner: UserModel(
                                 name: '',
                                 uid: '',
                                 myCity: '',
@@ -141,21 +99,21 @@ class _SympathyScreenState extends State<SympathyScreen> {
                           )));
                     },
                     child: Padding(
-                      padding: EdgeInsets.all(width / 50),
+                      padding: EdgeInsets.all(size.width / 50),
                       child: Row(
                         children: [
                           SizedBox(
-                            width: width / 3.8,
-                            height: width / 3.8,
+                            width: size.width / 3.8,
+                            height: size.width / 3.8,
                             child: photoUser(
                               uri: snapshot.data.docs[index]['image_uri'],
-                              width: width / 3.8,
-                              height: width / 3.8,
+                              width: size.width / 3.8,
+                              height: size.width / 3.8,
                               state: 'offline',
                               padding: 5,
                             ),
                           ),
-                          SizedBox(width: width / 40),
+                          SizedBox(width: size.width / 40),
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -188,7 +146,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                               textStyle: TextStyle(
                                                   color: Colors.white
                                                       .withOpacity(.8),
-                                                  fontSize: width / 40,
+                                                  fontSize: size.width / 40,
                                                   letterSpacing: .5),
                                             ),
                                           ),
@@ -205,11 +163,15 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                             height: 40,
                                             width: 40,
                                             child: IconButton(
-                                              onPressed: () {
+                                              onPressed: () async {
                                                 deleteSympathy(
                                                     snapshot.data.docs[index]
                                                         ['id_doc'],
                                                     userModelCurrent.uid);
+                                                await CachedNetworkImage
+                                                    .evictFromCache(snapshot
+                                                            .data.docs[index]
+                                                        ['image_uri']);
                                               },
                                               icon: const Icon(Icons.close,
                                                   size: 20),
@@ -271,7 +233,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                         Navigator.of(context).push(
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ThatUserScreen(
+                                                    ChatUserScreen(
                                                       friendId: snapshot.data
                                                           .docs[index]['uid'],
                                                       friendName: snapshot.data
@@ -279,6 +241,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                       friendImage: snapshot
                                                               .data.docs[index]
                                                           ['image_uri'],
+                                                      userModelCurrent:
+                                                          userModelCurrent,
                                                     )));
                                       },
                                       path: 'images/ic_send.png',
@@ -338,7 +302,6 @@ class _SympathyScreenState extends State<SympathyScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height,
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('User')
@@ -360,13 +323,13 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                     delay: const Duration(milliseconds: 600),
                                     child: SlideAnimation(
                                       duration:
-                                          const Duration(milliseconds: 2200),
+                                      const Duration(milliseconds: 2200),
                                       verticalOffset: 200,
                                       curve: Curves.ease,
                                       child: FadeInAnimation(
                                         curve: Curves.easeOut,
                                         duration:
-                                            const Duration(milliseconds: 2500),
+                                        const Duration(milliseconds: 2500),
                                         child: cardSympathy(snapshot, index),
                                       ),
                                     ),
@@ -377,7 +340,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                             ),
                           );
                         }
-                        return const loadingCustom();
+                        return cardLoadingWidget(size, .14, .08);
+                        // return const loadingCustom();
                       }),
                 ),
               ],

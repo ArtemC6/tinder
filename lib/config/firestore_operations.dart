@@ -265,7 +265,7 @@ Future<void> uploadImageAdd(BuildContext context, UserModel userModel) async {
         Navigator.pushReplacement(
             context,
             FadeRouteAnimation(ProfileScreen(
-              userModel: UserModel(
+              userModelPartner: UserModel(
                   name: '',
                   uid: '',
                   myCity: '',
@@ -314,7 +314,7 @@ Future<void> imageRemove(
         Navigator.pushReplacement(
             context,
             FadeRouteAnimation(ProfileScreen(
-              userModel: UserModel(
+              userModelPartner: UserModel(
                   name: '',
                   uid: '',
                   myCity: '',
@@ -353,7 +353,7 @@ Future<void> setStateFirebase(String state) async {
   } on FirebaseException {}
 }
 
-showAlertDialogDeleteThat(
+showAlertDialogDeleteChat(
     BuildContext context, String friendId, String friendName, bool isBack) {
   bool isDelete = false;
   Widget cancelButton = TextButton(
@@ -642,38 +642,3 @@ Future<bool> putLike(
 
   return Future.value(!isLike);
 }
-
-// Future<UserModel> readUserFirebase(
-//     ) async {
-//
-//   await FirebaseFirestore.instance
-//       .collection('User')
-//       .where('uid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-//       .limit(1)
-//       .get()
-//       .then((QuerySnapshot querySnapshot) {
-//     querySnapshot.docs.forEach((document) async {
-//       Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-//
-//       setState(() {
-//         userModelCurrent = UserModel(
-//             name: data['name'],
-//             uid: data['uid'],
-//             ageTime: data['ageTime'],
-//             userPol: data['myPol'],
-//             searchPol: data['searchPol'],
-//             searchRangeStart: data['rangeStart'],
-//             userInterests: List<String>.from(data['listInterests']),
-//             userImagePath: List<String>.from(data['listImagePath']),
-//             userImageUrl: List<String>.from(data['listImageUri']),
-//             searchRangeEnd: data['rangeEnd'],
-//             myCity: data['myCity'],
-//             imageBackground: data['imageBackground'],
-//             ageInt: data['ageInt'],
-//             state: data['state']);
-//       });
-//     });
-//   });
-//
-//   // return Future.value(!isLike);
-// }

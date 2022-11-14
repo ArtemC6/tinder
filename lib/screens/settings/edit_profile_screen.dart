@@ -166,34 +166,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future readFirebase() async {
     if (modelUser.uid == '') {
-      await FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        Map<String, dynamic> data =
-            documentSnapshot.data() as Map<String, dynamic>;
-
+      await readUserFirebase().then((user) {
         setState(() {
           modelUser = UserModel(
-              state: data['state'],
-              name: data['name'],
-              uid: data['uid'],
-              ageTime: data['ageTime'],
-              userPol: data['myPol'],
-              searchPol: data['searchPol'],
-              searchRangeStart: data['rangeStart'],
-              userInterests: List<String>.from(data['listInterests']),
-              userImagePath: List<String>.from(data['listImagePath']),
-              userImageUrl: List<String>.from(data['listImageUri']),
-              searchRangeEnd: data['rangeEnd'],
-              myCity: data['myCity'],
-              imageBackground: data['imageBackground'],
-              ageInt: data['ageInt']);
+              name: user.name,
+              uid: user.uid,
+              ageTime: user.ageTime,
+              userPol: user.userPol,
+              searchPol: user.searchPol,
+              searchRangeStart: user.searchRangeStart,
+              userInterests: user.userInterests,
+              userImagePath: user.userImagePath,
+              userImageUrl: user.userImageUrl,
+              searchRangeEnd: user.searchRangeEnd,
+              myCity: user.myCity,
+              imageBackground: user.imageBackground,
+              ageInt: user.ageInt,
+              state: user.state);
+          isLoading = true;
         });
       });
     }
-
     setState(() {
       isLoading = true;
       settingsValue();

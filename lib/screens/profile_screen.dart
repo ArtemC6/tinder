@@ -14,38 +14,38 @@ import '../widget/button_widget.dart';
 import '../widget/component_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
-  UserModel userModelCurrent, userModel;
-  bool isBack;
-  String idUser;
+  final UserModel userModelCurrent, userModelPartner;
+  final bool isBack;
+  final String idUser;
 
   ProfileScreen(
       {super.key,
-      required this.userModel,
+      required this.userModelPartner,
       required this.isBack,
       required this.idUser,
       required this.userModelCurrent});
 
   @override
   State<ProfileScreen> createState() =>
-      _ProfileScreen(userModel, isBack, idUser, userModelCurrent);
+      _ProfileScreen(userModelPartner, isBack, idUser, userModelCurrent);
 }
 
 class _ProfileScreen extends State<ProfileScreen> {
   bool isLoading = false, isLike = false, isBack, isProprietor = false;
-  UserModel userModel, userModelCurrent;
-  String idUser;
+  UserModel userModelPartner, userModelCurrent;
+  final String idUser;
   List<InterestsModel> listStory = [];
   List<String> listImageUri = [], listImagePath = [];
-  FirebaseStorage storage = FirebaseStorage.instance;
+  final FirebaseStorage storage = FirebaseStorage.instance;
 
   _ProfileScreen(
-      this.userModel, this.isBack, this.idUser, this.userModelCurrent);
+      this.userModelPartner, this.isBack, this.idUser, this.userModelCurrent);
 
   Future readFirebase() async {
-    if (userModel.uid == '' && idUser != '') {
-      readUserFirebase(idUser).then((user) {
+    if (userModelPartner.uid == '' && idUser != '') {
+      await readUserFirebase(idUser).then((user) {
         setState(() {
-          userModel = UserModel(
+          userModelPartner = UserModel(
               name: user.name,
               uid: user.uid,
               ageTime: user.ageTime,
@@ -65,9 +65,9 @@ class _ProfileScreen extends State<ProfileScreen> {
       });
     }
 
-    for (var elementMain in userModel.userInterests) {
+    for (var elementMain in userModelPartner.userInterests) {
       for (var element in listStoryMain) {
-        if (userModel.userInterests.length != listStory.length) {
+        if (userModelPartner.userInterests.length != listStory.length) {
           listStory.add(element);
         }
         if (elementMain == element.name) {}
@@ -75,14 +75,17 @@ class _ProfileScreen extends State<ProfileScreen> {
     }
 
     setState(() {
-      if (userModelCurrent.uid == userModel.uid) {
+      if (userModelCurrent.uid == userModelPartner.uid) {
         isProprietor = true;
       } else {
         isProprietor = false;
       }
-      putLike(userModelCurrent, userModel, false).then((value) {
+
+      putLike(userModelCurrent, userModelPartner, false).then((value) {
         setState(() {
+          print(value);
           isLike = !value;
+          isLoading = true;
         });
       });
     });
@@ -122,7 +125,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                           fit: BoxFit.cover,
-                          imageUrl: userModel.imageBackground,
+                          imageUrl: userModelPartner.imageBackground,
                         ),
                       ),
                     ),
@@ -154,7 +157,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                               Navigator.push(
                                   context,
                                   FadeRouteAnimation(ProfileSettingScreen(
-                                    userModel: userModel,
+                                    userModel: userModelPartner,
                                   )));
                             },
                             icon: const Icon(Icons.settings, size: 20),
@@ -202,7 +205,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                                           ),
                                         ),
                                       ),
-                                      imageUrl: userModel.userImageUrl[0],
+                                      imageUrl:
+                                          userModelPartner.userImageUrl[0],
                                       imageBuilder: (context, imageProvider) =>
                                           Container(
                                         height: 110,
@@ -222,7 +226,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                 ),
                                 buttonLike(
                                     isLike: isLike,
-                                    userModel: userModel,
+                                    userModel: userModelPartner,
                                     userModelCurrent: userModelCurrent),
                               ],
                             ),
@@ -239,7 +243,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                     RichText(
                                       text: TextSpan(
                                         text:
-                                            '${userModel.name}, ${userModel.ageInt}',
+                                            '${userModelPartner.name}, ${userModelPartner.ageInt}',
                                         style: GoogleFonts.lato(
                                           textStyle: TextStyle(
                                               color:
@@ -251,7 +255,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                     ),
                                     RichText(
                                       text: TextSpan(
-                                        text: userModel.myCity,
+                                        text: userModelPartner.myCity,
                                         style: GoogleFonts.lato(
                                           textStyle: TextStyle(
                                               color:
@@ -264,10 +268,11 @@ class _ProfileScreen extends State<ProfileScreen> {
                                   ],
                                 ),
                               ),
-                              if (isProprietor) buttonProfileMy(userModel),
+                              if (isProprietor)
+                                buttonProfileMy(userModelPartner),
                               if (!isProprietor)
                                 buttonProfileUser(
-                                  userModel,
+                                  userModelPartner,
                                   userModelCurrent,
                                 ),
                               const SizedBox()
@@ -284,9 +289,9 @@ class _ProfileScreen extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                infoPanelWidget(userModel: userModel),
+                                infoPanelWidget(userModel: userModelPartner),
                                 slideInterests(listStory),
-                                photoProfile(userModel.userImageUrl),
+                                photoProfile(userModelPartner.userImageUrl),
                               ],
                             ),
                           ),

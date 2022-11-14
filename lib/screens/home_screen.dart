@@ -14,7 +14,7 @@ import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  UserModel userModelCurrent;
+  final UserModel userModelCurrent;
 
   HomeScreen({Key? key, required this.userModelCurrent}) : super(key: key);
 
@@ -31,7 +31,7 @@ class _HomeScreen extends State<HomeScreen>
   int limit = 1;
   bool isLike = false, isLook = false, isLoading = false;
   List<UserModel> userModel = [];
-  UserModel userModelCurrent;
+  final UserModel userModelCurrent;
   final scrollController = ScrollController();
 
   _HomeScreen(this.userModelCurrent);
@@ -212,17 +212,16 @@ class _HomeScreen extends State<HomeScreen>
                                           splashColor: Colors.transparent,
                                           highlightColor: Colors.transparent,
                                           onTap: () {
-                                            Navigator.of(context).push(
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        ProfileScreen(
-                                                          userModel:
-                                                              userModel[index],
-                                                          isBack: true,
-                                                          idUser: '',
-                                                          userModelCurrent:
-                                                              userModelCurrent,
-                                                        )));
+                                            Navigator.push(
+                                                context,
+                                                FadeRouteAnimation( ProfileScreen(
+                                                  userModelPartner:
+                                                  userModel[index],
+                                                  isBack: true,
+                                                  idUser: '',
+                                                  userModelCurrent:
+                                                  userModelCurrent,
+                                                )));
                                           },
                                           child: cardSympathy(index),
                                         ),
@@ -230,7 +229,6 @@ class _HomeScreen extends State<HomeScreen>
                                     } else {
                                       limit += 1;
                                       readFirebase();
-                                      print('object');
                                       return Center(
                                         child:
                                             LoadingAnimationWidget.dotsTriangle(
@@ -276,12 +274,9 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
-                                    print(index);
 
                                     if (index < userModel.length + 1) {
-                                      print('Go');
                                     } else {
-                                      print('No');
                                     }
 
                                     if (orientation.toString() ==

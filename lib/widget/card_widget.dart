@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:card_loading/card_loading.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
+import '../model/user_model.dart';
 import '../screens/that_user_screen.dart';
 import 'button_widget.dart';
 
@@ -78,18 +81,30 @@ class photoUser extends StatelessWidget {
 
 class itemUser extends StatefulWidget {
   String friendId, lastMessage;
+  UserModel userModelCurrent;
   var friend, date;
-  itemUser({Key? key, required this.friendId, this.friend, required this.lastMessage, this.date}) : super(key: key);
+
+  itemUser(
+      {Key? key,
+      required this.friendId,
+      this.friend,
+      required this.lastMessage,
+      this.date,
+      required this.userModelCurrent})
+      : super(key: key);
 
   @override
-  State<itemUser> createState() => _itemUserState(friendId, friend, lastMessage, date);
+  State<itemUser> createState() =>
+      _itemUserState(friendId, friend, lastMessage, date, userModelCurrent);
 }
 
 class _itemUserState extends State<itemUser> {
   String friendId, lastMessage;
+  UserModel userModelCurrent;
   var friend, date;
 
-  _itemUserState(this.friendId, this.friend, this.lastMessage, this.date);
+  _itemUserState(this.friendId, this.friend, this.lastMessage, this.date,
+      this.userModelCurrent);
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +114,7 @@ class _itemUserState extends State<itemUser> {
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       onLongPress: () {
-        showAlertDialogDeleteThat(context, friendId, friend['name'], false);
+        showAlertDialogDeleteChat(context, friendId, friend['name'], false);
       },
       child: Container(
         height: width / 3.7,
@@ -119,11 +134,13 @@ class _itemUserState extends State<itemUser> {
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ThatUserScreen(
+                Navigator.push(
+                    context,
+                    FadeRouteAnimation(ChatUserScreen(
                       friendId: friendId,
                       friendName: friend['name'],
                       friendImage: friend['listImageUri'][0],
+                      userModelCurrent: userModelCurrent,
                     )));
               },
               child: Row(
@@ -233,7 +250,149 @@ class _itemUserState extends State<itemUser> {
     );
   }
 }
-//
-// Widget itemUser(friend, friendId, lastMessage, date) {
-//   return
-// }
+
+CustomScrollView cardLoadingWidget(
+    Size size, double heightCard, double heightAvatar) {
+  return CustomScrollView(
+    slivers: [
+      SliverPadding(
+        padding: const EdgeInsets.all(20),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(alignment: Alignment.centerLeft, children: [
+                      CardLoading(
+                        cardLoadingTheme: CardLoadingTheme(
+                            colorTwo: color_black_88,
+                            colorOne: Colors.white.withOpacity(0.10)),
+                        height: size.height * heightCard,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(15)),
+                        margin: const EdgeInsets.only(bottom: 10),
+                      ),
+                      Positioned(
+                        left: 22,
+                        child: CardLoading(
+                          cardLoadingTheme: CardLoadingTheme(
+                              colorTwo: color_black_88,
+                              colorOne: Colors.white.withOpacity(0.14)),
+                          height: size.height * heightAvatar,
+                          width: size.height * heightAvatar,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(50)),
+                          margin: const EdgeInsets.only(bottom: 10),
+                        ),
+                      ),
+                    ]),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: CardLoading(
+                            cardLoadingTheme: CardLoadingTheme(
+                                colorTwo: color_black_88,
+                                colorOne: Colors.white.withOpacity(0.10)),
+                            height: 30,
+                            width: 200,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                            margin: const EdgeInsets.only(bottom: 10),
+                          ),
+                        ),
+                        const Expanded(child: SizedBox()),
+                        Expanded(
+                          flex: 1,
+                          child: CardLoading(
+                            cardLoadingTheme: CardLoadingTheme(
+                                colorTwo: color_black_88,
+                                colorOne: Colors.white.withOpacity(0.10)),
+                            height: 30,
+                            width: 200,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(15)),
+                            margin: const EdgeInsets.only(bottom: 10),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+            childCount: 10,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+Stack imagePhotoChat(String friendImage, String friendId) {
+  return Stack(
+    alignment: Alignment.bottomRight,
+    children: [
+      Card(
+        shadowColor: Colors.white30,
+        color: color_black_88,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+            side: const BorderSide(
+              width: 0.8,
+              color: Colors.white30,
+            )),
+        elevation: 6,
+        child: CachedNetworkImage(
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+          progressIndicatorBuilder: (context, url, progress) => Center(
+            child: SizedBox(
+              height: 44,
+              width: 44,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 0.8,
+                value: progress.progress,
+              ),
+            ),
+          ),
+          imageUrl: friendImage,
+          imageBuilder: (context, imageProvider) => Container(
+            height: 44,
+            width: 44,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: const BorderRadius.all(Radius.circular(50)),
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+      ),
+      SizedBox(
+        height: 22,
+        width: 22,
+        child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('User')
+              .doc(friendId)
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
+            return customIconButton(
+              padding: 0,
+              width: 22,
+              height: 22,
+              path: 'images/ic_green_dot.png',
+              onTap: () {},
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}

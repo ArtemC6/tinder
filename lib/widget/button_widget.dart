@@ -169,6 +169,10 @@ class _buttonProfileState extends State<buttonProfileUser> {
             for (int i = 0; i < snapshot.data.docs.length; i++) {
               isMutuallyMain = snapshot.data.docs[i]['uid'] ==
                   FirebaseAuth.instance.currentUser!.uid;
+
+              if (isMutuallyMain) {
+                setState(() {});
+              }
             }
           } catch (E) {}
           return StreamBuilder(
@@ -184,6 +188,9 @@ class _buttonProfileState extends State<buttonProfileUser> {
                   for (int i = 0; i < snapshot.data.docs.length; i++) {
                     isMutually =
                         snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
+                    if (isMutually) {
+                      setState(() {});
+                    }
                   }
                 } catch (E) {}
 
@@ -227,10 +234,11 @@ class _buttonProfileState extends State<buttonProfileUser> {
                     Colors.orangeAccent
                   ], () {
                     Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ThatUserScreen(
+                        builder: (context) => ChatUserScreen(
                               friendId: userModelCurrent.uid,
                               friendName: userModelCurrent.name,
                               friendImage: userModelCurrent.userImageUrl[0],
+                              userModelCurrent: userModelCurrent,
                             )));
                   });
                 }
@@ -338,4 +346,47 @@ class buttonLike extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget buttonSympathy(String name, color, onTap) {
+  return SizedBox(
+    height: 40,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.white38,
+            blurRadius: 5.0,
+            spreadRadius: 0.0,
+            offset: Offset(
+              0.0,
+              1.0,
+            ),
+          )
+        ],
+        border: Border.all(width: 0.8, color: Colors.white38),
+        gradient: LinearGradient(colors: color),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          shadowColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+        child: RichText(
+          maxLines: 1,
+          text: TextSpan(
+            text: name,
+            style: GoogleFonts.lato(
+              textStyle: const TextStyle(
+                  color: Colors.white, fontSize: 10.5, letterSpacing: .0),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

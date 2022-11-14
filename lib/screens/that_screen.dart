@@ -1,22 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:tinder/model/user_model.dart';
 
 import '../config/const.dart';
 import '../widget/animation_widget.dart';
 import '../widget/card_widget.dart';
 
-class ThatScreen extends StatefulWidget {
-  const ThatScreen({Key? key}) : super(key: key);
+class ChatScreen extends StatelessWidget {
+  final UserModel userModelCurrent;
 
-  @override
-  State<ThatScreen> createState() => _ThatScreenState();
-}
+  const ChatScreen({Key? key, required this.userModelCurrent})
+      : super(key: key);
 
-class _ThatScreenState extends State<ThatScreen> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         backgroundColor: color_black_88,
         body: SafeArea(
@@ -58,7 +57,7 @@ class _ThatScreenState extends State<ThatScreen> {
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('User')
-                          .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .doc(userModelCurrent.uid)
                           .collection('messages')
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshot) {
@@ -104,11 +103,12 @@ class _ThatScreenState extends State<ThatScreen> {
                                                     var friend =
                                                         asyncSnapshot.data;
                                                     return itemUser(
-                                                      friendId: friendId,
-                                                      friend: friend,
-                                                      lastMessage: lastMsg,
-                                                      date: date,
-                                                    );
+                                                        friendId: friendId,
+                                                        friend: friend,
+                                                        lastMessage: lastMsg,
+                                                        date: date,
+                                                        userModelCurrent:
+                                                            userModelCurrent);
                                                   }
                                                   return const SizedBox();
                                                 },
@@ -116,7 +116,7 @@ class _ThatScreenState extends State<ThatScreen> {
                                 }),
                           );
                         }
-                        return const loadingCustom();
+                        return cardLoadingWidget(size, .10, .06);
                       }),
                 ),
               ],

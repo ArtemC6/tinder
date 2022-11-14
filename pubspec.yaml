@@ -67,6 +67,7 @@ dependencies:
   shared_preferences: ^2.0.15
   emoji_picker_flutter: ^1.4.0
   flutter_lints: ^2.0.1
+  card_loading: ^0.2.2
 
 
 
