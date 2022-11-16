@@ -332,6 +332,16 @@ CustomScrollView cardLoadingWidget(
   );
 }
 
+Widget cardLoading(Size size, double radius) {
+  return CardLoading(
+    cardLoadingTheme: CardLoadingTheme(
+        colorTwo: color_black_88, colorOne: Colors.white.withOpacity(0.12)),
+    height: size.height,
+    width: size.width,
+    borderRadius: BorderRadius.circular(radius),
+  );
+}
+
 Stack imagePhotoChat(String friendImage, String friendId) {
   return Stack(
     alignment: Alignment.bottomRight,

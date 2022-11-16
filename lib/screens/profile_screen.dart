@@ -12,6 +12,7 @@ import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
 import '../widget/component_widget.dart';
+import '../widget/photo_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
   final UserModel userModelCurrent, userModelPartner;
@@ -83,7 +84,6 @@ class _ProfileScreen extends State<ProfileScreen> {
 
       putLike(userModelCurrent, userModelPartner, false).then((value) {
         setState(() {
-          print(value);
           isLike = !value;
           isLoading = true;
         });
@@ -177,53 +177,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                SizedBox(
-                                  height: 110,
-                                  width: 110,
-                                  child: Card(
-                                    shadowColor: Colors.white38,
-                                    color: color_black_88,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        side: const BorderSide(
-                                          width: 0.8,
-                                          color: Colors.white30,
-                                        )),
-                                    elevation: 4,
-                                    child: CachedNetworkImage(
-                                      errorWidget: (context, url, error) =>
-                                          const Icon(Icons.error),
-                                      progressIndicatorBuilder:
-                                          (context, url, progress) => Center(
-                                        child: SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 0.8,
-                                            value: progress.progress,
-                                          ),
-                                        ),
-                                      ),
-                                      imageUrl:
-                                          userModelPartner.userImageUrl[0],
-                                      imageBuilder: (context, imageProvider) =>
-                                          Container(
-                                        height: 110,
-                                        width: 110,
-                                        decoration: BoxDecoration(
-                                          color: Colors.transparent,
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(14)),
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                photoProfile(uri: userModelPartner.userImageUrl[0]),
                                 buttonLike(
                                     isLike: isLike,
                                     userModel: userModelPartner,
@@ -291,7 +245,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                               children: <Widget>[
                                 infoPanelWidget(userModel: userModelPartner),
                                 slideInterests(listStory),
-                                photoProfile(userModelPartner.userImageUrl),
+                                photoProfileGallery(
+                                    userModelPartner.userImageUrl),
                               ],
                             ),
                           ),

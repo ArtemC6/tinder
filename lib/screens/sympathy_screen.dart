@@ -43,7 +43,6 @@ class _SympathyScreenState extends State<SympathyScreen> {
               for (int i = 0; i < asyncSnapshot.data.docs.length; i++) {
                 isMutuallyMy =
                     asyncSnapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                // print('test ${asyncSnapshot.data.docs[i]['name']}: $i $isMutuallyMy');
                 if (isMutuallyMy) {
                   setState(() {});
                 }

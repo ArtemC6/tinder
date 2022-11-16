@@ -9,6 +9,7 @@ import '../../model/user_model.dart';
 import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/component_widget.dart';
+import '../../widget/photo_widget.dart';
 import 'edit_image_profile_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
@@ -127,52 +128,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Stack(alignment: Alignment.bottomRight, children: [
-                            SizedBox(
-                              height: 110,
-                              width: 110,
-                              child: Card(
-                                shadowColor: Colors.white38,
-                                color: color_black_88,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    side: const BorderSide(
-                                      width: 0.8,
-                                      color: Colors.white30,
-                                    )),
-                                elevation: 4,
-                                child: CachedNetworkImage(
-                                  errorWidget: (context, url, error) =>
-                                      const Icon(Icons.error),
-                                  progressIndicatorBuilder:
-                                      (context, url, progress) => Center(
-                                    child: SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 0.8,
-                                        value: progress.progress,
-                                      ),
-                                    ),
-                                  ),
-                                  imageUrl: userModel.userImageUrl[0],
-                                  imageBuilder: (context, imageProvider) =>
-                                      Container(
-                                    height: 110,
-                                    width: 110,
-                                    decoration: BoxDecoration(
-                                      color: Colors.transparent,
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(14)),
-                                      image: DecorationImage(
-                                        image: imageProvider,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            photoProfile(uri: userModel.userImageUrl[0]),
                             customIconButton(
                               path: 'images/edit_icon.png',
                               width: 25,
@@ -247,7 +203,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                             userModel: userModel,
                           ),
                           slideInterestsSettings(listStory, userModel),
-                          photoProfileSettings(userModel),
+                          photoProfileSettingsGallery(userModel),
                         ],
                       ),
                     ),

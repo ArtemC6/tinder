@@ -5,18 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
 
 import '../config/const.dart';
 import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
+import '../widget/card_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserModel userModelCurrent;
 
-  HomeScreen({Key? key, required this.userModelCurrent}) : super(key: key);
+  const HomeScreen({Key? key, required this.userModelCurrent})
+      : super(key: key);
 
   @override
   _HomeScreen createState() => _HomeScreen(userModelCurrent);
@@ -30,7 +31,8 @@ class _HomeScreen extends State<HomeScreen>
   double colorIndex = 0;
   int limit = 1;
   bool isLike = false, isLook = false, isLoading = false;
-  List<UserModel> userModel = [];
+  List<UserModel> userModelPartner = [];
+  List<String> listDisLike = [];
   final UserModel userModelCurrent;
   final scrollController = ScrollController();
 
@@ -39,34 +41,113 @@ class _HomeScreen extends State<HomeScreen>
   Future readFirebase() async {
     await FirebaseFirestore.instance
         .collection('User')
+        .doc(userModelCurrent.uid)
+        .collection('dislike')
+        .get()
+        .then((querySnapshot) {
+      for (var result in querySnapshot.docs) {
+        setState(() {
+          listDisLike.add(result.id);
+        });
+      }
+    });
+
+    await FirebaseFirestore.instance
+        .collection('User')
         // .where('uid', isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .where('myPol', isEqualTo: userModelCurrent.searchPol)
         // .where('ageInt', isGreaterThanOrEqualTo: userModelCurrent.searchRangeStart)
         // .where('ageInt', isLessThanOrEqualTo: userModelCurrent.searchRangeStart)
-        .limit(limit)
+        // .limit(limit)
         .get()
         .then((QuerySnapshot querySnapshot) {
       querySnapshot.docs.forEach((document) async {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         if (userModelCurrent.searchRangeStart <= data['ageInt'] &&
             userModelCurrent.searchRangeEnd >= data['ageInt']) {
-          setState(() {
-            userModel.add(UserModel(
-                name: data['name'],
-                uid: data['uid'],
-                ageTime: data['ageTime'],
-                userPol: data['myPol'],
-                searchPol: data['searchPol'],
-                searchRangeStart: data['rangeStart'],
-                userInterests: List<String>.from(data['listInterests']),
-                userImagePath: List<String>.from(data['listImagePath']),
-                userImageUrl: List<String>.from(data['listImageUri']),
-                searchRangeEnd: data['rangeEnd'],
-                myCity: data['myCity'],
-                imageBackground: data['imageBackground'],
-                ageInt: data['ageInt'],
-                state: data['state']));
+
+
+
+          bool isUser = true;
+
+          Future.forEach(listDisLike, (element) {
+            // print(
+            //     'my: $element:${data['name']} ${element !=
+            //         data['name']}');
+            //
+            // if (element == data['name']) {
+            //   isUser = true;
+            //   print('');
+            //   // print('true');
+            // } else {
+            //   isUser = false;
+            //   // print('false');
+            //
+            // }
+
+            // return 'sdfdsf';
+
+
+          }).then((value) {
+
+            print(isUser);
+            if(isUser) {
+              userModelPartner.add(UserModel(
+                  name: data['name'],
+                  uid: data['uid'],
+                  ageTime: data['ageTime'],
+                  userPol: data['myPol'],
+                  searchPol: data['searchPol'],
+                  searchRangeStart: data['rangeStart'],
+                  userInterests: List<String>.from(data['listInterests']),
+                  userImagePath: List<String>.from(data['listImagePath']),
+                  userImageUrl: List<String>.from(data['listImageUri']),
+                  searchRangeEnd: data['rangeEnd'],
+                  myCity: data['myCity'],
+                  imageBackground: data['imageBackground'],
+                  ageInt: data['ageInt'],
+                  state: data['state']));
+              setState(() {});
+            }
           });
+
+          //  Future.delayed(const Duration(milliseconds: 100), () async {
+          //   bool isUser = true;
+          //   for (String dislike in listDisLike) {
+          //     print(
+          //         'my: $dislike:${data['name']} ${dislike !=
+          //             data['name']}');
+          //
+          //     if (dislike != data['name']) {
+          //       isUser = false;
+          //     } else {
+          //       isUser = true;
+          //     }
+          //   }
+          //
+          //   return isUser;
+          // }).then((value) {
+          //    print('');
+          //    print('Ready: $value');
+          //   if (value) {
+          //     userModelPartner.add(UserModel(
+          //         name: data['name'],
+          //         uid: data['uid'],
+          //         ageTime: data['ageTime'],
+          //         userPol: data['myPol'],
+          //         searchPol: data['searchPol'],
+          //         searchRangeStart: data['rangeStart'],
+          //         userInterests: List<String>.from(data['listInterests']),
+          //         userImagePath: List<String>.from(data['listImagePath']),
+          //         userImageUrl: List<String>.from(data['listImageUri']),
+          //         searchRangeEnd: data['rangeEnd'],
+          //         myCity: data['myCity'],
+          //         imageBackground: data['imageBackground'],
+          //         ageInt: data['ageInt'],
+          //         state: data['state']));
+          //     setState(() {});
+          //   }
+          // });
         }
       });
     });
@@ -99,7 +180,10 @@ class _HomeScreen extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    Widget cardSympathy(int index) {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    var size = MediaQuery.of(context).size;
+    Widget cardPartner(int index) {
       return Card(
         shadowColor: Colors.white30,
         color: color_black_88,
@@ -119,18 +203,9 @@ class _HomeScreen extends State<HomeScreen>
               child: CachedNetworkImage(
                   errorWidget: (context, url, error) => const Icon(Icons.error),
                   useOldImageOnUrlChange: false,
-                  progressIndicatorBuilder: (context, url, progress) => Center(
-                        child: SizedBox(
-                          height: 30,
-                          width: 30,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 0.8,
-                            value: progress.progress,
-                          ),
-                        ),
-                      ),
-                  imageUrl: userModel[index].userImageUrl[0],
+                  progressIndicatorBuilder: (context, url, progress) =>
+                      Center(child: cardLoading(size, 22)),
+                  imageUrl: userModelPartner[index].userImageUrl[0],
                   fit: BoxFit.cover,
                   // height: 166,
                   width: MediaQuery.of(context).size.width),
@@ -144,7 +219,7 @@ class _HomeScreen extends State<HomeScreen>
                   RichText(
                     text: TextSpan(
                       text:
-                          '${userModel[index].name}, ${userModel[index].ageInt} \n${userModel[index].myCity}',
+                          '${userModelPartner[index].name}, ${userModelPartner[index].ageInt} \n${userModelPartner[index].myCity}',
                       style: GoogleFonts.lato(
                         textStyle: const TextStyle(
                             color: Colors.white,
@@ -194,19 +269,15 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeDown: false,
                                   orientation: AmassOrientation.BOTTOM,
                                   allowVerticalMovement: true,
-                                  totalNum: userModel.length + 1,
+                                  totalNum: userModelPartner.length + 1,
                                   stackNum: 3,
                                   swipeEdge: 3.0,
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width / 1,
-                                  maxHeight:
-                                      MediaQuery.of(context).size.width / 1,
-                                  minWidth:
-                                      MediaQuery.of(context).size.width / 1.1,
-                                  minHeight:
-                                      MediaQuery.of(context).size.width / 1.1,
+                                  maxWidth: width / 1,
+                                  maxHeight: width / 1,
+                                  minWidth: width / 1.1,
+                                  minHeight: width / 1.1,
                                   cardBuilder: (context, index) {
-                                    if (index < userModel.length) {
+                                    if (index < userModelPartner.length) {
                                       return SizedBox(
                                         child: InkWell(
                                           splashColor: Colors.transparent,
@@ -214,28 +285,23 @@ class _HomeScreen extends State<HomeScreen>
                                           onTap: () {
                                             Navigator.push(
                                                 context,
-                                                FadeRouteAnimation( ProfileScreen(
+                                                FadeRouteAnimation(
+                                                    ProfileScreen(
                                                   userModelPartner:
-                                                  userModel[index],
+                                                      userModelPartner[index],
                                                   isBack: true,
                                                   idUser: '',
                                                   userModelCurrent:
-                                                  userModelCurrent,
+                                                      userModelCurrent,
                                                 )));
                                           },
-                                          child: cardSympathy(index),
+                                          child: cardPartner(index),
                                         ),
                                       );
                                     } else {
-                                      limit += 1;
-                                      readFirebase();
-                                      return Center(
-                                        child:
-                                            LoadingAnimationWidget.dotsTriangle(
-                                          size: 44,
-                                          color: Colors.blueAccent,
-                                        ),
-                                      );
+                                      // limit += 1;
+                                      // readFirebase();
+                                      return cardLoading(size, 22);
                                     }
                                   },
                                   cardController: controllerCard =
@@ -274,18 +340,19 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
-
-                                    if (index < userModel.length + 1) {
-                                    } else {
-                                    }
+                                    if (index < userModelPartner.length + 1) {
+                                    } else {}
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
                                       setState(() {
                                         isLook = false;
                                       });
-                                      await CachedNetworkImage.evictFromCache(
-                                          userModel[index].userImageUrl[0]);
+                                      CachedNetworkImage.evictFromCache(
+                                          userModelPartner[index]
+                                              .userImageUrl[0]);
+                                      createDisLike(userModelCurrent,
+                                          userModelPartner[index]);
                                     }
 
                                     if (orientation.toString() ==
@@ -293,7 +360,8 @@ class _HomeScreen extends State<HomeScreen>
                                       setState(() {
                                         isLook = false;
                                       });
-                                      createSympathy(userModel[index].uid,
+                                      createSympathy(
+                                          userModelPartner[index].uid,
                                           userModelCurrent);
                                     }
                                   },
@@ -308,9 +376,8 @@ class _HomeScreen extends State<HomeScreen>
                                   },
                                   child: Container(
                                     alignment: Alignment.center,
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height /
-                                        2.9,
+                                    width: width,
+                                    height: height / 2.9,
                                     decoration: BoxDecoration(
                                         image: DecorationImage(
                                             image: const AssetImage(
@@ -331,9 +398,8 @@ class _HomeScreen extends State<HomeScreen>
                                   },
                                   child: Container(
                                     alignment: Alignment.center,
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height /
-                                        2.9,
+                                    width: width,
+                                    height: height / 2.9,
                                     decoration: BoxDecoration(
                                         image: DecorationImage(
                                             image: const AssetImage(
@@ -357,9 +423,8 @@ class _HomeScreen extends State<HomeScreen>
                                   controllerCard.triggerLeft();
                                 },
                                 child: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height / 5,
-                                  width: MediaQuery.of(context).size.width / 2,
+                                  height: height / 5,
+                                  width: width / 2,
                                   child: AvatarGlow(
                                     glowColor: Colors.blueAccent,
                                     endRadius: 60,
@@ -393,9 +458,8 @@ class _HomeScreen extends State<HomeScreen>
                                   controllerCard.triggerRight();
                                 },
                                 child: SizedBox(
-                                  height:
-                                      MediaQuery.of(context).size.height / 5,
-                                  width: MediaQuery.of(context).size.width / 2,
+                                  height: height / 5,
+                                  width: width / 2,
                                   child: AvatarGlow(
                                     glowColor: Colors.blueAccent,
                                     endRadius: 60,

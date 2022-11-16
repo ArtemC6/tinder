@@ -68,6 +68,7 @@ dependencies:
   emoji_picker_flutter: ^1.4.0
   flutter_lints: ^2.0.1
   card_loading: ^0.2.2
+  ndialog: ^4.2.0
 
 
 

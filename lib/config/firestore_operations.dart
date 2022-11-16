@@ -642,3 +642,21 @@ Future<bool> putLike(
 
   return Future.value(!isLike);
 }
+
+Future createDisLike(UserModel userModelCurrent, UserModel userModel) async {
+  try {
+    FirebaseFirestore.instance
+        .collection("User")
+        .doc(userModelCurrent.uid)
+        .collection('dislike')
+        .doc(userModel.name)
+        .set({});
+
+    // FirebaseFirestore.instance
+    //     .collection("User")
+    //     .doc(userModel.uid)
+    //     .collection('likes')
+    //     .doc(userModelCurrent.uid)
+    //     .delete();
+  } on FirebaseException {}
+}

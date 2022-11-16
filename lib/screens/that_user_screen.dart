@@ -7,8 +7,8 @@ import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../widget/card_widget.dart';
-import '../widget/message_tem.dart';
-import '../widget/message_textfield.dart';
+import '../widget/message_widget.dart';
+
 
 class ChatUserScreen extends StatefulWidget {
   final String friendName, friendId, friendImage;

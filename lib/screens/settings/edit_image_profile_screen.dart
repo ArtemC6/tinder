@@ -8,6 +8,7 @@ import '../../config/const.dart';
 import '../../config/firestore_operations.dart';
 import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
+import '../../widget/card_widget.dart';
 
 class EditImageProfileScreen extends StatefulWidget {
  final String bacImage;
@@ -58,6 +59,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     AnimationLimiter listImageProfile(BuildContext context) {
       return AnimationLimiter(
           child: AnimationConfiguration.staggeredList(
@@ -126,15 +128,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                                   ),
                                   progressIndicatorBuilder:
                                       (context, url, progress) => Center(
-                                    child: SizedBox(
-                                      height: 26,
-                                      width: 26,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 0.8,
-                                        value: progress.progress,
-                                      ),
-                                    ),
+                                        child: cardLoading(size, 14),
                                   ),
                                   imageUrl: listImageUri[index],
                                 ),

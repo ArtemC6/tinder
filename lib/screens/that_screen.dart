@@ -4,8 +4,9 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:tinder/model/user_model.dart';
 
 import '../config/const.dart';
-import '../widget/animation_widget.dart';
 import '../widget/card_widget.dart';
+
+
 
 class ChatScreen extends StatelessWidget {
   final UserModel userModelCurrent;
@@ -116,7 +117,7 @@ class ChatScreen extends StatelessWidget {
                                 }),
                           );
                         }
-                        return cardLoadingWidget(size, .10, .06);
+                        return cardLoadingWidget(size, .12, .07);
                       }),
                 ),
               ],

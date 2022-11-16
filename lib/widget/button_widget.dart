@@ -235,9 +235,9 @@ class _buttonProfileState extends State<buttonProfileUser> {
                   ], () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => ChatUserScreen(
-                              friendId: userModelCurrent.uid,
-                              friendName: userModelCurrent.name,
-                              friendImage: userModelCurrent.userImageUrl[0],
+                              friendId: userModel.uid,
+                              friendName: userModel.name,
+                              friendImage: userModel.userImageUrl[0],
                               userModelCurrent: userModelCurrent,
                             )));
                   });
