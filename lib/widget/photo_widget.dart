@@ -21,6 +21,7 @@ void showDialogZoom({required String uri, required BuildContext context}) {
         imageBuilder: (context, imageProvider) => Container(
           decoration: BoxDecoration(
             color: color_black_88,
+            border: Border.all(color: Colors.white30, width: 0.8),
             borderRadius: const BorderRadius.all(Radius.circular(14)),
             image: DecorationImage(
               image: imageProvider,
@@ -172,7 +173,7 @@ class photoProfileGallery extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       color: color_black_88,
                                       borderRadius: const BorderRadius.all(
-                                          Radius.circular(14)),
+                                          Radius.circular(12)),
                                       image: DecorationImage(
                                         image: imageProvider,
                                         fit: BoxFit.cover,
@@ -288,7 +289,7 @@ class photoProfileSettingsGallery extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 const BorderRadius.all(
-                                                    Radius.circular(14)),
+                                                    Radius.circular(12)),
                                             image: DecorationImage(
                                                 image: imageProvider,
                                                 fit: BoxFit.cover),

@@ -546,6 +546,53 @@ Future<UserModel> readUserFirebase([String? idUser]) async {
   return userModel;
 }
 
+Future<List<String>> readDislikeFirebase(String idUser) async {
+ List<String> listDislike = [];
+  try {
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(idUser)
+        .collection('dislike')
+        .get()
+        .then((querySnapshot) {
+        for (var result in querySnapshot.docs) {
+            listDislike.add(result.id);
+        }
+    });
+  } on FirebaseException {}
+  return listDislike;
+}
+Future<List<String>> readLikeFirebase(String idUser) async {
+ List<String> listDislike = [];
+  try {
+    await FirebaseFirestore.instance
+        .collection('User')
+        .doc(idUser)
+        .collection('likes')
+        .get()
+        .then((querySnapshot) {
+        for (var result in querySnapshot.docs) {
+            listDislike.add(result.id);
+        }
+    });
+  } on FirebaseException {}
+  return listDislike;
+}
+
+Future deleteDislike(String idUser) async {
+  try {
+
+    var collection = FirebaseFirestore.instance
+        .collection('User')
+        .doc(idUser)
+        .collection('dislike');
+    var snapshots = await collection.get();
+    for (var doc in snapshots.docs) {
+      await doc.reference.delete();
+    }
+  } on FirebaseException {}
+}
+
 showAlertDialogDeleteMessage(
     BuildContext context, AsyncSnapshot snapshot, int index, String friendId) {
   Widget cancelButton = TextButton(
@@ -554,6 +601,7 @@ showAlertDialogDeleteMessage(
       Navigator.pop(context);
     },
   );
+
   Widget continueButton = TextButton(
     child: const Text("Удалить"),
     onPressed: () {
@@ -649,7 +697,7 @@ Future createDisLike(UserModel userModelCurrent, UserModel userModel) async {
         .collection("User")
         .doc(userModelCurrent.uid)
         .collection('dislike')
-        .doc(userModel.name)
+        .doc(userModel.uid)
         .set({});
 
     // FirebaseFirestore.instance

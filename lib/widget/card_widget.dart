@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
+import '../screens/profile_screen.dart';
 import '../screens/that_user_screen.dart';
 import 'button_widget.dart';
 
@@ -79,12 +80,12 @@ class photoUser extends StatelessWidget {
 }
 
 
-class itemUser extends StatefulWidget {
+class itemUserChat extends StatefulWidget {
   String friendId, lastMessage;
   UserModel userModelCurrent;
   var friend, date;
 
-  itemUser(
+  itemUserChat(
       {Key? key,
       required this.friendId,
       this.friend,
@@ -94,11 +95,11 @@ class itemUser extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<itemUser> createState() =>
+  State<itemUserChat> createState() =>
       _itemUserState(friendId, friend, lastMessage, date, userModelCurrent);
 }
 
-class _itemUserState extends State<itemUser> {
+class _itemUserState extends State<itemUserChat> {
   String friendId, lastMessage;
   UserModel userModelCurrent;
   var friend, date;
@@ -238,6 +239,131 @@ class _itemUserState extends State<itemUser> {
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class itemUserLike extends StatelessWidget {
+  final UserModel userModelLike, userModelCurrent;
+
+  itemUserLike(this.userModelLike, this.userModelCurrent, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    return InkWell(
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: Container(
+        height: width / 3.7,
+        width: width,
+        padding: EdgeInsets.only(
+            left: width / 30, top: 0, right: width / 30, bottom: width / 30),
+        child: Card(
+          color: color_black_88,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 14,
+          child: Container(
+            padding:
+                const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 10),
+            child: InkWell(
+              highlightColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    FadeRouteAnimation(ProfileScreen(
+                      userModelPartner: userModelLike,
+                      isBack: true,
+                      idUser: '',
+                      userModelCurrent: userModelCurrent,
+                    )));
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: [
+                      SizedBox(
+                        child: photoUser(
+                          uri: userModelLike.userImageUrl[0],
+                          width: 58,
+                          height: 58,
+                          state: userModelLike.state,
+                          padding: 0,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: width / 40),
+                  SizedBox(
+                    width: width / 1.6,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                text:
+                                    '${userModelLike.name}, ${userModelLike.ageInt}',
+                                style: GoogleFonts.lato(
+                                  textStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      letterSpacing: .5),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 2,
+                            ),
+                            RichText(
+                              maxLines: 2,
+                              text: TextSpan(
+                                text: userModelLike.myCity,
+                                style: GoogleFonts.lato(
+                                  textStyle: TextStyle(
+                                      color: Colors.white.withOpacity(.6),
+                                      fontSize: 11,
+                                      letterSpacing: .5),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        customIconButton(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                FadeRouteAnimation(ProfileScreen(
+                                  userModelPartner: userModelLike,
+                                  isBack: true,
+                                  idUser: '',
+                                  userModelCurrent: userModelCurrent,
+                                )));
+                          },
+                          path: 'images/ic_send.png',
+                          height: 30,
+                          width: 30,
+                          padding: 4,
+                        )
                       ],
                     ),
                   ),
@@ -404,5 +530,57 @@ Stack imagePhotoChat(String friendImage, String friendId) {
         ),
       ),
     ],
+  );
+}
+
+Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
+    BuildContext context) {
+  return Card(
+    shadowColor: Colors.white30,
+    color: color_black_88,
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: const BorderSide(
+          width: 0.8,
+          color: Colors.white38,
+        )),
+    elevation: 10,
+    child: Stack(
+      fit: StackFit.expand,
+      alignment: Alignment.bottomLeft,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: CachedNetworkImage(
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              useOldImageOnUrlChange: false,
+              progressIndicatorBuilder: (context, url, progress) =>
+                  Center(child: cardLoading(size, 22)),
+              imageUrl: userModelPartner[index].userImageUrl[0],
+              fit: BoxFit.cover,
+              // height: 166,
+              width: MediaQuery.of(context).size.width),
+        ),
+        Container(
+          alignment: Alignment.bottomLeft,
+          padding: const EdgeInsets.only(bottom: 20, left: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RichText(
+                text: TextSpan(
+                  text:
+                      '${userModelPartner[index].name}, ${userModelPartner[index].ageInt} \n${userModelPartner[index].myCity}',
+                  style: GoogleFonts.lato(
+                    textStyle: const TextStyle(
+                        color: Colors.white, fontSize: 14, letterSpacing: .0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
   );
 }

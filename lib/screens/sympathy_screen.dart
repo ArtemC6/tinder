@@ -11,6 +11,7 @@ import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../widget/button_widget.dart';
 import '../widget/card_widget.dart';
+import '../widget/component_widget.dart';
 
 class SympathyScreen extends StatefulWidget {
   final UserModel userModelCurrent;
@@ -271,35 +272,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          text: 'Симпатии',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              letterSpacing: .4),
-                        ),
-                      ),
-                      Container(
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                            color: Colors.redAccent,
-                            borderRadius: BorderRadius.circular(99)),
-                        child: const Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 17,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                topPanel(context, 'Симпатии', Icons.favorite,  Colors.red, false,),
                 SizedBox(
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance

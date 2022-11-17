@@ -5,6 +5,7 @@ import 'package:tinder/model/user_model.dart';
 
 import '../config/const.dart';
 import '../widget/card_widget.dart';
+import '../widget/component_widget.dart';
 
 
 
@@ -24,35 +25,7 @@ class ChatScreen extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RichText(
-                        text: const TextSpan(
-                          text: 'Чаты',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              letterSpacing: .4),
-                        ),
-                      ),
-                      Container(
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                            color: Colors.deepPurpleAccent,
-                            borderRadius: BorderRadius.circular(99)),
-                        child: const Icon(
-                          Icons.message,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                topPanel(context, 'Чаты', Icons.message,  Colors.deepPurpleAccent, false,),
                 SizedBox(
                   height: MediaQuery.of(context).size.height,
                   child: StreamBuilder(
@@ -103,7 +76,7 @@ class ChatScreen extends StatelessWidget {
                                                   if (asyncSnapshot.hasData) {
                                                     var friend =
                                                         asyncSnapshot.data;
-                                                    return itemUser(
+                                                    return itemUserChat(
                                                         friendId: friendId,
                                                         friend: friend,
                                                         lastMessage: lastMsg,

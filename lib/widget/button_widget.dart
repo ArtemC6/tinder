@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -384,6 +385,39 @@ Widget buttonSympathy(String name, color, onTap) {
               textStyle: const TextStyle(
                   color: Colors.white, fontSize: 10.5, letterSpacing: .0),
             ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+InkWell homeAnimationButton(
+    double height, double width, onTap, Color colors, IconData icon) {
+  return InkWell(
+    highlightColor: Colors.transparent,
+    splashColor: Colors.transparent,
+    onTap: onTap,
+    child: SizedBox(
+      height: height / 5,
+      width: width / 2,
+      child: AvatarGlow(
+        glowColor: Colors.blueAccent,
+        endRadius: 60,
+        repeatPauseDuration: const Duration(milliseconds: 1500),
+        duration: const Duration(milliseconds: 2000),
+        repeat: true,
+        showTwoGlows: true,
+        curve: Curves.easeOutQuad,
+        child: Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(99)),
+          child: Icon(
+            icon,
+            color: colors,
+            size: 30,
           ),
         ),
       ),

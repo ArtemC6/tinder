@@ -172,6 +172,50 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
       ));
     }
 
+    Padding topPanelProfile(BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(6),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (bacImage != '')
+              IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                color: Colors.white,
+              ),
+            if (bacImage == '') const SizedBox(),
+            RichText(
+              text: const TextSpan(
+                text: 'Фон профиля',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    letterSpacing: .4),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 14,
+                bottom: 4,
+              ),
+              child: customIconButton(
+                height: 23,
+                width: 23,
+                path: 'images/ic_image.png',
+                padding: 2,
+                onTap: () {},
+              ),
+            )
+            // Container(
+          ],
+        ),
+      );
+    }
+
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_black_88,
@@ -180,48 +224,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      if (bacImage != '')
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                              size: 20),
-                          color: Colors.white,
-                        ),
-                      if (bacImage == '') const SizedBox(),
-                      RichText(
-                        text: const TextSpan(
-                          text: 'Фон профиля',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              letterSpacing: .4),
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          right: 14,
-                          bottom: 4,
-                        ),
-                        child: customIconButton(
-                          height: 23,
-                          width: 23,
-                          path: 'images/ic_image.png',
-                          padding: 2,
-                          onTap: () {},
-                        ),
-                      )
-                      // Container(
-                    ],
-                  ),
-                ),
+                topPanelProfile(context),
                 listImageProfile(context),
               ],
             ),

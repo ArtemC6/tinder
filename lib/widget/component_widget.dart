@@ -8,6 +8,7 @@ import '../../config/const.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
 import '../screens/settings/edit_profile_screen.dart';
+import '../screens/view_likes_screen.dart';
 import 'animation_widget.dart';
 import 'button_widget.dart';
 
@@ -402,56 +403,67 @@ class infoPanelWidget extends StatelessWidget {
               thickness: 1,
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('User')
-                    .doc(userModel.uid)
-                    .collection('likes')
-                    .snapshots(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasData) {
-                    return SlideFadeTransition(
-                        delayStart: const Duration(milliseconds: 50),
-                        animationDuration: const Duration(milliseconds: 1000),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
-                          transitionBuilder: ((child, animation) {
-                            return ScaleTransition(
-                                scale: animation, child: child);
-                          }),
-                          child: RichText(
-                            key: ValueKey<int>(snapshot.data!.size),
-                            text: TextSpan(
-                              text: snapshot.data!.size.toString(),
-                              style: GoogleFonts.lato(
-                                textStyle: TextStyle(
-                                    color: Colors.white.withOpacity(0.9),
-                                    fontSize: 14.5,
-                                    letterSpacing: .5),
+          InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  FadeRouteAnimation(ViewLikesScreen(
+                    userModelCurrent: userModel,
+                  )));
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('User')
+                      .doc(userModel.uid)
+                      .collection('likes')
+                      .snapshots(),
+                  builder: (BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.hasData) {
+                      return SlideFadeTransition(
+                          delayStart: const Duration(milliseconds: 50),
+                          animationDuration: const Duration(milliseconds: 1000),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            transitionBuilder: ((child, animation) {
+                              return ScaleTransition(
+                                  scale: animation, child: child);
+                            }),
+                            child: RichText(
+                              key: ValueKey<int>(snapshot.data!.size),
+                              text: TextSpan(
+                                text: snapshot.data!.size.toString(),
+                                style: GoogleFonts.lato(
+                                  textStyle: TextStyle(
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontSize: 14.5,
+                                      letterSpacing: .5),
+                                ),
                               ),
                             ),
-                          ),
-                        ));
-                  }
-                  return const SizedBox();
-                },
-              ),
-              RichText(
-                text: TextSpan(
-                  text: 'Лайки',
-                  style: GoogleFonts.lato(
-                    textStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 11,
-                        letterSpacing: .1),
+                          ));
+                    }
+                    return const SizedBox();
+                  },
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: 'Лайки',
+                    style: GoogleFonts.lato(
+                      textStyle: TextStyle(
+                          color: Colors.white.withOpacity(0.7),
+                          fontSize: 11,
+                          letterSpacing: .1),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(
             height: 24,
@@ -498,4 +510,40 @@ class infoPanelWidget extends StatelessWidget {
   }
 }
 
-
+Padding topPanel(BuildContext context, String text, IconData icon,
+    Color color, bool isBack) {
+  return Padding(
+    padding: const EdgeInsets.all(20),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        if (isBack)
+          IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 18),
+          ),
+        RichText(
+          text: TextSpan(
+            text: text,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: .4),
+          ),
+        ),
+        Container(
+          height: 25,
+          width: 25,
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(99)),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 17,
+          ),
+        ),
+      ],
+    ),
+  );
+}
