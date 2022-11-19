@@ -59,13 +59,15 @@ class _SympathyScreenState extends State<SympathyScreen> {
                   right: size.width / 20,
                   bottom: size.width / 20),
               child: Card(
+                shadowColor: Colors.white.withOpacity(.10),
                 color: color_black_88,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                     side: const BorderSide(
                       width: 0.8,
                       color: Colors.white10,
-                    )),
+                    )
+                ),
                 elevation: 14,
                 child: Container(
                   decoration: BoxDecoration(
@@ -292,22 +294,22 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                 if (snapshot.hasData) {
                                   return AnimationConfiguration.staggeredList(
                                     position: index,
-                                    delay: const Duration(milliseconds: 600),
+                                    delay: const Duration(milliseconds: 500),
                                     child: SlideAnimation(
                                       duration:
-                                      const Duration(milliseconds: 2200),
-                                      verticalOffset: 200,
+                                      const Duration(milliseconds: 1750),
+                                      verticalOffset: 220,
                                       curve: Curves.ease,
                                       child: FadeInAnimation(
                                         curve: Curves.easeOut,
                                         duration:
-                                        const Duration(milliseconds: 2500),
+                                        const Duration(milliseconds: 2800),
                                         child: cardSympathy(snapshot, index),
                                       ),
                                     ),
                                   );
                                 }
-                                return null;
+                                return SizedBox();
                               },
                             ),
                           );

@@ -27,7 +27,6 @@ class ChatScreen extends StatelessWidget {
               children: [
                 topPanel(context, 'Чаты', Icons.message,  Colors.deepPurpleAccent, false,),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height,
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('User')
@@ -54,11 +53,11 @@ class ChatScreen extends StatelessWidget {
                                   var date = snapshot.data.docs[index]['date'];
                                   return AnimationConfiguration.staggeredList(
                                       position: index,
-                                      delay: const Duration(milliseconds: 500),
+                                      delay: const Duration(milliseconds: 400),
                                       child: SlideAnimation(
                                           duration: const Duration(
-                                              milliseconds: 1800),
-                                          verticalOffset: 140,
+                                              milliseconds: 1600),
+                                          verticalOffset: 180,
                                           curve: Curves.ease,
                                           child: FadeInAnimation(
                                               curve: Curves.easeOut,
@@ -74,15 +73,15 @@ class ChatScreen extends StatelessWidget {
                                                     AsyncSnapshot
                                                         asyncSnapshot) {
                                                   if (asyncSnapshot.hasData) {
-                                                    var friend =
+                                                      var friend =
                                                         asyncSnapshot.data;
-                                                    return itemUserChat(
-                                                        friendId: friendId,
-                                                        friend: friend,
-                                                        lastMessage: lastMsg,
-                                                        date: date,
-                                                        userModelCurrent:
-                                                            userModelCurrent);
+                                                      return itemUserChat(
+                                                          friendId: friendId,
+                                                          friend: friend,
+                                                          lastMessage: lastMsg,
+                                                          date: date,
+                                                          userModelCurrent:
+                                                          userModelCurrent);
                                                   }
                                                   return const SizedBox();
                                                 },

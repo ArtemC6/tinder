@@ -35,8 +35,8 @@ class photoUser extends StatelessWidget {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(100),
               side: const BorderSide(
-                width: 0.8,
-                color: Colors.white30,
+                width: 0.5,
+                color: Colors.white24,
               )),
           elevation: 6,
           child: CachedNetworkImage(
@@ -123,9 +123,14 @@ class _itemUserState extends State<itemUserChat> {
         padding: EdgeInsets.only(
             left: width / 30, top: 0, right: width / 30, bottom: width / 30),
         child: Card(
+          shadowColor: Colors.white.withOpacity(.08),
           color: color_black_88,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(18),
+              side: const BorderSide(
+                width: 0.1,
+                color: Colors.white10,
+              )
           ),
           elevation: 14,
           child: Container(
@@ -272,8 +277,13 @@ class itemUserLike extends StatelessWidget {
         child: Card(
           color: color_black_88,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(18),
+              side: const BorderSide(
+                width: 0.1,
+                color: Colors.white10,
+              )
           ),
+          shadowColor: Colors.white12,
           elevation: 14,
           child: Container(
             padding:

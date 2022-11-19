@@ -213,7 +213,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: AnimationLimiter(
               child: AnimationConfiguration.staggeredList(
                   position: 1,
-                  delay: const Duration(milliseconds: 400),
+                  delay: const Duration(milliseconds: 100),
                   child: SlideAnimation(
                       duration: const Duration(milliseconds: 2200),
                       verticalOffset: height * .40,
@@ -248,11 +248,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       await context
                                           .read<FirebaseAuthMethods>()
                                           .signOut(context);
-
-                                      Navigator.pushReplacement(
-                                          context,
-                                          FadeRouteAnimation(
-                                              const SignInScreen()));
                                     },
                                     padding: 0,
                                   ),
@@ -768,7 +763,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                             SfRangeSlider(
                                               activeColor: Colors.blue,
                                               min: 16,
-                                              max: 50,
+                                              max: 30,
                                               values: _valuesAge,
                                               stepSize: 1,
                                               enableTooltip: true,

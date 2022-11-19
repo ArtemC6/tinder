@@ -349,7 +349,7 @@ Future<void> setStateFirebase(String state) async {
     final json = {
       'state': state,
     };
-    docUser.update(json);
+    await docUser.update(json);
   } on FirebaseException {}
 }
 

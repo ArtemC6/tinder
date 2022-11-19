@@ -26,18 +26,23 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
 
   List<UserModel> listUser = [];
   List<String> listLike = [];
-  bool isLoading = false;
+  bool isLoading = false, isLoadingNewUser = true;
+  final scrollController = ScrollController();
+  int limit = 0;
 
-  Future readFirebase() async {
-    await readLikeFirebase(userModelCurrent.uid).then((list) {
-      setState(() {
-        listLike.addAll(list);
+  Future readFirebase(int limit, isReadLike) async {
+    listUser.clear();
+    if (isReadLike) {
+      await readLikeFirebase(userModelCurrent.uid).then((list) {
+        setState(() {
+          listLike.addAll(list);
+        });
       });
-    });
+    }
 
-    print(listLike.length);
-    await FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('User')
+        .limit(limit)
         .get()
         .then((QuerySnapshot querySnapshot) {
       for (var document in querySnapshot.docs) {
@@ -65,20 +70,29 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
                   state: data['state']));
+              if (listLike.length == listUser.length) {
+                isLoadingNewUser = false;
+              }
             });
           }
         });
       }
-    });
-
-    setState(() {
-      isLoading = true;
+    }).then((value) {
+      setState(() {
+        isLoading = true;
+      });
     });
   }
 
   @override
   void initState() {
-    readFirebase();
+    readFirebase(limit = 8, true);
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent == scrollController.offset) {
+        readFirebase(limit + 5, false);
+      }
+    });
+
     super.initState();
   }
 
@@ -87,45 +101,68 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
     Size size = MediaQuery.of(context).size;
     if (isLoading) {
       return Scaffold(
-        backgroundColor: color_black_88,
-        body: SafeArea(
+          backgroundColor: color_black_88,
+          body: SafeArea(
             child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(children: [
-            topPanel(
-              context,
-              'Отметки \'Нравится\'',
-              Icons.favorite_outlined,
-              Colors.red,
-              true,
-            ),
-            AnimationLimiter(
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                itemCount: listLike.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    delay: const Duration(milliseconds: 600),
-                    child: SlideAnimation(
-                      duration: const Duration(milliseconds: 2200),
-                      verticalOffset: 200,
-                      curve: Curves.ease,
-                      child: FadeInAnimation(
-                        curve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 2500),
-                        child: itemUserLike(listUser[index], userModelCurrent),
-                      ),
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  topPanel(
+                    context,
+                    'Отметки \'Нравится\'',
+                    Icons.favorite_outlined,
+                    Colors.red,
+                    true,
+                  ),
+                  AnimationLimiter(
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: listUser.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index < listUser.length) {
+                          return AnimationConfiguration.staggeredList(
+                            position: index,
+                            delay: const Duration(milliseconds: 300),
+                            child: SlideAnimation(
+                              duration: const Duration(milliseconds: 1300),
+                              verticalOffset: 200,
+                              curve: Curves.ease,
+                              child: FadeInAnimation(
+                                curve: Curves.easeOut,
+                                duration: const Duration(milliseconds: 2000),
+                                child: itemUserLike(
+                                    listUser[index], userModelCurrent),
+                              ),
+                            ),
+                          );
+                        } else {
+                          if (isLoadingNewUser) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 30),
+                              child: Center(
+                                child: SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 0.8,
+                                  ),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return const SizedBox();
+                          }
+                        }
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
-            )
-          ]),
-        )),
-      );
+            ),
+          ));
     }
 
     return Scaffold(

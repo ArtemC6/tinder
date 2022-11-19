@@ -28,7 +28,7 @@ class _HomeScreen extends State<HomeScreen>
   late AnimationController controllerHeart;
   late CurvedAnimation curveHeart, curveCancel;
   double colorIndex = 0;
-  int limit = 1;
+  int limit = 3;
   bool isLike = false, isLook = false, isLoading = false;
   List<UserModel> userModelPartner = [];
   List<String> listDisLike = [];
@@ -37,75 +37,72 @@ class _HomeScreen extends State<HomeScreen>
 
   _HomeScreen(this.userModelCurrent);
 
-  Future readFirebase() async {
-    await deleteDislike(userModelCurrent.uid);
-    await readDislikeFirebase(userModelCurrent.uid).then((list) {
-      setState(() {
-        listDisLike.addAll(list);
-      });
-    });
-
-    // print('object');
-
-    await FirebaseFirestore.instance
-        .collection('User')
-        // .where('uid', isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-        .where('myPol', isEqualTo: userModelCurrent.searchPol)
-        // .where('ageInt', isGreaterThanOrEqualTo: userModelCurrent.searchRangeStart)
-        // .where('ageInt', isLessThanOrEqualTo: userModelCurrent.searchRangeStart)
-        // .limit(2)
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      for (var document in querySnapshot.docs) {
-        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-        if (userModelCurrent.searchRangeStart <= data['ageInt'] &&
-            userModelCurrent.searchRangeEnd >= data['ageInt']) {
-          bool isDislike = true;
-          Future.forEach(listDisLike, (idUser) {
-            if (idUser == data['uid']) {
-              isDislike = false;
-            }
-          }).then((value) async {
-            if (isDislike) {
-              userModelPartner.add(UserModel(
-                  name: data['name'],
-                  uid: data['uid'],
-                  ageTime: data['ageTime'],
-                  userPol: data['myPol'],
-                  searchPol: data['searchPol'],
-                  searchRangeStart: data['rangeStart'],
-                  userInterests: List<String>.from(data['listInterests']),
-                  userImagePath: List<String>.from(data['listImagePath']),
-                  userImageUrl: List<String>.from(data['listImageUri']),
-                  searchRangeEnd: data['rangeEnd'],
-                  myCity: data['myCity'],
-                  imageBackground: data['imageBackground'],
-                  ageInt: data['ageInt'],
-                  state: data['state']));
-              setState(() {});
-            } else {
-              print('object');
-              // await deleteDislike(userModelCurrent.uid);
-              // await readDislikeFirebase(userModelCurrent.uid).then((list) {
-              //   setState(() {
-              //     listDisLike.addAll(list);
-              //   });
-              // });
-            }
-          });
+  Future readFirebase(bool isDeleteDislike) async {
+    readDislikeFirebase(userModelCurrent.uid).then((list) {
+      listDisLike.addAll(list);
+      FirebaseFirestore.instance
+          .collection('User')
+          // .where('uid', isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('myPol', isEqualTo: userModelCurrent.searchPol)
+          // .where('ageInt', isGreaterThanOrEqualTo: userModelCurrent.searchRangeStart)
+          // .where('ageInt', isLessThanOrEqualTo: userModelCurrent.searchRangeStart)
+          // .limit(limit)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        for (var document in querySnapshot.docs) {
+          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+          if (userModelCurrent.searchRangeStart <= data['ageInt'] &&
+              userModelCurrent.searchRangeEnd >= data['ageInt']) {
+            bool isDislike = true;
+            Future.forEach(listDisLike, (idUser) {
+              if (idUser == data['uid']) {
+                isDislike = false;
+              }
+            }).then((value) async {
+              if (isDislike) {
+                userModelPartner.add(UserModel(
+                    name: data['name'],
+                    uid: data['uid'],
+                    ageTime: data['ageTime'],
+                    userPol: data['myPol'],
+                    searchPol: data['searchPol'],
+                    searchRangeStart: data['rangeStart'],
+                    userInterests: List<String>.from(data['listInterests']),
+                    userImagePath: List<String>.from(data['listImagePath']),
+                    userImageUrl: List<String>.from(data['listImageUri']),
+                    searchRangeEnd: data['rangeEnd'],
+                    myCity: data['myCity'],
+                    imageBackground: data['imageBackground'],
+                    ageInt: data['ageInt'],
+                    state: data['state']));
+                userModelPartner.toSet();
+                setState(() {});
+              } else {
+                if (isDeleteDislike) {
+                  print('No User');
+                  deleteDislike(userModelCurrent.uid).then((value) {
+                    setState(() {
+                      listDisLike.clear();
+                    });
+                  });
+                }
+              }
+            });
+          }
         }
-      }
-    });
-    setState(() {
-      isLoading = true;
+      });
+    }).then((value) {
+      setState(() {
+        userModelPartner.toSet();
+        isLoading = true;
+      });
     });
   }
 
   @override
   void initState() {
     super.initState();
-
-    readFirebase();
+    readFirebase(false);
 
     controllerHeart = AnimationController(
       duration: const Duration(milliseconds: 1000),
@@ -193,7 +190,11 @@ class _HomeScreen extends State<HomeScreen>
                                         ),
                                       );
                                     } else {
-                                      readFirebase();
+                                      Future.delayed(
+                                          const Duration(milliseconds: 100),
+                                          () {
+                                        readFirebase(true);
+                                      });
                                       return cardLoading(size, 22);
                                     }
                                   },
@@ -202,11 +203,12 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeUpdateCallback:
                                       (DragUpdateDetails details,
                                           Alignment align) {
-                                    if (align.x < 0) {
-                                      int incline = int.parse(align.x
-                                          .toStringAsFixed(1)
-                                          .substring(1, 2));
-                                      setState(() {
+                                    setState(() {
+                                      if (align.x < 0) {
+                                        int incline = int.parse(align.x
+                                            .toStringAsFixed(1)
+                                            .substring(1, 2));
+
                                         if (incline <= 10 && incline > 3) {
                                           colorIndex =
                                               double.parse('0.$incline');
@@ -215,9 +217,7 @@ class _HomeScreen extends State<HomeScreen>
                                         } else {
                                           isLook = false;
                                         }
-                                      });
-                                    } else if (align.x > 0) {
-                                      setState(() {
+                                      } else if (align.x > 0) {
                                         if (align.y.toDouble() < 1 &&
                                             align.y.toDouble() > 0.3) {
                                           colorIndex = double.parse(
@@ -227,8 +227,8 @@ class _HomeScreen extends State<HomeScreen>
                                         } else {
                                           isLook = false;
                                         }
-                                      });
-                                    }
+                                      }
+                                    });
                                   },
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
@@ -241,11 +241,19 @@ class _HomeScreen extends State<HomeScreen>
                                       setState(() {
                                         isLook = false;
                                       });
-                                      CachedNetworkImage.evictFromCache(
-                                          userModelPartner[index]
-                                              .userImageUrl[0]);
+
                                       createDisLike(userModelCurrent,
-                                          userModelPartner[index]);
+                                              userModelPartner[index])
+                                          .then((value) {
+                                        CachedNetworkImage.evictFromCache(
+                                            userModelPartner[index]
+                                                .userImageUrl[0]);
+
+                                        setState(() {
+                                          listDisLike
+                                              .add(userModelPartner[index].uid);
+                                        });
+                                      });
                                     }
 
                                     if (orientation.toString() ==

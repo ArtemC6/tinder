@@ -30,9 +30,25 @@ class ChatUserScreen extends StatefulWidget {
 class _ChatUserScreenState extends State<ChatUserScreen> {
   final String friendId, friendName, friendImage;
   final UserModel userModelCurrent;
+  final scrollController = ScrollController();
+  int limit = 20;
 
   _ChatUserScreenState(
       this.friendId, this.friendName, this.friendImage, this.userModelCurrent);
+
+  @override
+  void initState() {
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        setState(() {
+          limit += 12;
+        });
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +221,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                           .collection('messages')
                           .doc(friendId)
                           .collection('chats')
+                          .limit(limit)
                           .orderBy("date", descending: true)
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshot) {
@@ -215,23 +232,47 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                             );
                           }
                           return ListView.builder(
-                              itemCount: snapshot.data.docs.length,
+                              controller: scrollController,
+                              itemCount: snapshot.data.docs.length + 1,
                               reverse: true,
                               physics: const BouncingScrollPhysics(),
                               itemBuilder: (context, index) {
-                                bool isMe = snapshot.data.docs[index]
-                                        ['senderId'] ==
-                                    userModelCurrent.uid;
-                                return InkWell(
-                                    onTap: () {
-                                      showAlertDialogDeleteMessage(
-                                          context, snapshot, index, friendId);
-                                    },
-                                    child: MessagesItem(
-                                        snapshot.data.docs[index]['message'],
-                                        isMe,
-                                        getDataTimeDate(snapshot
-                                            .data.docs[index]['date'])));
+                                if (index < snapshot.data.docs.length) {
+                                  bool isMe = snapshot.data.docs[index]
+                                          ['senderId'] ==
+                                      userModelCurrent.uid;
+                                  return InkWell(
+                                      onTap: () {
+                                        showAlertDialogDeleteMessage(
+                                            context, snapshot, index, friendId);
+                                      },
+                                      child: MessagesItem(
+                                          snapshot.data.docs[index]['message'],
+                                          isMe,
+                                          getDataTimeDate(snapshot
+                                              .data.docs[index]['date'])));
+                                } else {
+                                  bool isLimitMax =
+                                      snapshot.data.docs.length >= limit;
+                                  if (isLimitMax) {
+                                    return const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 20),
+                                      child: Center(
+                                        child: SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 0.8,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return const SizedBox();
+                                  }
+                                }
                               });
                         }
                         return const Center(

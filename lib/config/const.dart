@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
+import 'package:ndialog/ndialog.dart';
 
 import '../model/interests_model.dart';
 
@@ -178,8 +179,10 @@ const List<IconData> listOfIcons = [
 showAlertDialogLoading(BuildContext context) {
   AlertDialog alert = AlertDialog(
     backgroundColor: Colors.transparent,
-    shadowColor: Colors.transparent,
-    surfaceTintColor: Colors.transparent,
+
+
+    // shadowColor: Colors.transparent,
+    // surfaceTintColor: Colors.transparent,
     actions: [
       Center(
           child: LoadingAnimationWidget.dotsTriangle(
@@ -196,4 +199,13 @@ showAlertDialogLoading(BuildContext context) {
       return alert;
     },
   );
+
+  // ProgressDialog progressDialog = ProgressDialog(
+  //   context,
+  //   blur: 10,
+  //   title: Text("Title of ProgressDialog"),
+  //   message: Text("Content of ProgressDialog"),
+  //   onDismiss: () => print("Do something onDismiss"),
+  // );
+  // progressDialog.show();
 }

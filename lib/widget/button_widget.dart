@@ -127,7 +127,7 @@ class _buttonProfileState extends State<buttonProfileUser> {
                 spreadRadius: 0.0,
                 offset: Offset(
                   0.0,
-                  1.0,
+                  1.5,
                 ),
               )
             ],
@@ -157,94 +157,100 @@ class _buttonProfileState extends State<buttonProfileUser> {
       );
     }
 
-    return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('User')
-            .doc(userModelCurrent.uid)
-            .collection('sympathy')
-            .snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          bool isMutuallyMain = false;
+    return SizedBox(
+      height: 40,
+      child: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('User')
+              .doc(userModelCurrent.uid)
+              .collection('sympathy')
+              .snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            bool isMutuallyMain = false;
 
-          try {
-            for (int i = 0; i < snapshot.data.docs.length; i++) {
-              isMutuallyMain = snapshot.data.docs[i]['uid'] ==
-                  FirebaseAuth.instance.currentUser!.uid;
+            try {
+              for (int i = 0; i < snapshot.data.docs.length; i++) {
+                isMutuallyMain = snapshot.data.docs[i]['uid'] ==
+                    FirebaseAuth.instance.currentUser!.uid;
 
-              if (isMutuallyMain) {
-                setState(() {});
-              }
-            }
-          } catch (E) {}
-          return StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('User')
-                  .doc(userModel.uid)
-                  .collection('sympathy')
-                  .snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                bool isMutually = false;
-
-                try {
-                  for (int i = 0; i < snapshot.data.docs.length; i++) {
-                    isMutually =
-                        snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                    if (isMutually) {
-                      setState(() {});
-                    }
-                  }
-                } catch (E) {}
-
-                if (isMutuallyMain && !isMutually) {
-                  return button('Ожидайте ответа',
-                      [Colors.blueAccent, Colors.purpleAccent], () {
-                    if (!isMutuallyMain) {
-                      createSympathy(userModelCurrent.uid, userModel);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    } else {
-                      deleteSympathyPartner(
-                          userModelCurrent.uid, userModel.uid);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    }
-                  });
-                } else if (!isMutuallyMain && !isMutually) {
-                  return button(
-                      'Оставить симпатию', [color_black_88, color_black_88],
-                      () {
-                    if (!isMutuallyMain) {
-                      createSympathy(userModelCurrent.uid, userModel);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    } else {
-                      deleteSympathyPartner(
-                          userModelCurrent.uid, userModel.uid);
-                      setState(() {
-                        isMutuallyMain = !isMutuallyMain;
-                      });
-                    }
-                  });
-                } else {
-                  return button('Написать', [
-                    Colors.blueAccent,
-                    Colors.purpleAccent,
-                    Colors.orangeAccent
-                  ], () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => ChatUserScreen(
-                              friendId: userModel.uid,
-                              friendName: userModel.name,
-                              friendImage: userModel.userImageUrl[0],
-                              userModelCurrent: userModelCurrent,
-                            )));
-                  });
+                if (isMutuallyMain) {
+                  setState(() {});
                 }
-              });
-        });
+              }
+            } catch (E) {}
+            return SizedBox(
+              height: 40,
+              child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('User')
+                      .doc(userModel.uid)
+                      .collection('sympathy')
+                      .snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                    bool isMutually = false;
+
+                    try {
+                      for (int i = 0; i < snapshot.data.docs.length; i++) {
+                        isMutually =
+                            snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
+                        if (isMutually) {
+                          setState(() {});
+                        }
+                      }
+                    } catch (E) {}
+
+                    if (isMutuallyMain && !isMutually) {
+                      return button('Ожидайте ответа',
+                          [Colors.blueAccent, Colors.purpleAccent], () {
+                        if (!isMutuallyMain) {
+                          createSympathy(userModelCurrent.uid, userModel);
+                          setState(() {
+                            isMutuallyMain = !isMutuallyMain;
+                          });
+                        } else {
+                          deleteSympathyPartner(
+                              userModelCurrent.uid, userModel.uid);
+                          setState(() {
+                            isMutuallyMain = !isMutuallyMain;
+                          });
+                        }
+                      });
+                    } else if (!isMutuallyMain && !isMutually) {
+                      return button(
+                          'Оставить симпатию', [color_black_88, color_black_88],
+                          () {
+                        if (!isMutuallyMain) {
+                          createSympathy(userModelCurrent.uid, userModel);
+                          setState(() {
+                            isMutuallyMain = !isMutuallyMain;
+                          });
+                        } else {
+                          deleteSympathyPartner(
+                              userModelCurrent.uid, userModel.uid);
+                          setState(() {
+                            isMutuallyMain = !isMutuallyMain;
+                          });
+                        }
+                      });
+                    } else {
+                      return button('Написать', [
+                        Colors.blueAccent,
+                        Colors.purpleAccent,
+                        Colors.orangeAccent
+                      ], () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => ChatUserScreen(
+                                  friendId: userModelCurrent.uid,
+                                  friendName: userModelCurrent.name,
+                                  friendImage: userModelCurrent.userImageUrl[0],
+                                  userModelCurrent: userModel,
+                                )));
+                      });
+                    }
+                  }),
+            );
+          }),
+    );
   }
 }
 
@@ -267,7 +273,7 @@ class buttonProfileMy extends StatelessWidget {
               spreadRadius: 0.0,
               offset: Offset(
                 0.0,
-                1.0,
+                1.5,
               ),
             )
           ],
@@ -361,7 +367,7 @@ Widget buttonSympathy(String name, color, onTap) {
             spreadRadius: 0.0,
             offset: Offset(
               0.0,
-              1.0,
+              1.5,
             ),
           )
         ],

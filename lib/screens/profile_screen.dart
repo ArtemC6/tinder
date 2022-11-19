@@ -42,30 +42,7 @@ class _ProfileScreen extends State<ProfileScreen> {
   _ProfileScreen(
       this.userModelPartner, this.isBack, this.idUser, this.userModelCurrent);
 
-  Future readFirebase() async {
-    if (userModelPartner.uid == '' && idUser != '') {
-      await readUserFirebase(idUser).then((user) {
-        setState(() {
-          userModelPartner = UserModel(
-              name: user.name,
-              uid: user.uid,
-              ageTime: user.ageTime,
-              userPol: user.userPol,
-              searchPol: user.searchPol,
-              searchRangeStart: user.searchRangeStart,
-              userInterests: user.userInterests,
-              userImagePath: user.userImagePath,
-              userImageUrl: user.userImageUrl,
-              searchRangeEnd: user.searchRangeEnd,
-              myCity: user.myCity,
-              imageBackground: user.imageBackground,
-              ageInt: user.ageInt,
-              state: user.state);
-          isLoading = true;
-        });
-      });
-    }
-
+  void sortingList() {
     for (var elementMain in userModelPartner.userInterests) {
       for (var element in listStoryMain) {
         if (userModelPartner.userInterests.length != listStory.length) {
@@ -74,21 +51,47 @@ class _ProfileScreen extends State<ProfileScreen> {
         if (elementMain == element.name) {}
       }
     }
+  }
 
-    setState(() {
-      if (userModelCurrent.uid == userModelPartner.uid) {
-        isProprietor = true;
-      } else {
-        isProprietor = false;
+  Future readFirebase() async {
+    try {
+      if (userModelPartner.uid == '' && idUser != '') {
+        await readUserFirebase(idUser).then((user) {
+          setState(() {
+            userModelPartner = UserModel(
+                name: user.name,
+                uid: user.uid,
+                ageTime: user.ageTime,
+                userPol: user.userPol,
+                searchPol: user.searchPol,
+                searchRangeStart: user.searchRangeStart,
+                userInterests: user.userInterests,
+                userImagePath: user.userImagePath,
+                userImageUrl: user.userImageUrl,
+                searchRangeEnd: user.searchRangeEnd,
+                myCity: user.myCity,
+                imageBackground: user.imageBackground,
+                ageInt: user.ageInt,
+                state: user.state);
+            isLoading = true;
+          });
+        });
       }
+
+      sortingList();
 
       putLike(userModelCurrent, userModelPartner, false).then((value) {
         setState(() {
+          if (userModelCurrent.uid == userModelPartner.uid) {
+            isProprietor = true;
+          } else {
+            isProprietor = false;
+          }
           isLike = !value;
           isLoading = true;
         });
       });
-    });
+    } catch (error) {}
   }
 
   @override
@@ -147,6 +150,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                           ),
                         ),
                       ),
+
                     if (isProprietor)
                       Positioned(
                         child: Container(
@@ -225,9 +229,12 @@ class _ProfileScreen extends State<ProfileScreen> {
                               if (isProprietor)
                                 buttonProfileMy(userModelPartner),
                               if (!isProprietor)
-                                buttonProfileUser(
-                                  userModelPartner,
-                                  userModelCurrent,
+                                SizedBox(
+                                  height: 40,
+                                  child: buttonProfileUser(
+                                    userModelPartner,
+                                    userModelCurrent,
+                                  ),
                                 ),
                               const SizedBox()
                             ],

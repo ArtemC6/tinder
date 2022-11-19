@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import '../screens/auth/signin_screen.dart';
 import 'const.dart';
 import 'firestore_operations.dart';
 
@@ -32,12 +33,13 @@ class FirebaseAuthMethods {
 
         final json = {
           'uid': FirebaseAuth.instance.currentUser?.uid,
-          'name': name,
-          'email': email,
+          'name': name.trim(),
+          'email': email.trim(),
           'myPol': '',
           'imageBackground': '',
           'myCity': '',
           'searchPol': '',
+          'state': '',
           'rangeStart': 0,
           'rangeEnd': 0,
           'ageTime': DateTime.now(),
@@ -64,10 +66,13 @@ class FirebaseAuthMethods {
     try {
       showAlertDialogLoading(context);
       await _auth
-          .signInWithEmailAndPassword(email: email, password: password)
+          .signInWithEmailAndPassword(
+              email: email.trim(), password: password.trim())
           .then((value) {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Manager()));
+        setStateFirebase('online').then((value) async {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const Manager()));
+        });
       }).onError((error, stackTrace) {
         Navigator.pop(context);
       });
@@ -76,8 +81,11 @@ class FirebaseAuthMethods {
 
   Future<void> signOut(BuildContext context) async {
     try {
-      await _auth.signOut().then((value) {
-        setStateFirebase('offline');
+      setStateFirebase('offline').then((value) async {
+        _auth.signOut().then((value) {
+          Navigator.pushReplacement(
+              context, FadeRouteAnimation(const SignInScreen()));
+        });
       });
     } on FirebaseAuthException {}
   }
