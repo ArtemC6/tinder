@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
-import 'package:ndialog/ndialog.dart';
 
 import '../model/interests_model.dart';
 
@@ -56,18 +54,18 @@ final List<String> interestsList = [
 ];
 
 const List months = [
-  'Января',
-  'Февроля',
-  'Марта',
-  'Апреля',
-  'Мая',
-  'Июня',
-  'Июля',
-  'Августа',
-  'Сентября',
-  'Октябтя',
-  'Ноября',
-  'Декабря',
+  'янв.',
+  'февр.',
+  'марта',
+  'апреля',
+  'мая',
+  'июня',
+  'июля',
+  'августа',
+  'сент.',
+  'октябтя',
+  'ноября',
+  'декабря',
 ];
 
 final List<InterestsModel> listStoryMain = [
@@ -169,43 +167,21 @@ DateTime getDataTimeDate(Timestamp startDate) {
   return dateTimeStart;
 }
 
+String filterDate(AsyncSnapshot<dynamic> asyncSnapshot) {
+  if (DateTime.now()
+          .difference(getDataTimeDate(asyncSnapshot.data['lastDateOnline']))
+          .inDays >=
+      1) {
+    return 'был(а) ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).day} '
+        '${months[getDataTimeDate(asyncSnapshot.data['lastDateOnline']).month - 1]} в ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).hour}: ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).minute}';
+  } else {
+    return 'был(а) в ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).hour}: ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).minute}';
+  }
+}
+
 const List<IconData> listOfIcons = [
   Icons.home_rounded,
   Icons.favorite_rounded,
   Icons.message,
   Icons.person_rounded,
 ];
-
-showAlertDialogLoading(BuildContext context) {
-  AlertDialog alert = AlertDialog(
-    backgroundColor: Colors.transparent,
-
-
-    // shadowColor: Colors.transparent,
-    // surfaceTintColor: Colors.transparent,
-    actions: [
-      Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-        size: 44,
-        color: Colors.blueAccent,
-      )),
-    ],
-  );
-
-  showDialog(
-    barrierDismissible: false,
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-
-  // ProgressDialog progressDialog = ProgressDialog(
-  //   context,
-  //   blur: 10,
-  //   title: Text("Title of ProgressDialog"),
-  //   message: Text("Content of ProgressDialog"),
-  //   onDismiss: () => print("Do something onDismiss"),
-  // );
-  // progressDialog.show();
-}

@@ -3,48 +3,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:ndialog/ndialog.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import 'button_widget.dart';
-
-void showDialogZoom({required String uri, required BuildContext context}) {
-  ZoomDialog(
-    zoomScale: 5,
-    child: SizedBox(
-      height: MediaQuery.of(context).size.height * 0.40,
-      width: MediaQuery.of(context).size.width * 0.92,
-      child: CachedNetworkImage(
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-        imageBuilder: (context, imageProvider) => Container(
-          decoration: BoxDecoration(
-            color: color_black_88,
-            border: Border.all(color: Colors.white30, width: 0.8),
-            borderRadius: const BorderRadius.all(Radius.circular(14)),
-            image: DecorationImage(
-              image: imageProvider,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        progressIndicatorBuilder: (context, url, progress) => Center(
-          child: SizedBox(
-            height: 26,
-            width: 26,
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 0.8,
-              value: progress.progress,
-            ),
-          ),
-        ),
-        imageUrl: uri,
-      ),
-    ),
-  ).show(context);
-}
+import 'dialog_widget.dart';
 
 class photoProfile extends StatelessWidget {
   String uri;

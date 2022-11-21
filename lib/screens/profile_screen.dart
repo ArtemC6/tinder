@@ -36,7 +36,6 @@ class _ProfileScreen extends State<ProfileScreen> {
   UserModel userModelPartner, userModelCurrent;
   final String idUser;
   List<InterestsModel> listStory = [];
-  List<String> listImageUri = [], listImagePath = [];
   final FirebaseStorage storage = FirebaseStorage.instance;
 
   _ProfileScreen(
@@ -45,10 +44,11 @@ class _ProfileScreen extends State<ProfileScreen> {
   void sortingList() {
     for (var elementMain in userModelPartner.userInterests) {
       for (var element in listStoryMain) {
-        if (userModelPartner.userInterests.length != listStory.length) {
-          listStory.add(element);
+        if (elementMain == element.name) {
+          if (userModelPartner.userInterests.length != listStory.length) {
+            listStory.add(element);
+          }
         }
-        if (elementMain == element.name) {}
       }
     }
   }
@@ -76,9 +76,10 @@ class _ProfileScreen extends State<ProfileScreen> {
             isLoading = true;
           });
         });
+        sortingList();
+      } else {
+        sortingList();
       }
-
-      sortingList();
 
       putLike(userModelCurrent, userModelPartner, false).then((value) {
         setState(() {

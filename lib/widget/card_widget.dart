@@ -1,15 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_loading/card_loading.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../config/const.dart';
-import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../screens/profile_screen.dart';
 import '../screens/that_user_screen.dart';
 import 'button_widget.dart';
+import 'dialog_widget.dart';
 
 class photoUser extends StatelessWidget {
   String uri, state;
@@ -475,71 +474,6 @@ Widget cardLoading(Size size, double radius) {
     height: size.height,
     width: size.width,
     borderRadius: BorderRadius.circular(radius),
-  );
-}
-
-Stack imagePhotoChat(String friendImage, String friendId) {
-  return Stack(
-    alignment: Alignment.bottomRight,
-    children: [
-      Card(
-        shadowColor: Colors.white30,
-        color: color_black_88,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(100),
-            side: const BorderSide(
-              width: 0.8,
-              color: Colors.white30,
-            )),
-        elevation: 6,
-        child: CachedNetworkImage(
-          errorWidget: (context, url, error) => const Icon(Icons.error),
-          progressIndicatorBuilder: (context, url, progress) => Center(
-            child: SizedBox(
-              height: 44,
-              width: 44,
-              child: CircularProgressIndicator(
-                color: Colors.white,
-                strokeWidth: 0.8,
-                value: progress.progress,
-              ),
-            ),
-          ),
-          imageUrl: friendImage,
-          imageBuilder: (context, imageProvider) => Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: const BorderRadius.all(Radius.circular(50)),
-              image: DecorationImage(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ),
-      ),
-      SizedBox(
-        height: 22,
-        width: 22,
-        child: StreamBuilder(
-          stream: FirebaseFirestore.instance
-              .collection('User')
-              .doc(friendId)
-              .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot asyncSnapshot) {
-            return customIconButton(
-              padding: 0,
-              width: 22,
-              height: 22,
-              path: 'images/ic_green_dot.png',
-              onTap: () {},
-            );
-          },
-        ),
-      ),
-    ],
   );
 }
 

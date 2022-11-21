@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../screens/auth/signin_screen.dart';
+import '../widget/dialog_widget.dart';
 import 'const.dart';
 import 'firestore_operations.dart';
 

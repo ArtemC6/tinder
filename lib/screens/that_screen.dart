@@ -7,13 +7,37 @@ import '../config/const.dart';
 import '../widget/card_widget.dart';
 import '../widget/component_widget.dart';
 
-
-
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final UserModel userModelCurrent;
 
   const ChatScreen({Key? key, required this.userModelCurrent})
       : super(key: key);
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState(userModelCurrent);
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final UserModel userModelCurrent;
+  final scrollController = ScrollController();
+  int limit = 8;
+
+  _ChatScreenState(this.userModelCurrent);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        setState(() {
+          limit += 6;
+        });
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,74 +46,103 @@ class ChatScreen extends StatelessWidget {
         backgroundColor: color_black_88,
         body: SafeArea(
           child: SingleChildScrollView(
+            controller: scrollController,
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                topPanel(context, 'Чаты', Icons.message,  Colors.deepPurpleAccent, false,),
+                topPanel(
+                  context,
+                  'Чаты',
+                  Icons.message,
+                  Colors.deepPurpleAccent,
+                  false,
+                ),
                 SizedBox(
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('User')
-                          .doc(userModelCurrent.uid)
+                          .doc(widget.userModelCurrent.uid)
                           .collection('messages')
+                          .limit(limit)
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
-                          if (snapshot.data.docs.length < 1) {
-                            return const Center(
-                              child: Text(""),
-                            );
-                          }
                           return AnimationLimiter(
                             child: ListView.builder(
                                 physics: const BouncingScrollPhysics(),
                                 scrollDirection: Axis.vertical,
-                                itemCount: snapshot.data.docs.length,
+                                itemCount: snapshot.data.docs.length + 1,
                                 shrinkWrap: true,
                                 itemBuilder: (context, index) {
-                                  var friendId = snapshot.data.docs[index].id;
-                                  var lastMsg =
-                                      snapshot.data.docs[index]['last_msg'];
-                                  var date = snapshot.data.docs[index]['date'];
-                                  return AnimationConfiguration.staggeredList(
-                                      position: index,
-                                      delay: const Duration(milliseconds: 400),
-                                      child: SlideAnimation(
-                                          duration: const Duration(
-                                              milliseconds: 1600),
-                                          verticalOffset: 180,
-                                          curve: Curves.ease,
-                                          child: FadeInAnimation(
-                                              curve: Curves.easeOut,
-                                              duration: const Duration(
-                                                  milliseconds: 2500),
-                                              child: FutureBuilder(
-                                                future: FirebaseFirestore
-                                                    .instance
-                                                    .collection('User')
-                                                    .doc(friendId)
-                                                    .get(),
-                                                builder: (context,
-                                                    AsyncSnapshot
-                                                        asyncSnapshot) {
-                                                  if (asyncSnapshot.hasData) {
+                                  if (index < snapshot.data.docs.length) {
+                                    var friendId = snapshot.data.docs[index].id;
+                                    var lastMsg =
+                                        snapshot.data.docs[index]['last_msg'];
+                                    var date =
+                                        snapshot.data.docs[index]['date'];
+                                    return AnimationConfiguration.staggeredList(
+                                        position: index,
+                                        delay:
+                                            const Duration(milliseconds: 300),
+                                        child: SlideAnimation(
+                                            duration: const Duration(
+                                                milliseconds: 1400),
+                                            verticalOffset: 180,
+                                            curve: Curves.ease,
+                                            child: FadeInAnimation(
+                                                curve: Curves.easeOut,
+                                                duration: const Duration(
+                                                    milliseconds: 2300),
+                                                child: FutureBuilder(
+                                                  future: FirebaseFirestore
+                                                      .instance
+                                                      .collection('User')
+                                                      .doc(friendId)
+                                                      .get(),
+                                                  builder: (context,
+                                                      AsyncSnapshot
+                                                          asyncSnapshot) {
+                                                    if (asyncSnapshot.hasData) {
                                                       var friend =
-                                                        asyncSnapshot.data;
+                                                          asyncSnapshot.data;
+
                                                       return itemUserChat(
                                                           friendId: friendId,
                                                           friend: friend,
                                                           lastMessage: lastMsg,
                                                           date: date,
-                                                          userModelCurrent:
-                                                          userModelCurrent);
-                                                  }
-                                                  return const SizedBox();
-                                                },
-                                              ))));
+                                                          userModelCurrent: widget
+                                                              .userModelCurrent);
+                                                    }
+                                                    return const SizedBox();
+                                                  },
+                                                ))));
+                                  } else {
+                                    bool isLimitMax =
+                                        snapshot.data.docs.length >= limit;
+                                    if (isLimitMax) {
+                                      return const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 30),
+                                        child: Center(
+                                          child: SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 0.8,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox();
+                                  }
                                 }),
                           );
+                        } else {
+                          return cardLoadingWidget(size, .12, .07);
                         }
-                        return cardLoadingWidget(size, .12, .07);
                       }),
                 ),
               ],

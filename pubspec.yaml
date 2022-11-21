@@ -69,6 +69,7 @@ dependencies:
   flutter_lints: ^2.0.1
   card_loading: ^0.2.2
   ndialog: ^4.2.0
+  animations: ^2.0.7
 
 
 

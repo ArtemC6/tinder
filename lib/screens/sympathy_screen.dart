@@ -24,8 +24,23 @@ class SympathyScreen extends StatefulWidget {
 
 class _SympathyScreenState extends State<SympathyScreen> {
   final UserModel userModelCurrent;
+  final scrollController = ScrollController();
+  int limit = 5;
 
   _SympathyScreenState(this.userModelCurrent);
+
+  @override
+  void initState() {
+    scrollController.addListener(() {
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        setState(() {
+          limit += 3;
+        });
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -271,16 +286,24 @@ class _SympathyScreenState extends State<SympathyScreen> {
         backgroundColor: color_black_88,
         body: SafeArea(
           child: SingleChildScrollView(
+            controller: scrollController,
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                topPanel(context, 'Симпатии', Icons.favorite,  Colors.red, false,),
+                topPanel(
+                  context,
+                  'Симпатии',
+                  Icons.favorite,
+                  Colors.red,
+                  false,
+                ),
                 SizedBox(
                   child: StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection('User')
                           .doc(userModelCurrent.uid)
                           .collection('sympathy')
+                          .limit(limit)
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshot) {
                         if (snapshot.hasData) {
@@ -288,34 +311,54 @@ class _SympathyScreenState extends State<SympathyScreen> {
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               scrollDirection: Axis.vertical,
-                              itemCount: snapshot.data.docs.length,
+                              itemCount: snapshot.data.docs.length + 1,
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
                                 if (snapshot.hasData) {
-                                  return AnimationConfiguration.staggeredList(
-                                    position: index,
-                                    delay: const Duration(milliseconds: 500),
-                                    child: SlideAnimation(
-                                      duration:
-                                      const Duration(milliseconds: 1750),
-                                      verticalOffset: 220,
-                                      curve: Curves.ease,
-                                      child: FadeInAnimation(
-                                        curve: Curves.easeOut,
+                                  if (index < snapshot.data.docs.length) {
+                                    return AnimationConfiguration.staggeredList(
+                                      position: index,
+                                      delay: const Duration(milliseconds: 500),
+                                      child: SlideAnimation(
                                         duration:
-                                        const Duration(milliseconds: 2800),
-                                        child: cardSympathy(snapshot, index),
+                                            const Duration(milliseconds: 1750),
+                                        verticalOffset: 220,
+                                        curve: Curves.ease,
+                                        child: FadeInAnimation(
+                                          curve: Curves.easeOut,
+                                          duration: const Duration(
+                                              milliseconds: 2800),
+                                          child: cardSympathy(snapshot, index),
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  } else {
+                                    bool isLimitMax =
+                                        snapshot.data.docs.length >= limit;
+                                    if (isLimitMax) {
+                                      return const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 30),
+                                        child: Center(
+                                          child: SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 0.8,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }
                                 }
-                                return SizedBox();
+                                return const SizedBox();
                               },
                             ),
                           );
                         }
                         return cardLoadingWidget(size, .14, .08);
-                        // return const loadingCustom();
                       }),
                 ),
               ],

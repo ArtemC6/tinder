@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
@@ -12,6 +11,7 @@ import '../model/user_model.dart';
 import '../screens/manager_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
+import '../widget/dialog_widget.dart';
 import 'const.dart';
 
 Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
@@ -79,7 +79,7 @@ Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
 }
 
 Future<void> uploadImage(
-    BuildContext context, UserModel modelUser, bool isScreen) async {
+    BuildContext context, UserModel userModelCurrent, bool isScreen) async {
   List<String> listImageUri = [], listImagePath = [];
   FirebaseStorage storage = FirebaseStorage.instance;
   final picker = ImagePicker();
@@ -101,20 +101,20 @@ Future<void> uploadImage(
       final snapshot = await task.whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
 
-      await storage.ref(modelUser.userImagePath[0]).delete();
+      await storage.ref(userModelCurrent.userImagePath[0]).delete();
 
-      modelUser.userImageUrl.removeAt(0);
-      modelUser.userImagePath.removeAt(0);
+      userModelCurrent.userImageUrl.removeAt(0);
+      userModelCurrent.userImagePath.removeAt(0);
 
       listImagePath.add(fileName);
       listImageUri.add(urlDownload);
 
-      listImagePath.addAll(modelUser.userImagePath);
-      listImageUri.addAll(modelUser.userImageUrl);
+      listImagePath.addAll(userModelCurrent.userImagePath);
+      listImageUri.addAll(userModelCurrent.userImageUrl);
 
       final docUser = FirebaseFirestore.instance
           .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid);
+          .doc(userModelCurrent.uid);
 
       final json = {
         'listImageUri': listImageUri,
@@ -228,7 +228,8 @@ Future<void> deleteSympathyPartner(String idPartner, String idUser) async {
   });
 }
 
-Future<void> uploadImageAdd(BuildContext context, UserModel userModel) async {
+Future<void> uploadImageAdd(
+    BuildContext context, UserModel userModelCurrent) async {
   FirebaseStorage storage = FirebaseStorage.instance;
 
   final picker = ImagePicker();
@@ -249,40 +250,26 @@ Future<void> uploadImageAdd(BuildContext context, UserModel userModel) async {
       final snapshot = await task.whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
 
-      userModel.userImageUrl.add(urlDownload);
-      userModel.userImagePath.add(fileName);
+      userModelCurrent.userImageUrl.add(urlDownload);
+      userModelCurrent.userImagePath.add(fileName);
 
       final docUser = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid);
 
       final json = {
-        'listImageUri': userModel.userImageUrl,
-        'listImagePath': userModel.userImagePath
+        'listImageUri': userModelCurrent.userImageUrl,
+        'listImagePath': userModelCurrent.userImagePath
       };
 
       docUser.update(json).then((value) {
         Navigator.pushReplacement(
             context,
             FadeRouteAnimation(ProfileScreen(
-              userModelPartner: UserModel(
-                  name: '',
-                  uid: '',
-                  myCity: '',
-                  ageTime: Timestamp.now(),
-                  userPol: '',
-                  searchPol: '',
-                  searchRangeStart: 0,
-                  userImageUrl: [],
-                  userImagePath: [],
-                  imageBackground: '',
-                  userInterests: [],
-                  searchRangeEnd: 0,
-                  ageInt: 0,
-                  state: ''),
+              userModelPartner: userModelCurrent,
               isBack: false,
               idUser: '',
-              userModelCurrent: userModel,
+              userModelCurrent: userModelCurrent,
             )));
       });
     } on FirebaseException {
@@ -292,46 +279,32 @@ Future<void> uploadImageAdd(BuildContext context, UserModel userModel) async {
 }
 
 Future<void> imageRemove(
-    int index, BuildContext context, UserModel userModel) async {
+    int index, BuildContext context, UserModel userModelCurrent) async {
   FirebaseStorage storage = FirebaseStorage.instance;
   try {
     try {
       showAlertDialogLoading(context);
-      await storage.ref(userModel.userImagePath[index]).delete();
+      await storage.ref(userModelCurrent.userImagePath[index]).delete();
 
-      userModel.userImageUrl.removeAt(index);
-      userModel.userImagePath.removeAt(index);
+      userModelCurrent.userImageUrl.removeAt(index);
+      userModelCurrent.userImagePath.removeAt(index);
       final docUser = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid);
 
       final json = {
-        'listImageUri': userModel.userImageUrl,
-        'listImagePath': userModel.userImagePath
+        'listImageUri': userModelCurrent.userImageUrl,
+        'listImagePath': userModelCurrent.userImagePath
       };
 
       docUser.update(json).then((value) {
         Navigator.pushReplacement(
             context,
             FadeRouteAnimation(ProfileScreen(
-              userModelPartner: UserModel(
-                  name: '',
-                  uid: '',
-                  myCity: '',
-                  ageTime: Timestamp.now(),
-                  userPol: '',
-                  searchPol: '',
-                  searchRangeStart: 0,
-                  userImageUrl: [],
-                  userImagePath: [],
-                  imageBackground: '',
-                  userInterests: [],
-                  searchRangeEnd: 0,
-                  ageInt: 0,
-                  state: ''),
+              userModelPartner: userModelCurrent,
               isBack: false,
               idUser: '',
-              userModelCurrent: userModel,
+              userModelCurrent: userModelCurrent,
             )));
       });
     } on FirebaseException {
@@ -348,136 +321,76 @@ Future<void> setStateFirebase(String state) async {
 
     final json = {
       'state': state,
+      if (state == 'offline') 'lastDateOnline': DateTime.now(),
     };
     await docUser.update(json);
   } on FirebaseException {}
 }
 
-showAlertDialogDeleteChat(
-    BuildContext context, String friendId, String friendName, bool isBack) {
-  bool isDelete = false;
-  Widget cancelButton = TextButton(
-    child: const Text("Отмена"),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  );
-  Widget continueButton = TextButton(
-    child: const Text("Удалить"),
-    onPressed: () {
+Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
+    BuildContext context) async {
+  if (isDeletePartner) {
+    FirebaseFirestore.instance
+        .collection('User')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('messages')
+        .doc(friendId)
+        .delete()
+        .then((value) async {
       if (isBack) {
         Navigator.pop(context);
       }
-
-      if (isDelete) {
-        FirebaseFirestore.instance
-            .collection('User')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .collection('messages')
-            .doc(friendId)
-            .delete()
-            .then((value) async {
-          if (isBack) {
-            Navigator.pop(context);
-          }
-          var collection = FirebaseFirestore.instance
-              .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .collection('messages')
-              .doc(friendId)
-              .collection('chats');
-          var snapshots = await collection.get();
-          for (var doc in snapshots.docs) {
-            await doc.reference.delete();
-          }
-        }).then((value) {
-          FirebaseFirestore.instance
-              .collection('User')
-              .doc(friendId)
-              .collection('messages')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .delete();
-        }).then((value) async {
-          var collection = FirebaseFirestore.instance
-              .collection('User')
-              .doc(friendId)
-              .collection('messages')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .collection('chats');
-          var snapshots = await collection.get();
-          for (var doc in snapshots.docs) {
-            await doc.reference.delete();
-          }
-        });
-      } else {
-        FirebaseFirestore.instance
-            .collection('User')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .collection('messages')
-            .doc(friendId)
-            .delete()
-            .then((value) async {
-          Navigator.pop(context);
-
-          var collection = FirebaseFirestore.instance
-              .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .collection('messages')
-              .doc(friendId)
-              .collection('chats');
-          var snapshots = await collection.get();
-          for (var doc in snapshots.docs) {
-            await doc.reference.delete();
-          }
-        });
+      var collection = FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('messages')
+          .doc(friendId)
+          .collection('chats');
+      var snapshots = await collection.get();
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
       }
-    },
-  );
+    }).then((value) {
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(friendId)
+          .collection('messages')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .delete();
+    }).then((value) async {
+      var collection = FirebaseFirestore.instance
+          .collection('User')
+          .doc(friendId)
+          .collection('messages')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('chats');
+      var snapshots = await collection.get();
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
+    });
+  } else {
+    FirebaseFirestore.instance
+        .collection('User')
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .collection('messages')
+        .doc(friendId)
+        .delete()
+        .then((value) async {
+      Navigator.pop(context);
 
-  showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: color_black_88,
-              title: RichText(
-                text: TextSpan(
-                  text: 'Удалить чат',
-                  style: GoogleFonts.lato(
-                    textStyle: const TextStyle(
-                        color: Colors.white, fontSize: 17, letterSpacing: .8),
-                  ),
-                ),
-              ),
-              content: CheckboxListTile(
-                activeColor: Colors.blue,
-                title: RichText(
-                  text: TextSpan(
-                    text: "Также удалить для $friendName",
-                    style: GoogleFonts.lato(
-                      textStyle: const TextStyle(
-                          color: Colors.white, fontSize: 12, letterSpacing: .3),
-                    ),
-                  ),
-                ),
-                value: isDelete,
-                onChanged: (newValue) {
-                  setState(() {
-                    isDelete = !isDelete;
-                  });
-                },
-                controlAffinity:
-                    ListTileControlAffinity.leading, //  <-- leading Checkbox
-              ),
-              actions: <Widget>[
-                cancelButton,
-                continueButton,
-              ],
-            );
-          },
-        );
-      });
+      var collection = FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .collection('messages')
+          .doc(friendId)
+          .collection('chats');
+      var snapshots = await collection.get();
+      for (var doc in snapshots.docs) {
+        await doc.reference.delete();
+      }
+    });
+  }
 }
 
 Future<void> uploadImagePhotoProfile(String uri, BuildContext context) async {
@@ -581,7 +494,6 @@ Future<List<String>> readLikeFirebase(String idUser) async {
 
 Future deleteDislike(String idUser) async {
   try {
-
     var collection = FirebaseFirestore.instance
         .collection('User')
         .doc(idUser)
@@ -593,63 +505,34 @@ Future deleteDislike(String idUser) async {
   } on FirebaseException {}
 }
 
-showAlertDialogDeleteMessage(
-    BuildContext context, AsyncSnapshot snapshot, int index, String friendId) {
-  Widget cancelButton = TextButton(
-    child: const Text("Отмена"),
-    onPressed: () {
-      Navigator.pop(context);
-    },
-  );
-
-  Widget continueButton = TextButton(
-    child: const Text("Удалить"),
-    onPressed: () {
-      Navigator.pop(context);
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .collection('messages')
-          .doc(friendId)
-          .collection('chats')
-          .doc(snapshot.data.docs[index]['idDoc'])
-          .delete()
-          .then((value) {
+Future deleteMessageFirebase(
+    String myId,
+    String friendId,
+    String deleteMessageIdMy,
+    bool isDeletePartner,
+    String deleteMessageIdPartner) async {
+  try {
+    FirebaseFirestore.instance
+        .collection('User')
+        .doc(myId)
+        .collection('messages')
+        .doc(friendId)
+        .collection('chats')
+        .doc(deleteMessageIdMy)
+        .delete()
+        .then((value) {
+      if (isDeletePartner) {
         FirebaseFirestore.instance
-            .collection('users')
+            .collection('User')
             .doc(friendId)
             .collection('messages')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .doc(myId)
             .collection('chats')
-            .doc(snapshot.data.docs[index]['idDoc'])
+            .doc(deleteMessageIdPartner)
             .delete();
-      });
-    },
-  );
-
-  AlertDialog alert = AlertDialog(
-    backgroundColor: color_black_88,
-    title: RichText(
-      text: TextSpan(
-        text: 'Удалить сообщение',
-        style: GoogleFonts.lato(
-          textStyle: const TextStyle(
-              color: Colors.white, fontSize: 17, letterSpacing: .4),
-        ),
-      ),
-    ),
-    actions: [
-      cancelButton,
-      continueButton,
-    ],
-  );
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
+      }
+    });
+  } on FirebaseException {}
 }
 
 Future<bool> putLike(
@@ -699,12 +582,5 @@ Future createDisLike(UserModel userModelCurrent, UserModel userModel) async {
         .collection('dislike')
         .doc(userModel.uid)
         .set({});
-
-    // FirebaseFirestore.instance
-    //     .collection("User")
-    //     .doc(userModel.uid)
-    //     .collection('likes')
-    //     .doc(userModelCurrent.uid)
-    //     .delete();
   } on FirebaseException {}
 }

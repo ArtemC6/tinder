@@ -6,87 +6,174 @@ import 'package:google_fonts/google_fonts.dart';
 import '../config/const.dart';
 
 class MessagesItem extends StatelessWidget {
-  final String message;
-  final bool isUserMassage;
-  DateTime dataMessage;
+  final String message_text, friendImage;
+  final bool isMyMassage;
+  final DateTime dataMessage;
 
-  MessagesItem(this.message, this.isUserMassage, this.dataMessage, {super.key});
+  MessagesItem(
+      this.message_text, this.isMyMassage, this.dataMessage, this.friendImage,
+      {super.key});
 
   @override
   Widget build(BuildContext context) {
+    Container formMessageMy() {
+      return Container(
+        decoration: BoxDecoration(
+            color: Colors.white.withOpacity(.01),
+            borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                topLeft: Radius.circular(20)),
+            border: Border.all(color: Colors.white10, width: 0.9)),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            RichText(
+              text: TextSpan(
+                text: message_text.length < 10
+                    ? '$message_text              '
+                    : message_text,
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white.withOpacity(.9),
+                      fontSize: 13,
+                      letterSpacing: .5),
+                ),
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                text: '${dataMessage.hour}: ${dataMessage.minute}',
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white.withOpacity(.9),
+                      fontSize: 10,
+                      letterSpacing: .5),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget formMessageFriend() {
+      return
+          // SizedBox(
+          // width: MediaQuery.of(context).size.width * .75,
+          //
+          // child: Row(
+          //   mainAxisAlignment: MainAxisAlignment.start,
+          //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   children: [
+          //     Card(
+          //       shadowColor: Colors.white30,
+          //       color: color_black_88,
+          //       shape: RoundedRectangleBorder(
+          //           borderRadius: BorderRadius.circular(100),
+          //           side: const BorderSide(
+          //             width: 0.4,
+          //             color: Colors.white30,
+          //           )),
+          //       elevation: 6,
+          //       child: CachedNetworkImage(
+          //         errorWidget: (context, url, error) =>
+          //         const Icon(Icons.error),
+          //         progressIndicatorBuilder: (context, url, progress) =>
+          //             Center(
+          //               child: SizedBox(
+          //                 height: 28,
+          //                 width: 28,
+          //                 child: CircularProgressIndicator(
+          //                   color: Colors.white,
+          //                   strokeWidth: 0.8,
+          //                   value: progress.progress,
+          //                 ),
+          //               ),
+          //             ),
+          //         imageUrl: friendImage,
+          //         imageBuilder: (context, imageProvider) => Container(
+          //           height: 28,
+          //           width: 28,
+          //           decoration: BoxDecoration(
+          //             color: Colors.transparent,
+          //             borderRadius:
+          //             const BorderRadius.all(Radius.circular(50)),
+          //             image: DecorationImage(
+          //               image: imageProvider,
+          //               fit: BoxFit.cover,
+          //             ),
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          Container(
+        margin: EdgeInsets.only(left: 10),
+        decoration: BoxDecoration(
+            color: Colors.white.withOpacity(.01),
+            borderRadius: const BorderRadius.only(
+                bottomRight: Radius.circular(20),
+                bottomLeft: Radius.circular(20),
+                topRight: Radius.circular(20)),
+            border: Border.all(color: Colors.white10, width: 0.9)),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            RichText(
+              text: TextSpan(
+                text: message_text.length < 10
+                    ? '$message_text              '
+                    : message_text,
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white.withOpacity(.9),
+                      fontSize: 13,
+                      letterSpacing: .5),
+                ),
+              ),
+            ),
+            RichText(
+              text: TextSpan(
+                text: '${dataMessage.hour}: ${dataMessage.minute}',
+                style: GoogleFonts.lato(
+                  textStyle: TextStyle(
+                      color: Colors.white.withOpacity(.9),
+                      fontSize: 10,
+                      letterSpacing: .5),
+                ),
+              ),
+            ),
+          ],
+        ),
+        // ),
+        // ],
+        // ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: <Widget>[
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
-            textDirection:
-                isUserMassage ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: isMyMassage ? TextDirection.rtl : TextDirection.ltr,
             children: <Widget>[
-              Column(
-                crossAxisAlignment: isUserMassage
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * .75,
-                    child: Align(
-                      alignment: isUserMassage
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        decoration: isUserMassage
-                            ? BoxDecoration(
-                                color: Colors.deepPurpleAccent.withOpacity(.72),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.white10, width: 0.9))
-                            : BoxDecoration(
-                                color: Colors.white.withOpacity(.02),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.white10, width: 0.9)),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            RichText(
-                              text: TextSpan(
-                                text: message.length < 10
-                                    ? '$message              '
-                                    : message,
-                                style: GoogleFonts.lato(
-                                  textStyle: TextStyle(
-                                      color: Colors.white.withOpacity(.9),
-                                      fontSize: 13,
-                                      letterSpacing: .5),
-                                ),
-                              ),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                text:
-                                    '${dataMessage.hour}: ${dataMessage.minute}',
-                                style: GoogleFonts.lato(
-                                  textStyle: TextStyle(
-                                      color: Colors.white.withOpacity(.9),
-                                      fontSize: 10,
-                                      letterSpacing: .5),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              SizedBox(
+                width: MediaQuery.of(context).size.width * .75,
+                child: Align(
+                  alignment: isMyMassage
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: isMyMassage ? formMessageMy() : formMessageFriend(),
+                ),
               ),
             ],
           ),
           const SizedBox(
-            height: 10,
+            height: 4,
           ),
         ],
       ),
@@ -101,7 +188,6 @@ class MessageTextField extends StatefulWidget {
   const MessageTextField(this.currentId, this.friendId, {super.key});
 
   @override
-
   _MessageTextFieldState createState() => _MessageTextFieldState();
 }
 
@@ -142,7 +228,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   ),
                   child: TextFormField(
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(300),
+                      LengthLimitingTextInputFormatter(500),
                     ],
                     controller: _controllerMessage,
                     keyboardType: TextInputType.multiline,
@@ -173,7 +259,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
               highlightColor: Colors.transparent,
               onTap: () {
                 if (_controllerMessage.text.isNotEmpty) {
-                  String message = _controllerMessage.text;
+                  String messageText = _controllerMessage.text;
                   _controllerMessage.clear();
                   final docMessage = FirebaseFirestore.instance
                       .collection('User')
@@ -187,8 +273,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                     "senderId": widget.currentId,
                     "idDoc": docMessage.id,
                     "receiverId": widget.friendId,
-                    "message": message,
-                    "type": "text",
+                    "message": messageText,
                     "date": DateTime.now(),
                   }))
                       .then((value) {
@@ -198,7 +283,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         .collection('messages')
                         .doc(widget.friendId)
                         .set({
-                      'last_msg': message,
+                      'last_msg': messageText,
                       'date': DateTime.now(),
                     });
                   });
@@ -215,8 +300,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                     "idDoc": docMessageFriend.id,
                     "senderId": widget.currentId,
                     "receiverId": widget.friendId,
-                    "message": message,
-                    "type": "text",
+                    "message": messageText,
                     "date": DateTime.now(),
                   }).then((value) {
                     FirebaseFirestore.instance
@@ -225,7 +309,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         .collection('messages')
                         .doc(widget.currentId)
                         .set({
-                      "last_msg": message,
+                      "last_msg": messageText,
                       'date': DateTime.now(),
                     });
                   });

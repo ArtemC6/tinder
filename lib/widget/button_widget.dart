@@ -58,6 +58,49 @@ class buttonAuth extends StatelessWidget {
   }
 }
 
+Widget buttonSympathyProfile(String name, color, onTap) {
+  return Container(
+    padding: const EdgeInsets.only(right: 20),
+    height: 40,
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.white38,
+            blurRadius: 5.0,
+            spreadRadius: 0.0,
+            offset: Offset(
+              0.0,
+              1.5,
+            ),
+          )
+        ],
+        border: Border.all(width: 0.8, color: Colors.white38),
+        gradient: LinearGradient(colors: color),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          shadowColor: Colors.transparent,
+          backgroundColor: Colors.transparent,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        ),
+        child: RichText(
+          text: TextSpan(
+            text: name,
+            style: GoogleFonts.lato(
+              textStyle: const TextStyle(
+                  color: Colors.white, fontSize: 11, letterSpacing: .1),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 class customIconButton extends StatelessWidget {
   String path;
   double height, width, padding;
@@ -91,8 +134,7 @@ class customIconButton extends StatelessWidget {
 }
 
 class buttonProfileUser extends StatefulWidget {
-  UserModel userModel;
-  UserModel userModelCurrent;
+  final UserModel userModel, userModelCurrent;
 
   buttonProfileUser(
     this.userModelCurrent,
@@ -103,58 +145,52 @@ class buttonProfileUser extends StatefulWidget {
 
   @override
   State<buttonProfileUser> createState() =>
-      _buttonProfileState(userModel, userModelCurrent);
+      _buttonProfileUserState(userModelCurrent, userModel);
 }
 
-class _buttonProfileState extends State<buttonProfileUser> {
-  UserModel userModel;
-  UserModel userModelCurrent;
+class _buttonProfileUserState extends State<buttonProfileUser> {
+  final UserModel userModel, userModelCurrent;
 
-  _buttonProfileState(this.userModel, this.userModelCurrent);
+  _buttonProfileUserState(this.userModelCurrent, this.userModel);
 
   @override
   Widget build(BuildContext context) {
-    Widget button(String name, color, onTap) {
-      return Container(
-        padding: const EdgeInsets.only(right: 20),
-        height: 40,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.white38,
-                blurRadius: 5.0,
-                spreadRadius: 0.0,
-                offset: Offset(
-                  0.0,
-                  1.5,
-                ),
-              )
-            ],
-            border: Border.all(width: 0.8, color: Colors.white38),
-            gradient: LinearGradient(colors: color),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: ElevatedButton(
-            onPressed: onTap,
-            style: ElevatedButton.styleFrom(
-              shadowColor: Colors.transparent,
-              backgroundColor: Colors.transparent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)),
-            ),
-            child: RichText(
-              text: TextSpan(
-                text: name,
-                style: GoogleFonts.lato(
-                  textStyle: const TextStyle(
-                      color: Colors.white, fontSize: 11, letterSpacing: .1),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+    Widget setLogicsButton(
+        bool isMutuallyMain,
+        bool isMutually,
+        Widget Function(String name, dynamic color, dynamic onTap) button,
+        BuildContext context) {
+      if (isMutuallyMain && !isMutually) {
+        return button(
+            'Ожидайте ответа', [Colors.blueAccent, Colors.purpleAccent], () {
+          if (!isMutuallyMain) {
+            createSympathy(userModelCurrent.uid, userModel);
+          } else {
+            deleteSympathyPartner(userModelCurrent.uid, userModel.uid);
+          }
+        });
+      } else if (!isMutuallyMain && !isMutually) {
+        return button('Оставить симпатию', [color_black_88, color_black_88],
+            () {
+          if (!isMutuallyMain) {
+            createSympathy(userModelCurrent.uid, userModel);
+          } else {
+            deleteSympathyPartner(userModelCurrent.uid, userModel.uid);
+          }
+        });
+      } else {
+        return button('Написать',
+            [Colors.blueAccent, Colors.purpleAccent, Colors.orangeAccent], () {
+          Navigator.push(
+              context,
+              FadeRouteAnimation(ChatUserScreen(
+                friendId: userModelCurrent.uid,
+                friendName: userModelCurrent.name,
+                friendImage: userModelCurrent.userImageUrl[0],
+                userModelCurrent: userModel,
+              )));
+        });
+      }
     }
 
     return SizedBox(
@@ -167,15 +203,10 @@ class _buttonProfileState extends State<buttonProfileUser> {
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             bool isMutuallyMain = false;
-
             try {
               for (int i = 0; i < snapshot.data.docs.length; i++) {
                 isMutuallyMain = snapshot.data.docs[i]['uid'] ==
                     FirebaseAuth.instance.currentUser!.uid;
-
-                if (isMutuallyMain) {
-                  setState(() {});
-                }
               }
             } catch (E) {}
             return SizedBox(
@@ -191,61 +222,17 @@ class _buttonProfileState extends State<buttonProfileUser> {
 
                     try {
                       for (int i = 0; i < snapshot.data.docs.length; i++) {
-                        isMutually =
-                            snapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                        if (isMutually) {
-                          setState(() {});
-                        }
+                        isMutually = snapshot.data.docs[i]['uid'] ==
+                            userModelCurrent.uid;
                       }
                     } catch (E) {}
 
-                    if (isMutuallyMain && !isMutually) {
-                      return button('Ожидайте ответа',
-                          [Colors.blueAccent, Colors.purpleAccent], () {
-                        if (!isMutuallyMain) {
-                          createSympathy(userModelCurrent.uid, userModel);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        } else {
-                          deleteSympathyPartner(
-                              userModelCurrent.uid, userModel.uid);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        }
-                      });
-                    } else if (!isMutuallyMain && !isMutually) {
-                      return button(
-                          'Оставить симпатию', [color_black_88, color_black_88],
-                          () {
-                        if (!isMutuallyMain) {
-                          createSympathy(userModelCurrent.uid, userModel);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        } else {
-                          deleteSympathyPartner(
-                              userModelCurrent.uid, userModel.uid);
-                          setState(() {
-                            isMutuallyMain = !isMutuallyMain;
-                          });
-                        }
-                      });
+                    if (snapshot.hasData) {
+                      return setLogicsButton(isMutuallyMain, isMutually,
+                          buttonSympathyProfile, context);
                     } else {
-                      return button('Написать', [
-                        Colors.blueAccent,
-                        Colors.purpleAccent,
-                        Colors.orangeAccent
-                      ], () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ChatUserScreen(
-                                  friendId: userModelCurrent.uid,
-                                  friendName: userModelCurrent.name,
-                                  friendImage: userModelCurrent.userImageUrl[0],
-                                  userModelCurrent: userModel,
-                                )));
-                      });
+                      return setLogicsButton(isMutuallyMain, isMutually,
+                          buttonSympathyProfile, context);
                     }
                   }),
             );
