@@ -574,6 +574,21 @@ Future<bool> putLike(
   return Future.value(!isLike);
 }
 
+Future putUserWrites(
+  String currentId,
+  String friendId,
+) async {
+  try {
+    print('object +');
+    FirebaseFirestore.instance
+        .collection("User")
+        .doc(friendId)
+        .collection('messages')
+        .doc(currentId)
+        .update({'writeLastData': DateTime.now()});
+  } on FirebaseException {}
+}
+
 Future createDisLike(UserModel userModelCurrent, UserModel userModel) async {
   try {
     FirebaseFirestore.instance

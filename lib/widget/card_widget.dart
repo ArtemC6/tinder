@@ -117,7 +117,7 @@ class _itemUserState extends State<itemUserChat> {
         showAlertDialogDeleteChat(context, friendId, friend['name'], false);
       },
       child: Container(
-        height: width / 3.7,
+        height: width / 3.5,
         width: width,
         padding: EdgeInsets.only(
             left: width / 30, top: 0, right: width / 30, bottom: width / 30),
@@ -127,7 +127,7 @@ class _itemUserState extends State<itemUserChat> {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
               side: const BorderSide(
-                width: 0.1,
+                width: 0.2,
                 color: Colors.white10,
               )
           ),
@@ -158,8 +158,8 @@ class _itemUserState extends State<itemUserChat> {
                       SizedBox(
                         child: photoUser(
                           uri: friend['listImageUri'][0],
-                          width: 58,
-                          height: 58,
+                          width: 60,
+                          height: 60,
                           state: friend['state'],
                           padding: 0,
                         ),
@@ -187,13 +187,15 @@ class _itemUserState extends State<itemUserChat> {
                                 ),
                               ),
                             ),
+                            const SizedBox(
+                              height: 2,
+                            ),
                             RichText(
                               text: TextSpan(
-                                text:
-                                '${getDataTimeDate(date).hour}: ${getDataTimeDate(date).minute}',
+                                text: filterDate(date),
                                 style: GoogleFonts.lato(
                                   textStyle: TextStyle(
-                                      color: Colors.white.withOpacity(.4),
+                                      color: Colors.white.withOpacity(.5),
                                       fontSize: 10.5,
                                       letterSpacing: .5),
                                 ),
@@ -223,6 +225,7 @@ class _itemUserState extends State<itemUserChat> {
                               ),
                             ),
                             Container(
+                              margin: const EdgeInsets.only(top: 6),
                               alignment: Alignment.center,
                               width: 16,
                               height: 16,

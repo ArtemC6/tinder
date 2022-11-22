@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../config/const.dart';
+import '../config/firestore_operations.dart';
 
 class MessagesItem extends StatelessWidget {
   final String message_text, friendImage;
@@ -59,56 +60,7 @@ class MessagesItem extends StatelessWidget {
     }
 
     Widget formMessageFriend() {
-      return
-          // SizedBox(
-          // width: MediaQuery.of(context).size.width * .75,
-          //
-          // child: Row(
-          //   mainAxisAlignment: MainAxisAlignment.start,
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   children: [
-          //     Card(
-          //       shadowColor: Colors.white30,
-          //       color: color_black_88,
-          //       shape: RoundedRectangleBorder(
-          //           borderRadius: BorderRadius.circular(100),
-          //           side: const BorderSide(
-          //             width: 0.4,
-          //             color: Colors.white30,
-          //           )),
-          //       elevation: 6,
-          //       child: CachedNetworkImage(
-          //         errorWidget: (context, url, error) =>
-          //         const Icon(Icons.error),
-          //         progressIndicatorBuilder: (context, url, progress) =>
-          //             Center(
-          //               child: SizedBox(
-          //                 height: 28,
-          //                 width: 28,
-          //                 child: CircularProgressIndicator(
-          //                   color: Colors.white,
-          //                   strokeWidth: 0.8,
-          //                   value: progress.progress,
-          //                 ),
-          //               ),
-          //             ),
-          //         imageUrl: friendImage,
-          //         imageBuilder: (context, imageProvider) => Container(
-          //           height: 28,
-          //           width: 28,
-          //           decoration: BoxDecoration(
-          //             color: Colors.transparent,
-          //             borderRadius:
-          //             const BorderRadius.all(Radius.circular(50)),
-          //             image: DecorationImage(
-          //               image: imageProvider,
-          //               fit: BoxFit.cover,
-          //             ),
-          //           ),
-          //         ),
-          //       ),
-          //     ),
-          Container(
+      return Container(
         margin: EdgeInsets.only(left: 10),
         decoration: BoxDecoration(
             color: Colors.white.withOpacity(.01),
@@ -147,9 +99,6 @@ class MessagesItem extends StatelessWidget {
             ),
           ],
         ),
-        // ),
-        // ],
-        // ),
       );
     }
 
@@ -182,17 +131,32 @@ class MessagesItem extends StatelessWidget {
 }
 
 class MessageTextField extends StatefulWidget {
-  final String currentId;
-  final String friendId;
+  final String currentId, friendId;
 
   const MessageTextField(this.currentId, this.friendId, {super.key});
 
   @override
-  _MessageTextFieldState createState() => _MessageTextFieldState();
+  _MessageTextFieldState createState() =>
+      _MessageTextFieldState(currentId, friendId);
 }
 
 class _MessageTextFieldState extends State<MessageTextField> {
+  final String currentId, friendId;
+
   final TextEditingController _controllerMessage = TextEditingController();
+
+  _MessageTextFieldState(this.currentId, this.friendId);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _controllerMessage.addListener(() {
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        putUserWrites(currentId, friendId);
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -285,6 +249,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         .set({
                       'last_msg': messageText,
                       'date': DateTime.now(),
+                      'writeLastData': '',
                     });
                   });
 
@@ -311,6 +276,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                         .set({
                       "last_msg": messageText,
                       'date': DateTime.now(),
+                      'writeLastData': '',
                     });
                   });
                 }

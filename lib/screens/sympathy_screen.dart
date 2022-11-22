@@ -314,23 +314,22 @@ class _SympathyScreenState extends State<SympathyScreen> {
                               itemCount: snapshot.data.docs.length + 1,
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
-                                if (snapshot.hasData) {
                                   if (index < snapshot.data.docs.length) {
                                     return AnimationConfiguration.staggeredList(
                                       position: index,
                                       delay: const Duration(milliseconds: 500),
                                       child: SlideAnimation(
                                         duration:
-                                            const Duration(milliseconds: 1750),
-                                        verticalOffset: 220,
-                                        curve: Curves.ease,
-                                        child: FadeInAnimation(
-                                          curve: Curves.easeOut,
-                                          duration: const Duration(
-                                              milliseconds: 2800),
-                                          child: cardSympathy(snapshot, index),
-                                        ),
+                                          const Duration(milliseconds: 1850),
+                                      verticalOffset: 220,
+                                      curve: Curves.ease,
+                                      child: FadeInAnimation(
+                                        curve: Curves.easeOut,
+                                        duration:
+                                            const Duration(milliseconds: 2800),
+                                        child: cardSympathy(snapshot, index),
                                       ),
+                                    ),
                                     );
                                   } else {
                                     bool isLimitMax =
@@ -346,19 +345,19 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                             child: CircularProgressIndicator(
                                               color: Colors.white,
                                               strokeWidth: 0.8,
-                                            ),
                                           ),
                                         ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                   }
                                 }
                                 return const SizedBox();
                               },
                             ),
                           );
+                        } else {
+                          return cardLoadingWidget(size, .14, .08);
                         }
-                        return cardLoadingWidget(size, .14, .08);
                       }),
                 ),
               ],

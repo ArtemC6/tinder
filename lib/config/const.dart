@@ -57,15 +57,15 @@ const List months = [
   'янв.',
   'февр.',
   'марта',
-  'апреля',
+  'апр.',
   'мая',
   'июня',
   'июля',
-  'августа',
+  'авгус.',
   'сент.',
-  'октябтя',
-  'ноября',
-  'декабря',
+  'окт.',
+  'нояб.',
+  'декаб.',
 ];
 
 final List<InterestsModel> listStoryMain = [
@@ -167,15 +167,12 @@ DateTime getDataTimeDate(Timestamp startDate) {
   return dateTimeStart;
 }
 
-String filterDate(AsyncSnapshot<dynamic> asyncSnapshot) {
-  if (DateTime.now()
-          .difference(getDataTimeDate(asyncSnapshot.data['lastDateOnline']))
-          .inDays >=
-      1) {
-    return 'был(а) ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).day} '
-        '${months[getDataTimeDate(asyncSnapshot.data['lastDateOnline']).month - 1]} в ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).hour}: ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).minute}';
+String filterDate(lastDateOnline) {
+  if (DateTime.now().difference(getDataTimeDate(lastDateOnline)).inDays >= 1) {
+    return '${getDataTimeDate(lastDateOnline).day} '
+        '${months[getDataTimeDate(lastDateOnline).month - 1]} в ${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
   } else {
-    return 'был(а) в ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).hour}: ${getDataTimeDate(asyncSnapshot.data['lastDateOnline']).minute}';
+    return '${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
   }
 }
 

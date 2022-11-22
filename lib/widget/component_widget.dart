@@ -550,7 +550,7 @@ Padding topPanel(BuildContext context, String text, IconData icon,
   );
 }
 
-Row topPanelChat(
+StreamBuilder<Object> topPanelChat(
   BuildContext context,
   AsyncSnapshot<dynamic> asyncSnapshot,
   String friendId,
@@ -558,210 +558,250 @@ Row topPanelChat(
   String friendName,
   UserModel userModelCurrent,
 ) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Row(
-        children: [
-          InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.white,
-              size: 22,
-            ),
-          ),
-          Container(
-            padding:
-                const EdgeInsets.only(left: 22, top: 8, bottom: 0, right: 4),
-            child: InkWell(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () {
-                Navigator.push(
-                    context,
-                    FadeRouteAnimation(ProfileScreen(
-                      userModelPartner: UserModel(
-                          name: '',
-                          uid: '',
-                          myCity: '',
-                          ageTime: Timestamp.now(),
-                          userPol: '',
-                          searchPol: '',
-                          searchRangeStart: 0,
-                          userImageUrl: [],
-                          userImagePath: [],
-                          imageBackground: '',
-                          userInterests: [],
-                          searchRangeEnd: 0,
-                          ageInt: 0,
-                          state: ''),
-                      isBack: true,
-                      idUser: friendId,
-                      userModelCurrent: userModelCurrent,
-                    )));
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
+  return StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('User')
+          .doc(userModelCurrent.uid)
+          .collection('messages')
+          .doc(friendId)
+          .snapshots(),
+      builder: (context, AsyncSnapshot snapshot) {
+        if (snapshot.hasData) {
+          bool isWriteUser = DateTime.now()
+                  .difference(getDataTimeDate(snapshot.data['writeLastData']))
+                  .inSeconds <
+              4;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
                 children: [
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Card(
-                        shadowColor: Colors.white30,
-                        color: color_black_88,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(100),
-                            side: const BorderSide(
-                              width: 0.8,
-                              color: Colors.white30,
-                            )),
-                        elevation: 6,
-                        child: CachedNetworkImage(
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                          progressIndicatorBuilder: (context, url, progress) =>
-                              Center(
-                            child: SizedBox(
-                              height: 44,
-                              width: 44,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 0.8,
-                                value: progress.progress,
-                              ),
-                            ),
-                          ),
-                          imageUrl: friendImage,
-                          imageBuilder: (context, imageProvider) => Container(
-                            height: 44,
-                            width: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(50)),
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (asyncSnapshot.data['state'] != 'offline')
-                        SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: customIconButton(
-                            padding: 0,
-                            width: 22,
-                            height: 22,
-                            path: 'images/ic_green_dot.png',
-                            onTap: () {},
-                          ),
-                        ),
-                    ],
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                   Container(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                text: friendName,
-                                style: GoogleFonts.lato(
-                                  textStyle: TextStyle(
-                                      color: Colors.white.withOpacity(.9),
-                                      fontSize: 13.5,
-                                      letterSpacing: .5),
+                    padding: const EdgeInsets.only(
+                        left: 22, top: 8, bottom: 0, right: 4),
+                    child: InkWell(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            FadeRouteAnimation(ProfileScreen(
+                              userModelPartner: UserModel(
+                                  name: '',
+                                  uid: '',
+                                  myCity: '',
+                                  ageTime: Timestamp.now(),
+                                  userPol: '',
+                                  searchPol: '',
+                                  searchRangeStart: 0,
+                                  userImageUrl: [],
+                                  userImagePath: [],
+                                  imageBackground: '',
+                                  userInterests: [],
+                                  searchRangeEnd: 0,
+                                  ageInt: 0,
+                                  state: ''),
+                              isBack: true,
+                              idUser: friendId,
+                              userModelCurrent: userModelCurrent,
+                            )));
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Card(
+                                shadowColor: Colors.white30,
+                                color: color_black_88,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                    side: const BorderSide(
+                                      width: 0.8,
+                                      color: Colors.white30,
+                                    )),
+                                elevation: 6,
+                                child: CachedNetworkImage(
+                                  errorWidget: (context, url, error) =>
+                                      const Icon(Icons.error),
+                                  progressIndicatorBuilder:
+                                      (context, url, progress) => Center(
+                                    child: SizedBox(
+                                      height: 44,
+                                      width: 44,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 0.8,
+                                        value: progress.progress,
+                                      ),
+                                    ),
+                                  ),
+                                  imageUrl: friendImage,
+                                  imageBuilder: (context, imageProvider) =>
+                                      Container(
+                                    height: 44,
+                                    width: 44,
+                                    decoration: BoxDecoration(
+                                      color: Colors.transparent,
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(50)),
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
+                              if (asyncSnapshot.data['state'] != 'offline')
+                                SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: customIconButton(
+                                    padding: 0,
+                                    width: 22,
+                                    height: 22,
+                                    path: 'images/ic_green_dot.png',
+                                    onTap: () {},
+                                  ),
+                                ),
+                            ],
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    RichText(
+                                      text: TextSpan(
+                                        text: friendName,
+                                        style: GoogleFonts.lato(
+                                          textStyle: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(.9),
+                                              fontSize: 13.5,
+                                              letterSpacing: .5),
+                                        ),
+                                      ),
+                                    ),
+                                    if (asyncSnapshot.data['state'] ==
+                                            'offline' &&
+                                        !isWriteUser)
+                                      RichText(
+                                        text: TextSpan(
+                                          text:
+                                              'был(а) ${filterDate(asyncSnapshot.data['lastDateOnline'])}',
+                                          style: GoogleFonts.lato(
+                                            textStyle: TextStyle(
+                                                color: Colors.white
+                                                    .withOpacity(.5),
+                                                fontSize: 10,
+                                                letterSpacing: .5),
+                                          ),
+                                        ),
+                                      ),
+                                    if (asyncSnapshot.data['state'] !=
+                                            'offline' &&
+                                        !isWriteUser)
+                                      RichText(
+                                        text: TextSpan(
+                                          text: 'в сети',
+                                          style: GoogleFonts.lato(
+                                            textStyle: const TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 10.5,
+                                                letterSpacing: .5),
+                                          ),
+                                        ),
+                                      ),
+                                    if (isWriteUser)
+                                      RichText(
+                                        text: TextSpan(
+                                          text: 'печатает...',
+                                          style: GoogleFonts.lato(
+                                            textStyle: const TextStyle(
+                                                color: Colors.blueAccent,
+                                                fontSize: 10.5,
+                                                letterSpacing: .5),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
                             ),
-                            if (asyncSnapshot.data['state'] == 'offline')
-                              RichText(
-                                text: TextSpan(
-                                  text: filterDate(asyncSnapshot),
-                                  style: GoogleFonts.lato(
-                                    textStyle: TextStyle(
-                                        color: Colors.white.withOpacity(.5),
-                                        fontSize: 10,
-                                        letterSpacing: .5),
-                                  ),
-                                ),
-                              ),
-                            if (asyncSnapshot.data['state'] != 'offline')
-                              RichText(
-                                text: TextSpan(
-                                  text: 'в сети',
-                                  style: GoogleFonts.lato(
-                                    textStyle: const TextStyle(
-                                        color: Colors.green,
-                                        fontSize: 10.5,
-                                        letterSpacing: .5),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-      PopupMenuButton<int>(
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(16),
-            ),
-          ),
-          onSelected: (value) {
-            if (value == 0) {
-              showAlertDialogDeleteChat(context, friendId, friendName, true);
-            }
-          },
-          itemBuilder: (BuildContext context) {
-            return [
-              PopupMenuItem(
-                value: 0,
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Удалить чат',
-                    style: GoogleFonts.lato(
-                      textStyle: const TextStyle(
-                          color: Colors.white, fontSize: 13, letterSpacing: .6),
+              PopupMenuButton<int>(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(16),
                     ),
                   ),
-                ),
-              ),
-              PopupMenuItem(
-                  value: 1,
-                  child: RichText(
-                    text: TextSpan(
-                      text: 'Изменить цвет',
-                      style: GoogleFonts.lato(
-                        textStyle: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            letterSpacing: .6),
+                  onSelected: (value) {
+                    if (value == 0) {
+                      showAlertDialogDeleteChat(
+                          context, friendId, friendName, true);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem(
+                        value: 0,
+                        child: RichText(
+                          text: TextSpan(
+                            text: 'Удалить чат',
+                            style: GoogleFonts.lato(
+                              textStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13,
+                                  letterSpacing: .6),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  )),
-            ];
-          })
-    ],
-  );
+                      PopupMenuItem(
+                          value: 1,
+                          child: RichText(
+                            text: TextSpan(
+                              text: 'Изменить цвет',
+                              style: GoogleFonts.lato(
+                                textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    letterSpacing: .6),
+                              ),
+                            ),
+                          )),
+                    ];
+                  })
+            ],
+          );
+        } else {
+          return SizedBox();
+        }
+      });
 }

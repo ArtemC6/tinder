@@ -128,7 +128,7 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                             child: SlideAnimation(
                               duration: const Duration(milliseconds: 1300),
                               verticalOffset: 200,
-                              curve: Curves.ease,
+                              curve: Curves.decelerate,
                               child: FadeInAnimation(
                                 curve: Curves.easeOut,
                                 duration: const Duration(milliseconds: 2000),
