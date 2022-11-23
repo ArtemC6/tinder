@@ -13,7 +13,7 @@ void showDialogZoom({required String uri, required BuildContext context}) {
   ZoomDialog(
     zoomScale: 5,
     child: SizedBox(
-      height: MediaQuery.of(context).size.height * 0.42,
+      height: MediaQuery.of(context).size.height * 0.44,
       width: MediaQuery.of(context).size.width * 0.92,
       child: CachedNetworkImage(
         errorWidget: (context, url, error) => const Icon(Icons.error),
@@ -51,7 +51,10 @@ showAlertDialogDeleteMessage(
     String myId,
     String friendName,
     String deleteMessageIdMy,
-    String deleteMessageIdPartner) {
+    String deleteMessageIdPartner,
+    AsyncSnapshot snapshotMy,
+    int index,
+    bool isLastMessage) {
   bool isDeletePartner = false;
 
   Widget cancelButton = TextButton(
@@ -66,7 +69,7 @@ showAlertDialogDeleteMessage(
     onPressed: () {
       Navigator.pop(context);
       deleteMessageFirebase(myId, friendId, deleteMessageIdMy, isDeletePartner,
-          deleteMessageIdPartner);
+          deleteMessageIdPartner, isLastMessage, snapshotMy, index);
     },
   );
 
@@ -149,9 +152,6 @@ showAlertDialogDeleteChat(
   Widget continueButton = TextButton(
     child: const Text("Удалить"),
     onPressed: () {
-      if (isBack) {
-        Navigator.pop(context);
-      }
       deleteChatFirebase(isDeletePartner, friendId, isBack, context);
     },
   );

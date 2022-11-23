@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -149,11 +151,12 @@ class _MessageTextFieldState extends State<MessageTextField> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _controllerMessage.addListener(() {
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        putUserWrites(currentId, friendId);
-      });
+      if (_controllerMessage.text.isNotEmpty) {
+        Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+          putUserWrites(currentId, friendId);
+        });
+      }
     });
     super.initState();
   }
@@ -250,6 +253,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                       'last_msg': messageText,
                       'date': DateTime.now(),
                       'writeLastData': '',
+                      'last_date_open_chat': '',
                     });
                   });
 
@@ -277,6 +281,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                       "last_msg": messageText,
                       'date': DateTime.now(),
                       'writeLastData': '',
+                      'last_date_open_chat': '',
                     });
                   });
                 }

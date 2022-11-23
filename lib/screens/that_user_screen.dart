@@ -51,7 +51,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
         .collection('messages')
         .doc(widget.friendId)
         .update({
-      'last_date_open_hat': DateTime.now(),
+      'last_date_open_chat': DateTime.now(),
     });
 
     super.initState();
@@ -74,7 +74,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: color_black_88,
-        body: SingleChildScrollView(
+        body: SafeArea(
           child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Column(
@@ -85,23 +85,15 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                   color: color_black_88,
                   padding: const EdgeInsets.only(
                     left: 14,
-                    top: 10,
+                    top: 0,
                     right: 14,
                   ),
-                  child: StreamBuilder(
-                      stream: FirebaseFirestore.instance
-                          .collection('User')
-                          .doc(friendId)
-                          .snapshots(),
-                      builder:
-                          (BuildContext context, AsyncSnapshot asyncSnapshot) {
-                        if (asyncSnapshot.hasData) {
-                          return topPanelChat(context, asyncSnapshot, friendId,
-                              friendImage, friendName, userModelCurrent);
-                        } else {
-                          return const SizedBox();
-                        }
-                      }),
+                  child: topPanelChat(
+                    userModelCurrent: userModelCurrent,
+                    friendId: friendId,
+                    friendImage: friendImage,
+                    friendName: friendName,
+                  ),
                 ),
                 Expanded(
                     child: Container(
@@ -124,100 +116,107 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                       builder: (context, AsyncSnapshot snapshotMy) {
                         if (snapshotMy.hasData) {
                           return StreamBuilder(
-                              stream: FirebaseFirestore.instance
-                                  .collection("User")
-                                  .doc(friendId)
-                                  .collection('messages')
-                                  .doc(userModelCurrent.uid)
-                                  .collection('chats')
-                                  .limit(limit)
-                                  .orderBy("date", descending: true)
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                return AnimationLimiter(
-                                  child: ListView.builder(
-                                      physics: const BouncingScrollPhysics(),
-                                      scrollDirection: Axis.vertical,
-                                      controller: scrollController,
-                                      itemCount:
-                                          snapshotMy.data.docs.length + 1,
-                                      reverse: true,
-                                      shrinkWrap: true,
-                                      itemBuilder: (context, index) {
-                                        if (index <
-                                            snapshotMy.data.docs.length) {
-                                          bool isMe = snapshotMy.data
-                                                  .docs[index]['senderId'] ==
-                                              userModelCurrent.uid;
-                                          return AnimationConfiguration
-                                              .staggeredList(
-                                            position: index,
-                                            delay: const Duration(
-                                                milliseconds: 100),
-                                            child: SlideAnimation(
-                                              duration: const Duration(
-                                                  milliseconds: 1400),
-                                              horizontalOffset: 200,
-                                              curve: Curves.ease,
-                                              child: FadeInAnimation(
-                                                  curve: Curves.easeOut,
-                                                  duration: const Duration(
-                                                      milliseconds: 2200),
-                                                  child: InkWell(
-                                                      onLongPress: () async {
-                                                        showAlertDialogDeleteMessage(
-                                                            context,
-                                                            friendId,
-                                                            userModelCurrent
-                                                                .uid,
-                                                            friendName,
-                                                            snapshotMy.data
-                                                                    .docs[index]
-                                                                ['idDoc'],
-                                                            snapshot.data!
-                                                                    .docs[index]
-                                                                ['idDoc']);
-                                                      },
-                                                      child: MessagesItem(
-                                                          snapshotMy.data
-                                                                  .docs[index]
-                                                              ['message'],
-                                                          isMe,
-                                                          getDataTimeDate(
-                                                              snapshotMy.data
-                                                                          .docs[
-                                                                      index]
-                                                                  ['date']),
-                                                          friendImage))),
+                            stream: FirebaseFirestore.instance
+                                .collection("User")
+                                .doc(friendId)
+                                .collection('messages')
+                                .doc(userModelCurrent.uid)
+                                .collection('chats')
+                                .limit(limit)
+                                .orderBy("date", descending: true)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              int lengthDoc = snapshotMy.data.docs.length;
+                              return AnimationLimiter(
+                                child: ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  scrollDirection: Axis.vertical,
+                                  controller: scrollController,
+                                  itemCount: lengthDoc + 1,
+                                  reverse: true,
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, index) {
+                                    if (index < snapshotMy.data.docs.length) {
+                                      bool isMe = snapshotMy.data.docs[index]
+                                              ['senderId'] ==
+                                          userModelCurrent.uid;
+                                      return AnimationConfiguration
+                                          .staggeredList(
+                                        position: index,
+                                        delay:
+                                            const Duration(milliseconds: 100),
+                                        child: SlideAnimation(
+                                          duration: const Duration(
+                                              milliseconds: 1400),
+                                          horizontalOffset: 200,
+                                          curve: Curves.ease,
+                                          child: FadeInAnimation(
+                                            curve: Curves.easeOut,
+                                            duration: const Duration(
+                                                milliseconds: 2200),
+                                            child: InkWell(
+                                              onLongPress: () async {
+                                                bool isLastMessage = false;
+                                                int indexRevers = index == 0
+                                                    ? lengthDoc
+                                                    : index;
+
+                                                if (indexRevers == lengthDoc) {
+                                                  isLastMessage = true;
+                                                }
+
+                                                showAlertDialogDeleteMessage(
+                                                    context,
+                                                    friendId,
+                                                    userModelCurrent.uid,
+                                                    friendName,
+                                                    snapshotMy.data.docs[index]
+                                                        ['idDoc'],
+                                                    snapshot.data!.docs[index]
+                                                        ['idDoc'],
+                                                    snapshotMy,
+                                                    index + 1,
+                                                    isLastMessage);
+                                              },
+                                              child: MessagesItem(
+                                                  snapshotMy.data.docs[index]
+                                                      ['message'],
+                                                  isMe,
+                                                  getDataTimeDate(snapshotMy
+                                                      .data
+                                                      .docs[index]['date']),
+                                                  friendImage),
                                             ),
-                                          );
-                                        } else {
-                                          bool isLimitMax =
-                                              snapshotMy.data.docs.length >=
-                                                  limit;
-                                          if (isLimitMax) {
-                                            return const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 20),
-                                              child: Center(
-                                                child: SizedBox(
-                                                  height: 24,
-                                                  width: 24,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    color: Colors.white,
-                                                    strokeWidth: 0.8,
-                                                  ),
-                                                ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      bool isLimitMax =
+                                          snapshotMy.data.docs.length >= limit;
+                                      if (isLimitMax) {
+                                        return const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 20),
+                                          child: Center(
+                                            child: SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 0.8,
                                               ),
-                                            );
-                                          } else {
-                                            return const SizedBox();
-                                          }
-                                        }
-                                      }),
-                                );
-                              });
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        return const SizedBox();
+                                      }
+                                    }
+                                  },
+                                ),
+                              );
+                            },
+                          );
                         }
                         return const Center(
                           child: SizedBox(

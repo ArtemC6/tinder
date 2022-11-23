@@ -12,7 +12,6 @@ import 'package:multi_select_flutter/chip_display/multi_select_chip_display.dart
 import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 
 import '../../config/const.dart';

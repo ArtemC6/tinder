@@ -330,6 +330,14 @@ Future<void> setStateFirebase(String state) async {
 Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
     BuildContext context) async {
   if (isDeletePartner) {
+    if (isBack) {
+      Navigator.pop(context);
+    }
+    Navigator.push(
+        context,
+        FadeRouteAnimation(ManagerScreen(
+          currentIndex: 2,
+        )));
     FirebaseFirestore.instance
         .collection('User')
         .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -337,9 +345,6 @@ Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
         .doc(friendId)
         .delete()
         .then((value) async {
-      if (isBack) {
-        Navigator.pop(context);
-      }
       var collection = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -370,6 +375,14 @@ Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
       }
     });
   } else {
+    if (isBack) {
+      Navigator.pop(context);
+    }
+    Navigator.push(
+        context,
+        FadeRouteAnimation(ManagerScreen(
+          currentIndex: 2,
+        )));
     FirebaseFirestore.instance
         .collection('User')
         .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -377,8 +390,6 @@ Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
         .doc(friendId)
         .delete()
         .then((value) async {
-      Navigator.pop(context);
-
       var collection = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -510,8 +521,35 @@ Future deleteMessageFirebase(
     String friendId,
     String deleteMessageIdMy,
     bool isDeletePartner,
-    String deleteMessageIdPartner) async {
+    String deleteMessageIdPartner,
+    bool isLastMessage,
+    AsyncSnapshot snapshotMy,
+    int index) async {
   try {
+    if (isLastMessage) {
+      FirebaseFirestore.instance
+          .collection('User')
+          .doc(myId)
+          .collection('messages')
+          .doc(friendId)
+          .update({
+        "last_msg": snapshotMy.data.docs[index]['message'],
+        'date': snapshotMy.data.docs[index]['date'],
+      }).then((value) {
+        if (isDeletePartner) {
+          FirebaseFirestore.instance
+              .collection('User')
+              .doc(friendId)
+              .collection('messages')
+              .doc(myId)
+              .update({
+            "last_msg": snapshotMy.data.docs[index]['message'],
+            'date': snapshotMy.data.docs[index]['date'],
+          });
+        }
+      });
+    }
+
     FirebaseFirestore.instance
         .collection('User')
         .doc(myId)
@@ -579,7 +617,6 @@ Future putUserWrites(
   String friendId,
 ) async {
   try {
-    print('object +');
     FirebaseFirestore.instance
         .collection("User")
         .doc(friendId)
