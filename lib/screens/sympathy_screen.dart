@@ -9,6 +9,7 @@ import 'package:tinder/screens/that_user_screen.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
+import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
 import '../widget/card_widget.dart';
 import '../widget/component_widget.dart';
@@ -54,122 +55,132 @@ class _SympathyScreenState extends State<SympathyScreen> {
               .collection('sympathy')
               .snapshots(),
           builder: (context, AsyncSnapshot asyncSnapshot) {
-            bool isMutuallyMy = false;
-            try {
-              for (int i = 0; i < asyncSnapshot.data.docs.length; i++) {
-                isMutuallyMy =
-                    asyncSnapshot.data.docs[i]['uid'] == userModelCurrent.uid;
-                if (isMutuallyMy) {
-                  setState(() {});
-                }
-              }
-            } catch (eroor) {}
+            if (asyncSnapshot.hasData && snapshot.hasData) {
+              var name, age, imageUri, id_doc, city, uid, isMutuallyMy = false;
+              try {
+                uid = snapshot.data.docs[index]['uid'];
+                name = snapshot.data.docs[index]['name'];
+                age = snapshot.data.docs[index]['age'];
+                city = snapshot.data.docs[index]['city'];
+                imageUri = snapshot.data.docs[index]['image_uri'];
+                id_doc = snapshot.data.docs[index]['id_doc'];
 
-            return Container(
-              height: size.width / 2.3,
-              width: size.width,
-              padding: EdgeInsets.only(
-                  left: size.width / 20,
-                  top: 0,
-                  right: size.width / 20,
-                  bottom: size.width / 20),
-              child: Card(
-                shadowColor: Colors.white.withOpacity(.10),
-                color: color_black_88,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    side: const BorderSide(
-                      width: 0.8,
-                      color: Colors.white10,
-                    )
-                ),
-                elevation: 14,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: InkWell(
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          FadeRouteAnimation(ProfileScreen(
-                            userModelPartner: UserModel(
-                                name: '',
-                                uid: '',
-                                myCity: '',
-                                ageTime: Timestamp.now(),
-                                userPol: '',
-                                searchPol: '',
-                                searchRangeStart: 0,
-                                userImageUrl: [],
-                                userImagePath: [],
-                                imageBackground: '',
-                                userInterests: [],
-                                searchRangeEnd: 0,
-                                ageInt: 0,
-                                state: ''),
-                            isBack: true,
-                            idUser: snapshot.data.docs[index]['uid'],
-                            userModelCurrent: userModelCurrent,
-                          )));
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.all(size.width / 50),
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: size.width / 3.8,
-                            height: size.width / 3.8,
-                            child: photoUser(
-                              uri: snapshot.data.docs[index]['image_uri'],
+                for (int i = 0; i < asyncSnapshot.data.docs.length; i++) {
+                  isMutuallyMy =
+                      asyncSnapshot.data.docs[i]['uid'] == userModelCurrent.uid;
+                  if (isMutuallyMy) {
+                    setState(() {});
+                  }
+                }
+              } catch (eroor) {}
+
+              return Container(
+                height: size.width / 2.3,
+                width: size.width,
+                padding: EdgeInsets.only(
+                    left: size.width / 20,
+                    top: 0,
+                    right: size.width / 20,
+                    bottom: size.width / 20),
+                child: Card(
+                  shadowColor: Colors.white.withOpacity(.10),
+                  color: color_black_88,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      side: const BorderSide(
+                        width: 0.8,
+                        color: Colors.white10,
+                      )),
+                  elevation: 14,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: InkWell(
+                      highlightColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            FadeRouteAnimation(ProfileScreen(
+                              userModelPartner: UserModel(
+                                  name: '',
+                                  uid: '',
+                                  myCity: '',
+                                  ageTime: Timestamp.now(),
+                                  userPol: '',
+                                  searchPol: '',
+                                  searchRangeStart: 0,
+                                  userImageUrl: [],
+                                  userImagePath: [],
+                                  imageBackground: '',
+                                  userInterests: [],
+                                  searchRangeEnd: 0,
+                                  ageInt: 0,
+                                  state: ''),
+                              isBack: true,
+                              idUser: uid,
+                              userModelCurrent: userModelCurrent,
+                            )));
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.all(size.width / 50),
+                        child: Row(
+                          children: [
+                            SizedBox(
                               width: size.width / 3.8,
                               height: size.width / 3.8,
-                              state: 'offline',
-                              padding: 5,
+                              child: photoUser(
+                                uri: imageUri,
+                                width: size.width / 3.8,
+                                height: size.width / 3.8,
+                                state: 'offline',
+                                padding: 5,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: size.width / 40),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment:
+                            SizedBox(width: size.width / 40),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      SlideFadeTransition(
+                                        animationDuration: const Duration(milliseconds: 450),
+                                        child: Column(
+                                          crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            text:
-                                                '${snapshot.data.docs[index]['name']}, ${snapshot.data.docs[index]['age']}',
-                                            style: GoogleFonts.lato(
-                                              textStyle: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  letterSpacing: .9),
+                                          children: [
+                                            RichText(
+                                              text: TextSpan(
+                                                text: '$name, $age',
+                                                style: GoogleFonts.lato(
+                                                  textStyle: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      letterSpacing: .9),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        RichText(
-                                          text: TextSpan(
-                                            text: snapshot.data.docs[index]
-                                                ['city'],
-                                            style: GoogleFonts.lato(
-                                              textStyle: TextStyle(
-                                                  color: Colors.white
-                                                      .withOpacity(.8),
-                                                  fontSize: size.width / 40,
-                                                  letterSpacing: .5),
+                                            RichText(
+                                              text: TextSpan(
+                                                text: city,
+                                                style: GoogleFonts.lato(
+                                                  textStyle: TextStyle(
+                                                      color: Colors.white
+                                                          .withOpacity(.8),
+                                                      fontSize: size.width / 40,
+                                                      letterSpacing: .5),
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+
                                     Container(
                                       margin: const EdgeInsets.only(
                                           bottom: 20, left: 10),
@@ -178,23 +189,19 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                         children: [
                                           SizedBox(
                                             height: 40,
-                                            width: 40,
-                                            child: IconButton(
-                                              onPressed: () async {
-                                                deleteSympathy(
-                                                    snapshot.data.docs[index]
-                                                        ['id_doc'],
-                                                    userModelCurrent.uid);
-                                                await CachedNetworkImage
-                                                    .evictFromCache(snapshot
-                                                            .data.docs[index]
-                                                        ['image_uri']);
-                                              },
-                                              icon: const Icon(Icons.close,
-                                                  size: 20),
-                                              color: Colors.white,
+                                              width: 40,
+                                              child: IconButton(
+                                                onPressed: () async {
+                                                  deleteSympathy(id_doc,
+                                                      userModelCurrent.uid);
+                                                  await CachedNetworkImage
+                                                      .evictFromCache(imageUri);
+                                                },
+                                                icon: const Icon(Icons.close,
+                                                    size: 20),
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),
@@ -207,78 +214,72 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                     if (!isMutuallyMy)
                                       buttonSympathy('Принять симпатию',
                                           [color_black_88, color_black_88], () {
-                                        if (!isMutuallyMy) {
-                                          createSympathy(
-                                              snapshot.data.docs[index]['uid'],
-                                              userModelCurrent);
-                                          setState(() {
-                                            isMutuallyMy = !isMutuallyMy;
-                                          });
-                                        } else {
-                                          deleteSympathyPartner(
-                                              snapshot.data.docs[index]['uid'],
-                                              userModelCurrent.uid);
-                                          setState(() {
-                                            isMutuallyMy = !isMutuallyMy;
-                                          });
-                                        }
-                                      }),
-                                    if (isMutuallyMy)
-                                      buttonSympathy('У вас взаимно', [
-                                        Colors.blueAccent,
-                                        Colors.purpleAccent,
-                                        Colors.orangeAccent
-                                      ], () {
-                                        if (!isMutuallyMy) {
-                                          createSympathy(
-                                              snapshot.data.docs[index]['uid'],
-                                              userModelCurrent);
-                                          setState(() {
-                                            isMutuallyMy = !isMutuallyMy;
-                                          });
-                                        } else {
-                                          deleteSympathyPartner(
-                                              snapshot.data.docs[index]['uid'],
-                                              userModelCurrent.uid);
-                                          setState(() {
-                                            isMutuallyMy = !isMutuallyMy;
-                                          });
-                                        }
-                                      }),
-                                    customIconButton(
-                                      onTap: () {
-                                        Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ChatUserScreen(
-                                                      friendId: snapshot.data
-                                                          .docs[index]['uid'],
-                                                      friendName: snapshot.data
-                                                          .docs[index]['name'],
-                                                      friendImage: snapshot
-                                                              .data.docs[index]
-                                                          ['image_uri'],
-                                                      userModelCurrent:
-                                                          userModelCurrent,
-                                                    )));
-                                      },
-                                      path: 'images/ic_send.png',
-                                      height: 34,
-                                      width: 34,
-                                      padding: 4,
-                                    )
-                                  ],
-                                ),
-                              ],
+                                            if (!isMutuallyMy) {
+                                            createSympathy(
+                                                uid, userModelCurrent);
+                                            setState(() {
+                                              isMutuallyMy = !isMutuallyMy;
+                                            });
+                                          } else {
+                                            deleteSympathyPartner(
+                                                uid, userModelCurrent.uid);
+                                            setState(() {
+                                              isMutuallyMy = !isMutuallyMy;
+                                            });
+                                          }
+                                        }),
+                                      if (isMutuallyMy)
+                                        buttonSympathy('У вас взаимно', [
+                                          Colors.blueAccent,
+                                          Colors.purpleAccent,
+                                          Colors.orangeAccent
+                                        ], () {
+                                          if (!isMutuallyMy) {
+                                            createSympathy(
+                                                uid, userModelCurrent);
+                                            setState(() {
+                                              isMutuallyMy = !isMutuallyMy;
+                                            });
+                                          } else {
+                                            deleteSympathyPartner(
+                                                uid, userModelCurrent.uid);
+                                            setState(() {
+                                              isMutuallyMy = !isMutuallyMy;
+                                            });
+                                          }
+                                        }),
+                                      customIconButton(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatUserScreen(
+                                                        friendId: uid,
+                                                        friendName: name,
+                                                        friendImage: imageUri,
+                                                        userModelCurrent:
+                                                            userModelCurrent,
+                                                      )));
+                                        },
+                                        path: 'images/ic_send.png',
+                                        height: 34,
+                                        width: 34,
+                                        padding: 4,
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
+              );
+            }
+            return const SizedBox();
           });
     }
 
@@ -314,12 +315,13 @@ class _SympathyScreenState extends State<SympathyScreen> {
                               itemCount: snapshot.data.docs.length + 1,
                               shrinkWrap: true,
                               itemBuilder: (context, index) {
-                                  if (index < snapshot.data.docs.length) {
-                                    return AnimationConfiguration.staggeredList(
-                                      position: index,
-                                      delay: const Duration(milliseconds: 500),
-                                      child: SlideAnimation(
-                                        duration:
+                                if (index < snapshot.data.docs.length &&
+                                    snapshot.hasData) {
+                                  return AnimationConfiguration.staggeredList(
+                                    position: index,
+                                    delay: const Duration(milliseconds: 500),
+                                    child: SlideAnimation(
+                                      duration:
                                           const Duration(milliseconds: 1850),
                                       verticalOffset: 220,
                                       curve: Curves.ease,
@@ -330,21 +332,19 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                         child: cardSympathy(snapshot, index),
                                       ),
                                     ),
-                                    );
-                                  } else {
-                                    bool isLimitMax =
-                                        snapshot.data.docs.length >= limit;
-                                    if (isLimitMax) {
-                                      return const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 30),
-                                        child: Center(
-                                          child: SizedBox(
-                                            height: 24,
-                                            width: 24,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 0.8,
+                                  );
+                                } else {
+                                  if (snapshot.data.docs.length >= limit) {
+                                    return const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 30),
+                                      child: Center(
+                                        child: SizedBox(
+                                          height: 24,
+                                          width: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 0.8,
                                           ),
                                         ),
                                       ),

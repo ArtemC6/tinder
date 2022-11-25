@@ -386,7 +386,7 @@ Widget buttonSympathy(String name, color, onTap) {
 }
 
 InkWell homeAnimationButton(
-    double height, double width, onTap, Color colors, IconData icon) {
+    double height, double width, onTap, Color colors, IconData icon, int time) {
   return InkWell(
     highlightColor: Colors.transparent,
     splashColor: Colors.transparent,
@@ -397,8 +397,8 @@ InkWell homeAnimationButton(
       child: AvatarGlow(
         glowColor: Colors.blueAccent,
         endRadius: 60,
-        repeatPauseDuration: const Duration(milliseconds: 1500),
-        duration: const Duration(milliseconds: 2000),
+        repeatPauseDuration: const Duration(milliseconds: 600),
+        duration: Duration(milliseconds: time),
         repeat: true,
         showTwoGlows: true,
         curve: Curves.easeOutQuad,

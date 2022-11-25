@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:async';
 import 'package:tinder/screens/auth/signin_screen.dart';
+
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
 import '../../widget/button_widget.dart';
@@ -17,9 +19,9 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
   late AnimationController controller1, controller2;
   late Animation<double> animation1, animation2, animation3, animation4;
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController nameController = TextEditingController(),
+      emailController = TextEditingController(),
+      passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -171,25 +173,25 @@ class _SignUpScreen extends State<SignUpScreen> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          textFieldAuth('Name...', _nameController,
+                          textFieldAuth('Name...', nameController,
                               Icons.account_circle_sharp, size, false, 10),
-                          textFieldAuth('Email...', _emailController,
+                          textFieldAuth('Email...', emailController,
                               Icons.email_outlined, size, false, 26),
-                          textFieldAuth('Password...', _passwordController,
+                          textFieldAuth('Password...', passwordController,
                               Icons.lock_open_outlined, size, true, 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               buttonAuth('Зарегистрироваться', 2, () {
-                                if (_nameController.text.length >= 3) {
+                                if (nameController.text.length >= 3) {
                                   context
                                       .read<FirebaseAuthMethods>()
                                       .signUpWithEmail(
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                          name: _nameController.text[0]
+                                          email: emailController.text,
+                                          password: passwordController.text,
+                                          name: nameController.text[0]
                                                   .toUpperCase() +
-                                              _nameController.text
+                                              nameController.text
                                                   .substring(1)
                                                   .toLowerCase(),
                                           context: context);

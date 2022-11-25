@@ -45,6 +45,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
             ageInt: user.ageInt,
             state: user.state);
       });
+      setStateFirebase('online');
       isLoading = true;
     });
     super.initState();
@@ -67,10 +68,8 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
         setStateFirebase('online');
         break;
       case AppLifecycleState.inactive:
-        // TODO: Handle this case.
         break;
       case AppLifecycleState.detached:
-        // TODO: Handle this case.
         break;
     }
   }

@@ -36,17 +36,19 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  bool isFirst;
-  late UserModel modelUser;
+  final bool isFirst;
+  UserModel modelUser;
 
   _EditProfileScreenState(this.isFirst, this.modelUser);
+
   bool isLoading = false, isError = false, isPhoto = false;
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _myPolController = TextEditingController();
-  final TextEditingController _searchPolController = TextEditingController();
-  final TextEditingController _ageRangController = TextEditingController();
-  final TextEditingController _localController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController(),
+      _myPolController = TextEditingController(),
+      _nameController = TextEditingController(),
+      _searchPolController = TextEditingController(),
+      _ageRangController = TextEditingController(),
+      _localController = TextEditingController();
+
   var _selectedInterests = [];
   DateTime _dateTimeBirthday = DateTime.now();
   late SfRangeValues _valuesAge;
@@ -837,27 +839,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       });
                                     },
                                     onConfirm: (values) {
-                                      setState(() {
-                                        _selectedInterests = values;
-                                      });
-                                    },
-                                    chipDisplay: MultiSelectChipDisplay(
-                                      onTap: (value) {
-                                        setState(() {
-                                          _selectedInterests.remove(value);
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                  setState(() {
+                                    _selectedInterests = values;
+                                  });
+                                },
+                                chipDisplay: MultiSelectChipDisplay(
+                                  onTap: (value) {
+                                    setState(() {
+                                      _selectedInterests.remove(value);
+                                    });
+                                  },
                                 ),
                               ),
                             ),
-                            SizedBox(
-                              height: height * .05,
-                            ),
-                          ],
+                          ),
                         ),
-                      ))),
+                        SizedBox(
+                          height: height * .05,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),

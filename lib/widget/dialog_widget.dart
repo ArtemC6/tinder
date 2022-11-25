@@ -13,8 +13,8 @@ void showDialogZoom({required String uri, required BuildContext context}) {
   ZoomDialog(
     zoomScale: 5,
     child: SizedBox(
-      height: MediaQuery.of(context).size.height * 0.44,
-      width: MediaQuery.of(context).size.width * 0.92,
+      height: MediaQuery.of(context).size.height * 0.40,
+      width: MediaQuery.of(context).size.width * 0.94,
       child: CachedNetworkImage(
         errorWidget: (context, url, error) => const Icon(Icons.error),
         imageBuilder: (context, imageProvider) => Container(
@@ -139,8 +139,8 @@ showAlertDialogDeleteMessage(
       });
 }
 
-showAlertDialogDeleteChat(
-    BuildContext context, String friendId, String friendName, bool isBack) {
+showAlertDialogDeleteChat(BuildContext context, String friendId,
+    String friendName, bool isBack, String friendUri) {
   bool isDeletePartner = false;
   Widget cancelButton = TextButton(
     child: const Text("Отмена"),
@@ -152,7 +152,7 @@ showAlertDialogDeleteChat(
   Widget continueButton = TextButton(
     child: const Text("Удалить"),
     onPressed: () {
-      deleteChatFirebase(isDeletePartner, friendId, isBack, context);
+      deleteChatFirebase(isDeletePartner, friendId, isBack, context, friendUri);
     },
   );
 

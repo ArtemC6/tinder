@@ -102,17 +102,21 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                         child: customIconButton(
                           height: 23,
                           width: 23,
-                          path: 'images/ic_image.png',
-                          padding: 2,
-                          onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                FadeRouteAnimation(EditImageProfileScreen(
-                                  bacImage: userModel.imageBackground,
-                                )));
-                          },
-                        ),
-                      )),
+                        path: 'images/ic_image.png',
+                        padding: 2,
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            FadeRouteAnimation(
+                              EditImageProfileScreen(
+                                bacImage: userModel.imageBackground,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               Container(
                 margin: EdgeInsets.only(top: size.height * .20),

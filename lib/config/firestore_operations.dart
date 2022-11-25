@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -93,13 +94,14 @@ Future<void> uploadImage(
 
     try {
       var task = storage.ref(fileName).putFile(imageFile);
-
       if (task == null) return;
 
       showAlertDialogLoading(context);
 
       final snapshot = await task.whenComplete(() {});
       final urlDownload = await snapshot.ref.getDownloadURL();
+
+      CachedNetworkImage.evictFromCache(userModelCurrent.userImageUrl[0]);
 
       await storage.ref(userModelCurrent.userImagePath[0]).delete();
 
@@ -286,8 +288,11 @@ Future<void> imageRemove(
       showAlertDialogLoading(context);
       await storage.ref(userModelCurrent.userImagePath[index]).delete();
 
+      CachedNetworkImage.evictFromCache(userModelCurrent.userImageUrl[index]);
+
       userModelCurrent.userImageUrl.removeAt(index);
       userModelCurrent.userImagePath.removeAt(index);
+
       final docUser = FirebaseFirestore.instance
           .collection('User')
           .doc(FirebaseAuth.instance.currentUser?.uid);
@@ -328,7 +333,8 @@ Future<void> setStateFirebase(String state) async {
 }
 
 Future deleteChatFirebase(bool isDeletePartner, String friendId, bool isBack,
-    BuildContext context) async {
+    BuildContext context, String friendUri) async {
+  CachedNetworkImage.evictFromCache(friendUri);
   if (isDeletePartner) {
     if (isBack) {
       Navigator.pop(context);
@@ -535,6 +541,7 @@ Future deleteMessageFirebase(
           .update({
         "last_msg": snapshotMy.data.docs[index]['message'],
         'date': snapshotMy.data.docs[index]['date'],
+        'last_date_open_chat': DateTime.now(),
       }).then((value) {
         if (isDeletePartner) {
           FirebaseFirestore.instance
@@ -545,6 +552,7 @@ Future deleteMessageFirebase(
               .update({
             "last_msg": snapshotMy.data.docs[index]['message'],
             'date': snapshotMy.data.docs[index]['date'],
+            'last_date_open_chat': DateTime.now(),
           });
         }
       });
@@ -634,5 +642,18 @@ Future createDisLike(UserModel userModelCurrent, UserModel userModel) async {
         .collection('dislike')
         .doc(userModel.uid)
         .set({});
+  } on FirebaseException {}
+}
+
+Future createLastOpenChat(String uid, String friendId) async {
+  try {
+    FirebaseFirestore.instance
+        .collection('User')
+        .doc(uid)
+        .collection('messages')
+        .doc(friendId)
+        .update({
+      'last_date_open_chat': DateTime.now(),
+    });
   } on FirebaseException {}
 }

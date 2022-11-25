@@ -25,8 +25,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreen extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late CardController controllerCard;
-  late AnimationController controllerHeart;
-  late CurvedAnimation curveHeart, curveCancel;
   double colorIndex = 0;
   int limit = 3;
   bool isLike = false, isLook = false, isLoading = false;
@@ -103,21 +101,6 @@ class _HomeScreen extends State<HomeScreen>
   void initState() {
     super.initState();
     readFirebase(false);
-
-    controllerHeart = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-
-    curveHeart = CurvedAnimation(
-        parent: controllerHeart, curve: Curves.fastLinearToSlowEaseIn);
-    PaintingBinding.instance.imageCache.clear();
-  }
-
-  @override
-  void dispose() {
-    controllerHeart.dispose();
-    super.dispose();
   }
 
   @override
@@ -126,16 +109,24 @@ class _HomeScreen extends State<HomeScreen>
     var width = MediaQuery.of(context).size.width;
     var size = MediaQuery.of(context).size;
 
+    if (isLook) {
+      Future.delayed(const Duration(milliseconds: 5000), () {
+        setState(() {
+          isLook = false;
+        });
+      });
+    }
+
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_black_88,
         body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: AnimationLimiter(
-                child: AnimationConfiguration.staggeredList(
-                  position: 1,
+          physics: const BouncingScrollPhysics(),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: AnimationLimiter(
+              child: AnimationConfiguration.staggeredList(
+                position: 1,
                   delay: const Duration(milliseconds: 300),
                   child: SlideAnimation(
                     duration: const Duration(milliseconds: 2500),
@@ -210,11 +201,10 @@ class _HomeScreen extends State<HomeScreen>
                                             .substring(1, 2));
 
                                         if (incline <= 10 && incline > 3) {
-                                          colorIndex =
-                                              double.parse('0.$incline');
-                                          isLook = true;
-                                          isLike = true;
-                                        } else {
+                                          colorIndex = double.parse('0.$incline');
+                                        isLike = true;
+                                        isLook = true;
+                                      } else {
                                           isLook = false;
                                         }
                                       } else if (align.x > 0) {
@@ -233,14 +223,13 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
+                                  setState(() {
                                     if (index < userModelPartner.length + 1) {
                                     } else {}
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
-                                      setState(() {
-                                        isLook = false;
-                                      });
+                                      isLook = false;
 
                                       createDisLike(userModelCurrent,
                                               userModelPartner[index])
@@ -249,23 +238,25 @@ class _HomeScreen extends State<HomeScreen>
                                             userModelPartner[index]
                                                 .userImageUrl[0]);
 
-                                        setState(() {
-                                          listDisLike
-                                              .add(userModelPartner[index].uid);
-                                        });
+                                        listDisLike
+                                            .add(userModelPartner[index].uid);
                                       });
                                     }
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.RIGHT') {
-                                      setState(() {
-                                        isLook = false;
-                                      });
+                                      isLook = false;
                                       createSympathy(
-                                          userModelPartner[index].uid,
-                                          userModelCurrent);
+                                              userModelPartner[index].uid,
+                                              userModelCurrent)
+                                          .then((value) {
+                                        CachedNetworkImage.evictFromCache(
+                                            userModelPartner[index]
+                                                .userImageUrl[0]);
+                                      });
                                     }
-                                  },
+                                  });
+                                },
                                 ),
                               ),
                               if (isLook && !isLike)
@@ -317,21 +308,22 @@ class _HomeScreen extends State<HomeScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: <Widget>[
-                              homeAnimationButton(height, width, () {
-                                controllerCard.triggerLeft();
-                              }, Colors.black, Icons.close),
-                              homeAnimationButton(height, width, () {
-                                controllerCard.triggerRight();
-                              }, Colors.red, Icons.favorite),
-                            ],
-                          ),
-                        ],
-                      ),
+                            homeAnimationButton(height, width, () {
+                              controllerCard.triggerLeft();
+                            }, Colors.black, Icons.close, 1800),
+                            homeAnimationButton(height, width, () {
+                              controllerCard.triggerRight();
+                            }, Colors.red, Icons.favorite, 2400),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            )),
+            ),
+          ),
+        ),
       );
     }
     return const loadingCustom();

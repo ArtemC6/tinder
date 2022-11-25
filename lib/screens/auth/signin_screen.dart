@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tinder/screens/auth/signup_screen.dart';
-import 'dart:async';
+
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
 import '../../widget/button_widget.dart';
@@ -17,8 +19,8 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
   late AnimationController controller1, controller2;
   late Animation<double> animation1, animation2, animation3, animation4;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController(),
+      passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -102,7 +104,6 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       backgroundColor: color_blue_90,
       body: ScrollConfiguration(
@@ -170,9 +171,9 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          textFieldAuth('Email...', _emailController,
+                          textFieldAuth('Email...', emailController,
                               Icons.email_outlined, size, false, 26),
-                          textFieldAuth('Password...', _passwordController,
+                          textFieldAuth('Password...', passwordController,
                               Icons.lock_open_outlined, size, true, 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -181,8 +182,8 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                                 context
                                     .read<FirebaseAuthMethods>()
                                     .loginWithEmail(
-                                        email: _emailController.text,
-                                        password: _passwordController.text,
+                                        email: emailController.text,
+                                        password: passwordController.text,
                                         context: context);
                               }),
                             ],

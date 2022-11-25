@@ -168,12 +168,18 @@ DateTime getDataTimeDate(Timestamp startDate) {
 }
 
 String filterDate(lastDateOnline) {
-  if (DateTime.now().difference(getDataTimeDate(lastDateOnline)).inDays >= 1) {
-    return '${getDataTimeDate(lastDateOnline).day} '
-        '${months[getDataTimeDate(lastDateOnline).month - 1]} в ${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
-  } else {
-    return '${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
-  }
+  String time = '';
+  try {
+    if (DateTime.now().difference(getDataTimeDate(lastDateOnline)).inDays >=
+        1) {
+      time = '${getDataTimeDate(lastDateOnline).day} '
+          '${months[getDataTimeDate(lastDateOnline).month - 1]} в ${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
+    } else {
+      time =
+          '${getDataTimeDate(lastDateOnline).hour}: ${getDataTimeDate(lastDateOnline).minute}';
+    }
+  } catch (error) {}
+  return time;
 }
 
 const List<IconData> listOfIcons = [

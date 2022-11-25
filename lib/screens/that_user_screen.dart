@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../config/const.dart';
+import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../widget/component_widget.dart';
 import '../widget/dialog_widget.dart';
@@ -45,28 +46,13 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
       }
     });
 
-    FirebaseFirestore.instance
-        .collection('User')
-        .doc(userModelCurrent.uid)
-        .collection('messages')
-        .doc(widget.friendId)
-        .update({
-      'last_date_open_chat': DateTime.now(),
-    });
-
+    createLastOpenChat(userModelCurrent.uid, widget.friendId);
     super.initState();
   }
 
   @override
   void dispose() {
-    FirebaseFirestore.instance
-        .collection('User')
-        .doc(userModelCurrent.uid)
-        .collection('messages')
-        .doc(widget.friendId)
-        .update({
-      'last_date_open_hat': DateTime.now(),
-    });
+    createLastOpenChat(userModelCurrent.uid, widget.friendId);
     super.dispose();
   }
 
@@ -137,9 +123,25 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                                   shrinkWrap: true,
                                   itemBuilder: (context, index) {
                                     if (index < snapshotMy.data.docs.length) {
-                                      bool isMe = snapshotMy.data.docs[index]
-                                              ['senderId'] ==
-                                          userModelCurrent.uid;
+                                      var my_id_message,
+                                          frind_id_message,
+                                          message = '',
+                                          date = Timestamp.now(),
+                                          isMe = false;
+                                      try {
+                                        my_id_message = snapshotMy
+                                            .data.docs[index]['idDoc'];
+                                        frind_id_message =
+                                            snapshot.data!.docs[index]['idDoc'];
+                                        message = snapshotMy.data.docs[index]
+                                            ['message'];
+                                        date =
+                                            snapshotMy.data.docs[index]['date'];
+
+                                        isMe = snapshotMy.data.docs[index]
+                                                ['senderId'] ==
+                                            userModelCurrent.uid;
+                                      } catch (eroor) {}
                                       return AnimationConfiguration
                                           .staggeredList(
                                         position: index,
@@ -160,31 +162,24 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                                                 int indexRevers = index == 0
                                                     ? lengthDoc
                                                     : index;
-
                                                 if (indexRevers == lengthDoc) {
                                                   isLastMessage = true;
                                                 }
-
                                                 showAlertDialogDeleteMessage(
                                                     context,
                                                     friendId,
                                                     userModelCurrent.uid,
                                                     friendName,
-                                                    snapshotMy.data.docs[index]
-                                                        ['idDoc'],
-                                                    snapshot.data!.docs[index]
-                                                        ['idDoc'],
+                                                    my_id_message,
+                                                    frind_id_message,
                                                     snapshotMy,
                                                     index + 1,
                                                     isLastMessage);
                                               },
                                               child: MessagesItem(
-                                                  snapshotMy.data.docs[index]
-                                                      ['message'],
+                                                  message,
                                                   isMe,
-                                                  getDataTimeDate(snapshotMy
-                                                      .data
-                                                      .docs[index]['date']),
+                                                  getDataTimeDate(date),
                                                   friendImage),
                                             ),
                                           ),

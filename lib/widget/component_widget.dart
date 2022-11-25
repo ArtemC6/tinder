@@ -551,6 +551,20 @@ Padding topPanel(BuildContext context, String text, IconData icon,
   );
 }
 
+SlideFadeTransition animatedText(size, text, color, time) {
+  return SlideFadeTransition(
+    animationDuration: Duration(milliseconds: time),
+    child: RichText(
+      text: TextSpan(
+        text: text,
+        style: GoogleFonts.lato(
+          textStyle: TextStyle(color: color, fontSize: size, letterSpacing: .6),
+        ),
+      ),
+    ),
+  );
+}
+
 class topPanelChat extends StatefulWidget {
   String friendId, friendImage, friendName;
   UserModel userModelCurrent;
@@ -749,33 +763,15 @@ class _topPanelChatState extends State<topPanelChat> {
                                         if (asyncSnapshot.data['state'] ==
                                                 'offline' &&
                                             !isWriteUser)
-                                          RichText(
-                                            text: TextSpan(
-                                              text:
-                                                  'был(а) ${filterDate(asyncSnapshot.data['lastDateOnline'])}',
-                                              style: GoogleFonts.lato(
-                                                textStyle: TextStyle(
-                                                    color: Colors.white
-                                                        .withOpacity(.5),
-                                                    fontSize: 10,
-                                                    letterSpacing: .5),
-                                              ),
-                                            ),
-                                          ),
+                                          animatedText(
+                                              10.0,
+                                              'был(а) ${filterDate(asyncSnapshot.data['lastDateOnline'])}',
+                                              Colors.white.withOpacity(.5), 400),
                                         if (asyncSnapshot.data['state'] !=
                                                 'offline' &&
                                             !isWriteUser)
-                                          RichText(
-                                            text: TextSpan(
-                                              text: 'в сети',
-                                              style: GoogleFonts.lato(
-                                                textStyle: const TextStyle(
-                                                    color: Colors.green,
-                                                    fontSize: 10.5,
-                                                    letterSpacing: .5),
-                                              ),
-                                            ),
-                                          ),
+                                          animatedText(
+                                              10.5, 'в сети', Colors.green, 400),
                                         if (isWriteUser)
                                           Row(
                                             crossAxisAlignment:
@@ -791,20 +787,10 @@ class _topPanelChatState extends State<topPanelChat> {
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 5, bottom: 2),
-                                                child: RichText(
-                                                  text: TextSpan(
-                                                    text: 'печатает...',
-                                                    style: GoogleFonts.lato(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                              color: Colors
-                                                                  .blueAccent,
-                                                              fontSize: 10.5,
-                                                              letterSpacing:
-                                                                  .5),
-                                                    ),
-                                                  ),
-                                                ),
+                                                child: animatedText(
+                                                    10.5,
+                                                    'печатает...',
+                                                    Colors.blueAccent, 400),
                                               ),
                                             ],
                                           ),
@@ -828,7 +814,7 @@ class _topPanelChatState extends State<topPanelChat> {
                     onSelected: (value) {
                       if (value == 0) {
                         showAlertDialogDeleteChat(
-                            context, friendId, friendName, true);
+                            context, friendId, friendName, true, friendImage);
                       }
                     },
                     itemBuilder: (BuildContext context) {
