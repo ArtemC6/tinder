@@ -10,7 +10,6 @@ import 'package:path/path.dart' as path;
 
 import '../model/user_model.dart';
 import '../screens/manager_screen.dart';
-import '../screens/profile_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
 import '../widget/dialog_widget.dart';
 import 'const.dart';
@@ -49,7 +48,6 @@ Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
       };
 
       docUser.update(json).then((value) {
-        Navigator.pop(context);
         Navigator.pushReplacement(
             context,
             FadeRouteAnimation(EditProfileScreen(
@@ -267,11 +265,8 @@ Future<void> uploadImageAdd(
       docUser.update(json).then((value) {
         Navigator.pushReplacement(
             context,
-            FadeRouteAnimation(ProfileScreen(
-              userModelPartner: userModelCurrent,
-              isBack: false,
-              idUser: '',
-              userModelCurrent: userModelCurrent,
+            FadeRouteAnimation(ManagerScreen(
+              currentIndex: 3,
             )));
       });
     } on FirebaseException {
@@ -305,11 +300,8 @@ Future<void> imageRemove(
       docUser.update(json).then((value) {
         Navigator.pushReplacement(
             context,
-            FadeRouteAnimation(ProfileScreen(
-              userModelPartner: userModelCurrent,
-              isBack: false,
-              idUser: '',
-              userModelCurrent: userModelCurrent,
+            FadeRouteAnimation(ManagerScreen(
+              currentIndex: 3,
             )));
       });
     } on FirebaseException {
@@ -618,6 +610,23 @@ Future<bool> putLike(
   } on FirebaseException {}
 
   return Future.value(!isLike);
+}
+
+Future<Map> readInterestsFirebase() async {
+  Map mapInterests = {};
+  try {
+    await FirebaseFirestore.instance
+        .collection('ImageInterests')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      for (var document in querySnapshot.docs) {
+        Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+        mapInterests = data['Interests'];
+      }
+    });
+  } on FirebaseException {}
+
+  return mapInterests;
 }
 
 Future putUserWrites(

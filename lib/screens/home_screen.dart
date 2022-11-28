@@ -40,10 +40,7 @@ class _HomeScreen extends State<HomeScreen>
       listDisLike.addAll(list);
       FirebaseFirestore.instance
           .collection('User')
-          // .where('uid', isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
           .where('myPol', isEqualTo: userModelCurrent.searchPol)
-          // .where('ageInt', isGreaterThanOrEqualTo: userModelCurrent.searchRangeStart)
-          // .where('ageInt', isLessThanOrEqualTo: userModelCurrent.searchRangeStart)
           // .limit(limit)
           .get()
           .then((QuerySnapshot querySnapshot) {
@@ -73,11 +70,9 @@ class _HomeScreen extends State<HomeScreen>
                     imageBackground: data['imageBackground'],
                     ageInt: data['ageInt'],
                     state: data['state']));
-                userModelPartner.toSet();
                 setState(() {});
               } else {
                 if (isDeleteDislike) {
-                  print('No User');
                   deleteDislike(userModelCurrent.uid).then((value) {
                     setState(() {
                       listDisLike.clear();
@@ -91,7 +86,6 @@ class _HomeScreen extends State<HomeScreen>
       });
     }).then((value) {
       setState(() {
-        userModelPartner.toSet();
         isLoading = true;
       });
     });

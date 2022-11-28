@@ -17,13 +17,14 @@ class photoProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: () {
         showDialogZoom(uri: uri, context: context);
       },
       child: SizedBox(
-        height: 110,
-        width: 110,
+        height: height * 0.15,
+        width: height * 0.15,
         child: Card(
           shadowColor: Colors.white38,
           color: color_black_88,
@@ -57,6 +58,7 @@ class photoProfile extends StatelessWidget {
                 image: DecorationImage(
                   image: imageProvider,
                   fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
                 ),
               ),
             ),
@@ -141,6 +143,7 @@ class photoProfileGallery extends StatelessWidget {
                                       image: DecorationImage(
                                         image: imageProvider,
                                         fit: BoxFit.cover,
+                                        alignment: Alignment.topCenter,
                                       ),
                                     ),
                                   ),
@@ -255,8 +258,10 @@ class photoProfileSettingsGallery extends StatelessWidget {
                                                 const BorderRadius.all(
                                                     Radius.circular(12)),
                                             image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover),
+                                              image: imageProvider,
+                                              fit: BoxFit.cover,
+                                              alignment: Alignment.topCenter,
+                                            ),
                                           ),
                                         ),
                                         progressIndicatorBuilder:

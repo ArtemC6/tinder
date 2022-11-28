@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../config/const.dart';
@@ -105,4 +106,49 @@ class loadingCustom extends StatelessWidget {
           ),
         ));
   }
+}
+
+SlideFadeTransition showProgressWrite() {
+  return SlideFadeTransition(
+    animationDuration: const Duration(milliseconds: 400),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        LoadingAnimationWidget.horizontalRotatingDots(
+          size: 20,
+          color: Colors.blueAccent,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 5, bottom: 2),
+          child: RichText(
+            text: TextSpan(
+              text: 'печатает...',
+              style: GoogleFonts.lato(
+                textStyle: const TextStyle(
+                    color: Colors.blueAccent,
+                    fontSize: 10.5,
+                    letterSpacing: .7),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+SlideFadeTransition animatedText(size, text, color, time, line) {
+  return SlideFadeTransition(
+    animationDuration: Duration(milliseconds: time),
+    child: RichText(
+      maxLines: line,
+      text: TextSpan(
+        text: text,
+        style: GoogleFonts.lato(
+          textStyle: TextStyle(color: color, fontSize: size, letterSpacing: .6),
+        ),
+      ),
+    ),
+  );
 }

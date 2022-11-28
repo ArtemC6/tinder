@@ -43,6 +43,13 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
         setState(() {
           limit += 10;
         });
+        Future.delayed(const Duration(milliseconds: 150), () {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent - 60,
+            duration: const Duration(milliseconds: 1800),
+            curve: Curves.fastOutSlowIn,
+          );
+        });
       }
     });
 
@@ -100,7 +107,6 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                           .orderBy("date", descending: true)
                           .snapshots(),
                       builder: (context, AsyncSnapshot snapshotMy) {
-                        if (snapshotMy.hasData) {
                           return StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection("User")
@@ -112,6 +118,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                                 .orderBy("date", descending: true)
                                 .snapshots(),
                             builder: (context, snapshot) {
+                              if (snapshotMy.hasData && snapshot.hasData) {
                               int lengthDoc = snapshotMy.data.docs.length;
                               return AnimationLimiter(
                                 child: ListView.builder(
@@ -123,83 +130,80 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                                   shrinkWrap: true,
                                   itemBuilder: (context, index) {
                                     if (index < snapshotMy.data.docs.length) {
-                                      var my_id_message,
-                                          frind_id_message,
+                                        var myIdMessage = '',
                                           message = '',
                                           date = Timestamp.now(),
                                           isMe = false;
-                                      try {
-                                        my_id_message = snapshotMy
+                                        try {
+                                        myIdMessage = snapshotMy
                                             .data.docs[index]['idDoc'];
-                                        frind_id_message =
-                                            snapshot.data!.docs[index]['idDoc'];
                                         message = snapshotMy.data.docs[index]
                                             ['message'];
                                         date =
                                             snapshotMy.data.docs[index]['date'];
-
                                         isMe = snapshotMy.data.docs[index]
                                                 ['senderId'] ==
                                             userModelCurrent.uid;
-                                      } catch (eroor) {}
+                                      } catch (E) {}
                                       return AnimationConfiguration
-                                          .staggeredList(
-                                        position: index,
-                                        delay:
-                                            const Duration(milliseconds: 100),
-                                        child: SlideAnimation(
-                                          duration: const Duration(
-                                              milliseconds: 1400),
-                                          horizontalOffset: 200,
-                                          curve: Curves.ease,
-                                          child: FadeInAnimation(
-                                            curve: Curves.easeOut,
+                                            .staggeredList(
+                                          position: index,
+                                          delay:
+                                          const Duration(milliseconds: 100),
+                                          child: SlideAnimation(
                                             duration: const Duration(
-                                                milliseconds: 2200),
-                                            child: InkWell(
-                                              onLongPress: () async {
-                                                bool isLastMessage = false;
-                                                int indexRevers = index == 0
-                                                    ? lengthDoc
-                                                    : index;
-                                                if (indexRevers == lengthDoc) {
-                                                  isLastMessage = true;
-                                                }
-                                                showAlertDialogDeleteMessage(
-                                                    context,
+                                                milliseconds: 1400),
+                                            horizontalOffset: 200,
+                                            curve: Curves.ease,
+                                            child: FadeInAnimation(
+                                              curve: Curves.easeOut,
+                                              duration: const Duration(
+                                                  milliseconds: 2200),
+                                              child: InkWell(
+                                                onLongPress: () async {
+                                                  bool isLastMessage = false;
+                                                  int indexRevers = index == 0
+                                                      ? lengthDoc
+                                                      : index;
+                                                  if (indexRevers == lengthDoc) {
+                                                    isLastMessage = true;
+                                                  }
+                                                  showAlertDialogDeleteMessage(
+                                                      context,
                                                     friendId,
                                                     userModelCurrent.uid,
                                                     friendName,
-                                                    my_id_message,
-                                                    frind_id_message,
+                                                    myIdMessage,
+                                                    snapshot.data!.docs[index]
+                                                        ['idDoc'],
                                                     snapshotMy,
                                                     index + 1,
                                                     isLastMessage);
-                                              },
-                                              child: MessagesItem(
-                                                  message,
+                                                },
+                                                child: MessagesItem(
+                                                    message,
                                                   isMe,
-                                                  getDataTimeDate(date),
+                                                  getDataTime(date),
                                                   friendImage),
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    } else {
-                                      bool isLimitMax =
-                                          snapshotMy.data.docs.length >= limit;
-                                      if (isLimitMax) {
-                                        return const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          child: Center(
-                                            child: SizedBox(
-                                              height: 24,
-                                              width: 24,
-                                              child: CircularProgressIndicator(
-                                                color: Colors.white,
-                                                strokeWidth: 0.8,
-                                              ),
+                                        );
+                                      } else {
+                                        bool isLimitMax =
+                                            snapshotMy.data.docs.length >= limit;
+                                        if (isLimitMax) {
+                                          return const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 20),
+                                            child: Center(
+                                              child: SizedBox(
+                                                height: 24,
+                                                width: 24,
+                                                child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 0.8,
+                                                ),
                                             ),
                                           ),
                                         );
@@ -210,18 +214,18 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                                   },
                                 ),
                               );
-                            },
-                          );
-                        }
-                        return const Center(
-                          child: SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 0.8,
-                            ),
-                          ),
+                            }
+                            return const Center(
+                              child: SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 0.8,
+                                ),
+                              ),
+                            );
+                          },
                         );
                       }),
                 )),

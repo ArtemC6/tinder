@@ -144,18 +144,32 @@ class MessageTextField extends StatefulWidget {
 
 class _MessageTextFieldState extends State<MessageTextField> {
   final String currentId, friendId;
-
   final TextEditingController _controllerMessage = TextEditingController();
+  bool isWrite = true;
 
   _MessageTextFieldState(this.currentId, this.friendId);
+
+  void startTimer() {
+    Timer.periodic(
+      const Duration(seconds: 5),
+      (Timer timer) {
+        setState(() {
+          isWrite = true;
+        });
+        timer.cancel();
+      },
+    );
+  }
 
   @override
   void initState() {
     _controllerMessage.addListener(() {
       if (_controllerMessage.text.isNotEmpty) {
-        Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+        if (isWrite) {
+          startTimer();
+          isWrite = false;
           putUserWrites(currentId, friendId);
-        });
+        }
       }
     });
     super.initState();

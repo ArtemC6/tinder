@@ -60,6 +60,7 @@ class photoUser extends StatelessWidget {
                 image: DecorationImage(
                   image: imageProvider,
                   fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
                 ),
               ),
             ),
@@ -143,8 +144,8 @@ class itemUserLike extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(width: 10),
-                  SizedBox(
-                    width: width / 1.6,
+                  // SizedBox(
+                  Expanded(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -329,7 +330,7 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
                   Center(child: cardLoading(size, 22)),
               imageUrl: userModelPartner[index].userImageUrl[0],
               fit: BoxFit.cover,
-              // height: 166,
+              alignment: Alignment.topCenter,
               width: MediaQuery.of(context).size.width),
         ),
         Container(
@@ -340,8 +341,9 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
             children: [
               RichText(
                 text: TextSpan(
-                  text:
-                      '${userModelPartner[index].name}, ${userModelPartner[index].ageInt} \n${userModelPartner[index].myCity}',
+                  text: '${userModelPartner[index].name}, '
+                      '${userModelPartner[index].ageInt} '
+                      '\n${userModelPartner[index].myCity}',
                   style: GoogleFonts.lato(
                     textStyle: const TextStyle(
                         color: Colors.white, fontSize: 14, letterSpacing: .0),

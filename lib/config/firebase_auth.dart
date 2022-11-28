@@ -10,9 +10,7 @@ import 'firestore_operations.dart';
 
 class FirebaseAuthMethods {
   final FirebaseAuth _auth;
-
   FirebaseAuthMethods(this._auth);
-
   User get user => _auth.currentUser!;
   Stream<User?> get authState => FirebaseAuth.instance.authStateChanges();
 
@@ -52,7 +50,7 @@ class FirebaseAuthMethods {
         docUser.set(json);
 
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Manager()));
+            MaterialPageRoute(builder: (context) => Manager()));
       }).onError((error, stackTrace) {
         Navigator.pop(context);
       });
@@ -70,9 +68,10 @@ class FirebaseAuthMethods {
           .signInWithEmailAndPassword(
               email: email.trim(), password: password.trim())
           .then((value) {
+        Navigator.pop(context);
         setStateFirebase('online').then((value) async {
           Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const Manager()));
+              MaterialPageRoute(builder: (context) => Manager()));
         });
       }).onError((error, stackTrace) {
         Navigator.pop(context);

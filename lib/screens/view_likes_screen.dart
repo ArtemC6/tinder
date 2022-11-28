@@ -70,7 +70,7 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
                   state: data['state']));
-              if (listLike.length == listUser.length) {
+              if (listLike.length == listUser.length + 1) {
                 isLoadingNewUser = false;
               }
             });
@@ -90,6 +90,13 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent == scrollController.offset) {
         readFirebase(limit + 5, false);
+        Future.delayed(const Duration(milliseconds: 800), () {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 1600),
+            curve: Curves.fastOutSlowIn,
+          );
+        });
       }
     });
 

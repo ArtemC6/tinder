@@ -41,16 +41,18 @@ class _ProfileScreen extends State<ProfileScreen> {
   _ProfileScreen(
       this.userModelPartner, this.isBack, this.idUser, this.userModelCurrent);
 
-  void sortingList() {
-    for (var elementMain in userModelPartner.userInterests) {
-      for (var element in listStoryMain) {
-        if (elementMain == element.name) {
-          if (userModelPartner.userInterests.length != listStory.length) {
-            listStory.add(element);
+  Future sortingList() async {
+    readInterestsFirebase().then((map) {
+      for (var elementMain in userModelPartner.userInterests) {
+        map.forEach((key, value) {
+          if (elementMain == key) {
+            if (userModelPartner.userInterests.length != listStory.length) {
+              listStory.add(InterestsModel(name: key, id: '', uri: value));
+            }
           }
-        }
+        });
       }
-    }
+    });
   }
 
   Future readFirebase() async {
@@ -163,6 +165,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                   context,
                                   FadeRouteAnimation(ProfileSettingScreen(
                                     userModel: userModelPartner,
+                                    listInterests: listStory,
                                   )));
                             },
                             icon: const Icon(Icons.settings, size: 20),
@@ -185,7 +188,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                                 photoProfile(uri: userModelPartner.userImageUrl[0]),
                                 buttonLike(
                                     isLike: isLike,
-                                    userModel: userModelPartner,
+                                    userModelFriend: userModelPartner,
                                     userModelCurrent: userModelCurrent),
                               ],
                             ),
@@ -233,8 +236,8 @@ class _ProfileScreen extends State<ProfileScreen> {
                                 SizedBox(
                                   height: 40,
                                   child: buttonProfileUser(
-                                    userModelPartner,
                                     userModelCurrent,
+                                    userModelPartner,
                                   ),
                                 ),
                               const SizedBox()

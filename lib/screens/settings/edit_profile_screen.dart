@@ -162,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     _selectedInterests = modelUser.userInterests;
     interestsCount = modelUser.userInterests.length;
-    _dateTimeBirthday = getDataTimeDate(modelUser.ageTime);
+    _dateTimeBirthday = getDataTime(modelUser.ageTime);
   }
 
   Future readFirebase() async {
@@ -286,7 +286,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               image: DecorationImage(
                                                 image: imageProvider,
                                                 fit: BoxFit.cover,
-                                              ),
+                                                  alignment: Alignment.topCenter),
                                             ),
                                           ),
                                           progressIndicatorBuilder:

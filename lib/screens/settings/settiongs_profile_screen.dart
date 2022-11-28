@@ -6,60 +6,40 @@ import '../../config/const.dart';
 import '../../config/firestore_operations.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
-import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/component_widget.dart';
 import '../../widget/photo_widget.dart';
 import 'edit_image_profile_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
-  UserModel userModel;
+  final UserModel userModel;
+  final List<InterestsModel> listInterests;
 
-  ProfileSettingScreen({Key? key, required this.userModel}) : super(key: key);
+  ProfileSettingScreen(
+      {Key? key, required this.userModel, required this.listInterests})
+      : super(key: key);
 
   @override
-  State<ProfileSettingScreen> createState() => _ProfileSettingScreen(userModel);
+  State<ProfileSettingScreen> createState() =>
+      _ProfileSettingScreen(userModel, listInterests);
 }
 
 class _ProfileSettingScreen extends State<ProfileSettingScreen> {
-  bool isLoading = false, isLike = false;
+  bool isLike = false;
   late UserModel userModel;
-  List<InterestsModel> listStory = [];
+  final List<InterestsModel> listInterests;
 
-  _ProfileSettingScreen(this.userModel);
-
-  void readFirebase() async {
-    for (var elementMain in userModel.userInterests) {
-      for (var element in listStoryMain) {
-        if (elementMain == element.name) {
-          if (userModel.userInterests.length != listStory.length) {
-            listStory.add(element);
-          }
-        }
-      }
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-  }
-
-  @override
-  void initState() {
-    readFirebase();
-    super.initState();
-  }
+  _ProfileSettingScreen(this.userModel, this.listInterests);
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    if (isLoading) {
-      return Scaffold(
-        backgroundColor: color_black_88,
-        body: SingleChildScrollView(
-          child: Stack(
-            children: [
-              Positioned(
+    return Scaffold(
+      backgroundColor: color_black_88,
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Positioned(
                 child: SizedBox(
                   height: size.height * .28,
                   width: size.width,
@@ -71,7 +51,6 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                   ),
                 ),
               ),
-              if (isLoading)
                 Positioned(
                   child: Container(
                     margin: const EdgeInsets.only(
@@ -89,7 +68,6 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                     ),
                   ),
                 ),
-              if (isLoading)
                 Positioned(
                   child: Container(
                       padding: const EdgeInsets.only(top: 32, right: 28),
@@ -203,12 +181,12 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          infoPanelWidget(
-                            userModel: userModel,
-                          ),
-                          slideInterestsSettings(listStory, userModel),
-                          photoProfileSettingsGallery(userModel),
-                        ],
+                        infoPanelWidget(
+                          userModel: userModel,
+                        ),
+                        slideInterestsSettings(listInterests, userModel),
+                        photoProfileSettingsGallery(userModel),
+                      ],
                       ),
                     ),
                   ],
@@ -219,6 +197,4 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
         ),
       );
     }
-    return const loadingCustom();
-  }
 }
