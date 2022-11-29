@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
+import '../model/account_is_full_model.dart';
 import '../model/user_model.dart';
 import '../screens/manager_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
@@ -627,6 +628,55 @@ Future<Map> readInterestsFirebase() async {
   } on FirebaseException {}
 
   return mapInterests;
+}
+
+Future<AccountIsFull> readFirebaseIsAccountFull() async {
+  AccountIsFull accountIsFull = AccountIsFull(
+      isEmptyDataUser: false, isEmptyImageBackground: false, isStart: false);
+
+  try {
+    if (FirebaseAuth.instance.currentUser?.uid != null) {
+      await FirebaseFirestore.instance
+          .collection('StartApp')
+          .doc('IsStart')
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          accountIsFull.isStart = documentSnapshot['isStart'];
+        }
+      }).then((value) async {
+        if (accountIsFull.isStart) {
+          await FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .get()
+              .then((DocumentSnapshot documentSnapshot) {
+            if (documentSnapshot.exists) {
+              if (documentSnapshot['myPol'] != '' &&
+                  documentSnapshot['myCity'] != '' &&
+                  documentSnapshot['searchPol'] != '' &&
+                  documentSnapshot['rangeStart'] != '' &&
+                  documentSnapshot['rangeEnd'] != '' &&
+                  documentSnapshot['ageTime'] != '' &&
+                  documentSnapshot['ageInt'] != '' &&
+                  documentSnapshot['listInterests'] != '' &&
+                  List<String>.from(documentSnapshot['listImageUri'])
+                      .isNotEmpty &&
+                  List<String>.from(documentSnapshot['listImageUri'])
+                      .isNotEmpty) {
+                if (documentSnapshot['imageBackground'] != '') {
+                  accountIsFull.isEmptyImageBackground = true;
+                }
+                accountIsFull.isEmptyDataUser = true;
+              }
+            }
+          });
+        }
+      });
+    }
+  } on FirebaseException {}
+
+  return accountIsFull;
 }
 
 Future putUserWrites(

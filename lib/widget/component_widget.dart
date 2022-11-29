@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +76,7 @@ class slideInterests extends StatelessWidget {
                                     color: color_black_88,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
-                                        BorderRadius.circular(100),
+                                            BorderRadius.circular(100),
                                         side: const BorderSide(
                                           width: 0.5,
                                           color: Colors.white30,
@@ -84,7 +86,7 @@ class slideInterests extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(100),
                                       child: CachedNetworkImage(
                                         errorWidget: (context, url, error) =>
-                                        const Icon(Icons.error),
+                                            const Icon(Icons.error),
                                         imageBuilder:
                                             (context, imageProvider) =>
                                                 Container(
@@ -111,7 +113,7 @@ class slideInterests extends StatelessWidget {
                                               value: progress.progress,
                                             ),
                                           ),
-                                            ),
+                                        ),
                                         imageUrl: listStory[index].uri,
                                         fit: BoxFit.cover,
                                         // height: 166,
@@ -129,7 +131,7 @@ class slideInterests extends StatelessWidget {
                                         style: GoogleFonts.lato(
                                           textStyle: TextStyle(
                                               color:
-                                              Colors.white.withOpacity(0.8),
+                                                  Colors.white.withOpacity(0.8),
                                               fontSize: 10,
                                               letterSpacing: .9),
                                         ),
@@ -224,11 +226,11 @@ class slideInterestsSettings extends StatelessWidget {
                                       if (listStory.length > index)
                                         ClipRRect(
                                           borderRadius:
-                                          BorderRadius.circular(100),
+                                              BorderRadius.circular(100),
                                           child: CachedNetworkImage(
                                             errorWidget:
                                                 (context, url, error) =>
-                                            const Icon(Icons.error),
+                                                    const Icon(Icons.error),
                                             imageBuilder:
                                                 (context, imageProvider) =>
                                                     Container(
@@ -273,9 +275,9 @@ class slideInterestsSettings extends StatelessWidget {
                                                 context,
                                                 FadeRouteAnimation(
                                                     EditProfileScreen(
-                                                      isFirst: false,
-                                                      userModel: userModel,
-                                                    )));
+                                                  isFirst: false,
+                                                  userModel: userModel,
+                                                )));
                                           },
                                           child: Padding(
                                             padding: const EdgeInsets.all(2),
@@ -298,9 +300,9 @@ class slideInterestsSettings extends StatelessWidget {
                                                   context,
                                                   FadeRouteAnimation(
                                                       EditProfileScreen(
-                                                        isFirst: false,
-                                                        userModel: userModel,
-                                                      )));
+                                                    isFirst: false,
+                                                    userModel: userModel,
+                                                  )));
                                             }),
                                       if (listStory.length <= index &&
                                           listStory.isNotEmpty)
@@ -314,9 +316,9 @@ class slideInterestsSettings extends StatelessWidget {
                                                   context,
                                                   FadeRouteAnimation(
                                                       EditProfileScreen(
-                                                        isFirst: false,
-                                                        userModel: userModel,
-                                                      )));
+                                                    isFirst: false,
+                                                    userModel: userModel,
+                                                  )));
                                             }),
                                     ],
                                   ),
@@ -331,7 +333,7 @@ class slideInterestsSettings extends StatelessWidget {
                                         style: GoogleFonts.lato(
                                           textStyle: TextStyle(
                                               color:
-                                              Colors.white.withOpacity(0.8),
+                                                  Colors.white.withOpacity(0.8),
                                               fontSize: 10,
                                               letterSpacing: .9),
                                         ),
@@ -554,11 +556,12 @@ class topPanelChat extends StatefulWidget {
   String friendId, friendImage, friendName;
   UserModel userModelCurrent;
 
-  topPanelChat({Key? key,
-    required this.friendId,
-    required this.friendImage,
-    required this.friendName,
-    required this.userModelCurrent})
+  topPanelChat(
+      {Key? key,
+      required this.friendId,
+      required this.friendImage,
+      required this.friendName,
+      required this.userModelCurrent})
       : super(key: key);
 
   @override
@@ -570,7 +573,8 @@ class _topPanelChatState extends State<topPanelChat> {
   String friendId, friendImage, friendName;
   UserModel userModelCurrent;
 
-  _topPanelChatState(this.friendId, this.friendImage, this.friendName, this.userModelCurrent);
+  _topPanelChatState(
+      this.friendId, this.friendImage, this.friendName, this.userModelCurrent);
 
   @override
   Widget build(BuildContext context) {
@@ -593,12 +597,11 @@ class _topPanelChatState extends State<topPanelChat> {
               try {
                 if (snapshot.data['writeLastData'] != '') {
                   if (DateTime.now()
-                          .difference(
-                              getDataTime(snapshot.data['writeLastData']))
+                          .difference(getDataTime(snapshot.data['writeLastData']))
                           .inSeconds <
                       4) {
-                    getState(4500).then((value) {
-                      setState(() {
+                    getState(4500).then((value){
+                      setState((){
                         isWriteUser = value;
                       });
                     });
@@ -660,13 +663,13 @@ class _topPanelChatState extends State<topPanelChat> {
                               Stack(
                                 alignment: Alignment.bottomRight,
                                 children: [
-                                  photoUser(
-                                    uri: friendImage,
-                                    width: 43,
-                                    height: 43,
-                                    state: 'offline',
-                                    padding: 0,
-                                  ),
+                                    photoUser(
+                                      uri: friendImage,
+                                      width: 43,
+                                      height: 43,
+                                      state: 'offline',
+                                      padding: 0,
+                                    ),
                                   if (asyncSnapshot.data['state'] != 'offline')
                                     SlideFadeTransition(
                                       animationDuration:
@@ -685,13 +688,13 @@ class _topPanelChatState extends State<topPanelChat> {
                                 padding: const EdgeInsets.only(left: 8),
                                 child: Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Column(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                          MainAxisAlignment.center,
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         RichText(
                                           text: TextSpan(
@@ -712,8 +715,7 @@ class _topPanelChatState extends State<topPanelChat> {
                                               10.0,
                                               'был(а) ${filterDate(asyncSnapshot.data['lastDateOnline'])}',
                                               Colors.white.withOpacity(.5),
-                                              550,
-                                              1),
+                                              550, 1),
                                         if (asyncSnapshot.data['state'] !=
                                                 'offline' &&
                                             !isWriteUser)
@@ -787,5 +789,6 @@ class _topPanelChatState extends State<topPanelChat> {
       },
     );
   }
+
 }
 

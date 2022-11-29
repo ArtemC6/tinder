@@ -36,10 +36,10 @@ class _ChatScreenState extends State<ChatScreen> {
       if (scrollController.position.maxScrollExtent ==
           scrollController.offset) {
         setState(() => limit += 4);
-        Future.delayed(const Duration(milliseconds: 800), () {
+        Future.delayed(const Duration(milliseconds: 600), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent - 70,
-            duration: const Duration(milliseconds: 1600),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.fastOutSlowIn,
           );
         });
@@ -163,8 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         nameUser = '',
                                                         imageUri = '',
                                                         state = '',
-                                                        dataLastWrite =
-                                                            Timestamp.now(),
+                                                        dataLastWrite,
                                                         isWriteUser = false,
                                                         isLastOpenChat = false,
                                                         isNewMessage = false;

@@ -40,10 +40,10 @@ class _SympathyScreenState extends State<SympathyScreen> {
       if (scrollController.position.maxScrollExtent ==
           scrollController.offset) {
         setState(() => limit += 3);
-        Future.delayed(const Duration(milliseconds: 800), () {
+        Future.delayed(const Duration(milliseconds: 600), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent - 80,
-            duration: const Duration(milliseconds: 1700),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.fastOutSlowIn,
           );
         });

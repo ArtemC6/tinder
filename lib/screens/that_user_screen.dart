@@ -43,10 +43,10 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
         setState(() {
           limit += 10;
         });
-        Future.delayed(const Duration(milliseconds: 150), () {
+        Future.delayed(const Duration(milliseconds: 300), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent - 60,
-            duration: const Duration(milliseconds: 1800),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.fastOutSlowIn,
           );
         });

@@ -90,10 +90,10 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent == scrollController.offset) {
         readFirebase(limit + 5, false);
-        Future.delayed(const Duration(milliseconds: 800), () {
+        Future.delayed(const Duration(milliseconds: 500), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 1600),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.fastOutSlowIn,
           );
         });

@@ -13,7 +13,9 @@ import 'package:tinder/screens/auth/signin_screen.dart';
 import 'package:tinder/screens/manager_screen.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
+import 'package:tinder/screens/settings/warning_screen.dart';
 
+import 'config/firestore_operations.dart';
 import 'model/user_model.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(message) async {
@@ -75,87 +77,83 @@ class Manager extends StatefulWidget {
 }
 
 class _Manager extends State<Manager> {
-  bool isEmptyImageBackground = false, isEmptyData = false;
+  bool isEmptyImageBackground = false,
+      isEmptyDataUser = false,
+      isStart = false,
+      isLoading = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (FirebaseAuth.instance.currentUser?.uid != null) {
-      FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          if (documentSnapshot['myPol'] != '' &&
-              documentSnapshot['myCity'] != '' &&
-              documentSnapshot['searchPol'] != '' &&
-              documentSnapshot['rangeStart'] != '' &&
-              documentSnapshot['rangeEnd'] != '' &&
-              documentSnapshot['ageTime'] != '' &&
-              documentSnapshot['ageInt'] != '' &&
-              documentSnapshot['listInterests'] != '' &&
-              List<String>.from(documentSnapshot['listImageUri']).isNotEmpty &&
-              List<String>.from(documentSnapshot['listImageUri']).isNotEmpty) {
-            setState(() {
-              if (documentSnapshot['imageBackground'] != '') {
-                isEmptyImageBackground = true;
-              }
-              isEmptyData = true;
-            });
-          }
-        }
+    readFirebaseIsAccountFull().then((result) {
+      setState(() {
+        isEmptyImageBackground = result.isEmptyImageBackground;
+        isEmptyDataUser = result.isEmptyDataUser;
+        isStart = result.isStart;
+        isLoading = true;
       });
-     }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: FirebaseAuth.instance.userChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: LoadingAnimationWidget.dotsTriangle(
-                size: 44,
-                color: Colors.blueAccent,
-              ),
-            );
-          } else if (snapshot.hasData) {
-            if (isEmptyData) {
-              if (isEmptyImageBackground) {
-                return ManagerScreen(
-                  currentIndex: 0,
-                );
+    if (isLoading) {
+      return StreamBuilder(
+          stream: FirebaseAuth.instance.userChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: LoadingAnimationWidget.dotsTriangle(
+                  size: 44,
+                  color: Colors.blueAccent,
+                ),
+              );
+            } else if (snapshot.hasData) {
+              if (isStart) {
+                if (isEmptyDataUser) {
+                  if (isEmptyImageBackground) {
+                    return ManagerScreen(
+                      currentIndex: 0,
+                    );
+                  } else {
+                    return EditImageProfileScreen(
+                      bacImage: '',
+                    );
+                  }
+                } else {
+                  return EditProfileScreen(
+                    isFirst: true,
+                    userModel: UserModel(
+                        name: '',
+                        uid: '',
+                        myCity: '',
+                        ageTime: Timestamp.now(),
+                        ageInt: 0,
+                        userPol: '',
+                        searchPol: '',
+                        searchRangeStart: 0,
+                        userImageUrl: [],
+                        userImagePath: [],
+                        imageBackground: '',
+                        userInterests: [],
+                        searchRangeEnd: 0,
+                        state: ''),
+                  );
+                }
               } else {
-                return EditImageProfileScreen(
-                  bacImage: '',
-                );
+                return const WarningScreen();
               }
             } else {
-              return EditProfileScreen(
-                isFirst: true,
-                userModel: UserModel(
-                    name: '',
-                    uid: '',
-                    myCity: '',
-                    ageTime: Timestamp.now(),
-                    ageInt: 0,
-                    userPol: '',
-                    searchPol: '',
-                    searchRangeStart: 0,
-                    userImageUrl: [],
-                    userImagePath: [],
-                    imageBackground: '',
-                    userInterests: [],
-                    searchRangeEnd: 0,
-                    state: ''),
-              );
+              return const SignInScreen();
             }
-          } else {
-            return const SignInScreen();
-          }
-        });
+          });
+    }
+    return Center(
+      child: LoadingAnimationWidget.dotsTriangle(
+        size: 44,
+        color: Colors.blueAccent,
+      ),
+    );
   }
 }
