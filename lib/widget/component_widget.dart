@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -650,7 +649,8 @@ class _topPanelChatState extends State<topPanelChat> {
                                       userInterests: [],
                                       searchRangeEnd: 0,
                                       ageInt: 0,
-                                      state: ''),
+                                      state: '',
+                                      token: ''),
                                   isBack: true,
                                   idUser: friendId,
                                   userModelCurrent: userModelCurrent,
@@ -789,6 +789,29 @@ class _topPanelChatState extends State<topPanelChat> {
       },
     );
   }
-
 }
 
+SizedBox showIfNoData(double height, String imagePath, String text) {
+  return SizedBox(
+    height: height,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          height: height / 5,
+          child: Image.asset(
+            imagePath,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 30),
+          child: animatedText(16.0, text, Colors.white, 500, 1),
+        ),
+        SizedBox(
+          height: height / 4,
+        )
+      ],
+    ),
+  );
+}

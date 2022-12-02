@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tinder/screens/home_screen.dart';
 import 'package:tinder/screens/profile_screen.dart';
@@ -6,6 +7,7 @@ import 'package:tinder/screens/that_screen.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
+import '../config/notification_api.dart';
 import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
 
@@ -20,13 +22,59 @@ class ManagerScreen extends StatefulWidget {
 
 class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
   bool isLoading = false;
-  int currentIndex = 0;
+  int currentIndex = 0, idNotification = 0;
   late UserModel userModelCurrent;
+
   _ManagerScreen(this.currentIndex);
+
+  Future<void> settingsNotification() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
+  }
+
+  void getNotificationFcm() {
+    NotificationApi.initNotification();
+    listenNotification();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+         print('object');
+        NotificationApi.showNotification(
+            id: idNotification ++,
+            title: notification.title.toString(),
+            body: notification.body.toString(),
+            payload: message.data['type'],
+           uri: message.data['uri'],
+        );
+      }
+    });
+  }
+
+  void listenNotification() {
+    NotificationApi.onNotifications.stream.listen((payload) {
+      setState(() {
+        if (payload == 'sympathy') {
+          currentIndex = 1;
+        }
+        if (payload == 'chat') {
+          currentIndex = 2;
+        }
+        if (payload == 'like') {
+          currentIndex = 3;
+        }
+      });
+    });
+  }
 
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    getNotificationFcm();
     readUserFirebase().then((user) {
       setState(() {
         userModelCurrent = UserModel(
@@ -43,10 +91,11 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
             myCity: user.myCity,
             imageBackground: user.imageBackground,
             ageInt: user.ageInt,
-            state: user.state);
+            state: user.state,
+            token: user.token);
       });
-      setStateFirebase('online');
       isLoading = true;
+      setStateFirebase('online');
     });
     super.initState();
   }
@@ -86,8 +135,10 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
           padding: EdgeInsets.symmetric(horizontal: size.width * .024),
           itemBuilder: (context, index) => InkWell(
             onTap: () {
-              setState(() {
-                currentIndex = index;
+              Future.delayed(const Duration(milliseconds: 20), () {
+                setState(() {
+                  currentIndex = index;
+                });
               });
             },
             splashColor: Colors.transparent,

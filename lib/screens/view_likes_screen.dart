@@ -43,7 +43,7 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
     FirebaseFirestore.instance
         .collection('User')
         .limit(limit)
-        .get()
+        .get(const GetOptions(source: Source.cache))
         .then((QuerySnapshot querySnapshot) {
       for (var document in querySnapshot.docs) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
@@ -58,18 +58,18 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
               listUser.add(UserModel(
                   name: data['name'],
                   uid: data['uid'],
-                  ageTime: data['ageTime'],
+                  ageTime: Timestamp.now(),
                   userPol: data['myPol'],
-                  searchPol: data['searchPol'],
-                  searchRangeStart: data['rangeStart'],
+                  searchPol: '',
+                  searchRangeStart: 0,
                   userInterests: List<String>.from(data['listInterests']),
-                  userImagePath: List<String>.from(data['listImagePath']),
+                  userImagePath: [],
                   userImageUrl: List<String>.from(data['listImageUri']),
-                  searchRangeEnd: data['rangeEnd'],
+                  searchRangeEnd: 0,
                   myCity: data['myCity'],
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
-                  state: data['state']));
+                  state: data['state'], token: data['token']));
               if (listLike.length == listUser.length + 1) {
                 isLoadingNewUser = false;
               }
@@ -131,14 +131,14 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                         if (index < listUser.length) {
                           return AnimationConfiguration.staggeredList(
                             position: index,
-                            delay: const Duration(milliseconds: 300),
+                            delay: const Duration(milliseconds: 200),
                             child: SlideAnimation(
-                              duration: const Duration(milliseconds: 1300),
+                              duration: const Duration(milliseconds: 1400),
                               verticalOffset: 200,
                               curve: Curves.decelerate,
                               child: FadeInAnimation(
                                 curve: Curves.easeOut,
-                                duration: const Duration(milliseconds: 2000),
+                                duration: const Duration(milliseconds: 2500),
                                 child: itemUserLike(
                                     listUser[index], userModelCurrent),
                               ),

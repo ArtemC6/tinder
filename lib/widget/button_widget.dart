@@ -244,6 +244,7 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
               friendName: userModelFriend.name,
               friendImage: userModelFriend.userImageUrl[0],
               userModelCurrent: userModelCurrent,
+              token: userModelFriend.token,
             )));
       });
     }

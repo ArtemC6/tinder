@@ -133,21 +133,24 @@ class MessagesItem extends StatelessWidget {
 }
 
 class MessageTextField extends StatefulWidget {
-  final String currentId, friendId;
+  final String currentId, friendId, token, friendName;
 
-  const MessageTextField(this.currentId, this.friendId, {super.key});
+  const MessageTextField(
+      this.currentId, this.friendId, this.token, this.friendName,
+      {super.key});
 
   @override
   _MessageTextFieldState createState() =>
-      _MessageTextFieldState(currentId, friendId);
+      _MessageTextFieldState(currentId, friendId, token, friendName);
 }
 
 class _MessageTextFieldState extends State<MessageTextField> {
-  final String currentId, friendId;
+  final String currentId, friendId, token, friendName;
   final TextEditingController _controllerMessage = TextEditingController();
   bool isWrite = true;
 
-  _MessageTextFieldState(this.currentId, this.friendId);
+  _MessageTextFieldState(
+      this.currentId, this.friendId, this.token, this.friendName);
 
   void startTimer() {
     Timer.periodic(
@@ -208,6 +211,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                     borderRadius: BorderRadius.circular(26),
                   ),
                   child: TextFormField(
+                    textCapitalization: TextCapitalization.words,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(500),
                     ],
@@ -239,9 +243,10 @@ class _MessageTextFieldState extends State<MessageTextField> {
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () {
-                if (_controllerMessage.text.isNotEmpty) {
+                if (_controllerMessage.text.trim().isNotEmpty) {
                   String messageText = _controllerMessage.text;
                   _controllerMessage.clear();
+                  sendFcmMessage(friendName, messageText, token, 'chat', widget.friendId);
                   final docMessage = FirebaseFirestore.instance
                       .collection('User')
                       .doc(widget.currentId)

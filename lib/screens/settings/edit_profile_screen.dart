@@ -183,7 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               myCity: user.myCity,
               imageBackground: user.imageBackground,
               ageInt: user.ageInt,
-              state: user.state);
+              state: user.state, token: user.token);
           isLoading = true;
         });
       });
@@ -216,12 +216,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   position: 1,
                   delay: const Duration(milliseconds: 100),
                   child: SlideAnimation(
-                      duration: const Duration(milliseconds: 2200),
+                      duration: const Duration(milliseconds: 2000),
                       verticalOffset: height * .40,
                       curve: Curves.ease,
                       child: FadeInAnimation(
                         curve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 3400),
+                        duration: const Duration(milliseconds: 4000),
                         child: Column(
                           children: [
                             Padding(

@@ -82,7 +82,7 @@ class photoUser extends StatelessWidget {
 }
 
 class itemUserLike extends StatelessWidget {
-  final UserModel userModelLike, userModelCurrent;
+  final UserModel userModelCurrent, userModelLike;
 
   itemUserLike(this.userModelLike, this.userModelCurrent, {super.key});
 

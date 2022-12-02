@@ -74,7 +74,7 @@ class _ProfileScreen extends State<ProfileScreen> {
                 myCity: user.myCity,
                 imageBackground: user.imageBackground,
                 ageInt: user.ageInt,
-                state: user.state);
+                state: user.state, token: user.token);
             isLoading = true;
           });
         });

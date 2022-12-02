@@ -45,10 +45,6 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
-
-    // Isolate.spawn((message) {
-    //
-    // }, message)
     super.initState();
   }
 
@@ -83,33 +79,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context, AsyncSnapshot snapshotFriendId) {
                       if (snapshotFriendId.hasData) {
                         if (snapshotFriendId.data.docs.length <= 0) {
-                          return SizedBox(
-                            height: height,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: height / 5,
-                                  child: Image.asset(
-                                    'images/ic_chat_logo.png',
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 30),
-                                  child: animatedText(
-                                      16.0,
-                                      'У вас нет сообщений',
-                                      Colors.white,
-                                      500,
-                                      1),
-                                ),
-                                SizedBox(
-                                  height: height / 4,
-                                )
-                              ],
-                            ),
-                          );
+                          return showIfNoData(height, 'images/ic_chat_logo.png',
+                              'У вас нет сообщений');
                         } else {
                           return AnimationLimiter(
                             child: ListView.builder(
@@ -132,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       child: FadeInAnimation(
                                         curve: Curves.easeOut,
                                         duration:
-                                            const Duration(milliseconds: 2000),
+                                            const Duration(milliseconds: 2200),
                                         child: StreamBuilder(
                                           stream: FirebaseFirestore.instance
                                               .collection('User')
@@ -162,6 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         lastMsg = '',
                                                         nameUser = '',
                                                         imageUri = '',
+                                                        token = '',
                                                         state = '',
                                                         dataLastWrite,
                                                         isWriteUser = false,
@@ -184,6 +156,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                               'listImageUri'][0];
                                                       state = asyncSnapshotUser
                                                           .data['state'];
+                                                      token = asyncSnapshotUser
+                                                          .data['token'];
 
                                                       timeLastMessage =
                                                           snapshotChat
@@ -284,6 +258,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                             imageUri,
                                                                         userModelCurrent:
                                                                             userModelCurrent,
+                                                                        token:
+                                                                            token,
                                                                       )));
                                                                 } catch (E) {}
                                                               },

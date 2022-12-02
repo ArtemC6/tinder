@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
@@ -7,6 +8,7 @@ import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
 
 import '../config/const.dart';
+import '../config/notification_api.dart';
 import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
@@ -41,16 +43,22 @@ class _HomeScreen extends State<HomeScreen>
 
   Future readFirebase(
       int setLimit, bool isDeleteDislike, bool isReadDislike) async {
-    userModelPartner.clear();
     limit += setLimit;
-
-    print(limit);
-
     Future.delayed(const Duration(milliseconds: 3000), () {
       setState(() {
         isWrite = true;
       });
     });
+
+    // userModelPartner.clear();
+
+    for (var elementMain in listDisLike) {
+      for (var element in userModelPartner) {
+        if (elementMain == element.uid) {
+          print(element.name);
+        }
+      }
+    }
 
     if (isReadDislike) {
       await readDislikeFirebase(userModelCurrent.uid).then((list) {
@@ -90,10 +98,10 @@ class _HomeScreen extends State<HomeScreen>
                   myCity: data['myCity'],
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
-                  state: data['state']));
+                  state: data['state'],
+                  token: data['token']));
               setState(() {});
             } else {
-
               if (isDeleteDislike) {
                 print('listPa: ${userModelPartner.length}');
                 print('object');
@@ -143,36 +151,35 @@ class _HomeScreen extends State<HomeScreen>
             child: AnimationLimiter(
               child: AnimationConfiguration.staggeredList(
                 position: 1,
-                  delay: const Duration(milliseconds: 300),
-                  child: SlideAnimation(
-                    duration: const Duration(milliseconds: 2500),
-                    verticalOffset: 250,
-                    curve: Curves.ease,
-                    child: FadeInAnimation(
-                      curve: Curves.easeOut,
-                      duration: const Duration(milliseconds: 3500),
-                      child: Column(
-                        children: <Widget>[
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.only(top: 10),
-                                height:
-                                    MediaQuery.of(context).size.height / 1.4,
-                                child: TinderSwapCard(
-                                  animDuration: 850,
-                                  swipeUp: false,
-                                  swipeDown: false,
-                                  orientation: AmassOrientation.BOTTOM,
-                                  allowVerticalMovement: true,
-                                  totalNum: userModelPartner.length + 1,
-                                  stackNum: 3,
-                                  swipeEdge: 3.0,
-                                  maxWidth: width / 1,
-                                  maxHeight: width / 1,
-                                  minWidth: width / 1.1,
-                                  minHeight: width / 1.1,
+                delay: const Duration(milliseconds: 200),
+                child: SlideAnimation(
+                  duration: const Duration(milliseconds: 2000),
+                  verticalOffset: 250,
+                  curve: Curves.ease,
+                  child: FadeInAnimation(
+                    curve: Curves.easeOut,
+                    duration: const Duration(milliseconds: 3700),
+                    child: Column(
+                      children: <Widget>[
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.only(top: 10),
+                              height: MediaQuery.of(context).size.height / 1.4,
+                              child: TinderSwapCard(
+                                animDuration: 850,
+                                swipeUp: false,
+                                swipeDown: false,
+                                orientation: AmassOrientation.BOTTOM,
+                                allowVerticalMovement: true,
+                                totalNum: userModelPartner.length + 1,
+                                stackNum: 3,
+                                swipeEdge: 3.0,
+                                maxWidth: width / 1,
+                                maxHeight: width / 1,
+                                minWidth: width / 1.1,
+                                minHeight: width / 1.1,
                                   cardBuilder: (context, index) {
                                     if (index < userModelPartner.length) {
                                       return SizedBox(
@@ -196,9 +203,8 @@ class _HomeScreen extends State<HomeScreen>
                                       ),
                                     );
                                   } else {
-                                    print('Do');
                                     if (isWrite) {
-                                      print('object +');
+                                      // print('index: $index list:${userModelPartner.length}');
                                       isWrite = false;
                                       readFirebase(3, true, false);
                                     }
@@ -239,17 +245,15 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
-                                  setState(() {
+                                        setState(() async {
                                     if (index < userModelPartner.length + 1) {
                                     } else {}
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
                                       isLook = false;
-                                      setState(() {
-                                        listDisLike
-                                            .add(userModelPartner[index].uid);
-                                      });
+                                      listDisLike
+                                          .add(userModelPartner[index].uid);
                                       createDisLike(userModelCurrent,
                                               userModelPartner[index])
                                           .then((value) {
@@ -262,10 +266,15 @@ class _HomeScreen extends State<HomeScreen>
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.RIGHT') {
                                       isLook = false;
-                                      setState(() {
-                                        listDisLike
-                                            .add(userModelPartner[index].uid);
-                                      });
+                                      listDisLike
+                                          .add(userModelPartner[index].uid);
+
+                                      await sendFcmMessage(
+                                          'У вас симпатия',
+                                          'Посмотреть',
+                                          userModelPartner[index].token,
+                                          'sympathy', userModelCurrent.uid, userModelCurrent.userImageUrl[0]);
+
                                       createSympathy(
                                               userModelPartner[index].uid,
                                               userModelCurrent)

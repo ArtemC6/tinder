@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -28,19 +27,13 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
 
   _EditImageProfileScreen(this.bacImage);
 
-  Future readFirebaseImageProfile() async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('ImageProfile')
-          .doc('Image')
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        setState(() {
-          listImageUri =
-              List<String>.from(documentSnapshot['listProfileImage']);
-        });
+  @override
+  void initState() {
+    readFirebaseImageProfile().then((result) {
+      setState(() {
+        listImageUri = result;
       });
-
+    }).then((value) {
       setState(() {
         if (bacImage != '') {
           indexImage =
@@ -48,12 +41,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
         }
         isLoading = true;
       });
-    } catch (error) {}
-  }
-
-  @override
-  void initState() {
-    readFirebaseImageProfile();
+    });
     super.initState();
   }
 

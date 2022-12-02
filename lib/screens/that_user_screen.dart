@@ -10,12 +10,13 @@ import '../widget/dialog_widget.dart';
 import '../widget/message_widget.dart';
 
 class ChatUserScreen extends StatefulWidget {
-  final String friendName, friendId, friendImage;
+  final String friendName, friendId, friendImage, token;
   final UserModel userModelCurrent;
 
   const ChatUserScreen({
     super.key,
     required this.friendId,
+    required this.token,
     required this.friendName,
     required this.friendImage,
     required this.userModelCurrent,
@@ -23,17 +24,17 @@ class ChatUserScreen extends StatefulWidget {
 
   @override
   State<ChatUserScreen> createState() =>
-      _ChatUserScreenState(friendId, friendName, friendImage, userModelCurrent);
+      _ChatUserScreenState(friendId, friendName, friendImage, userModelCurrent, token);
 }
 
 class _ChatUserScreenState extends State<ChatUserScreen> {
-  final String friendId, friendName, friendImage;
+  final String friendId, friendName, friendImage, token;
   final UserModel userModelCurrent;
   final scrollController = ScrollController();
   int limit = 20;
 
   _ChatUserScreenState(
-      this.friendId, this.friendName, this.friendImage, this.userModelCurrent);
+      this.friendId, this.friendName, this.friendImage, this.userModelCurrent, this.token);
 
   @override
   void initState() {
@@ -229,7 +230,7 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                         );
                       }),
                 )),
-                MessageTextField(userModelCurrent.uid, friendId),
+                MessageTextField(userModelCurrent.uid, friendId, token, friendName),
                 const SizedBox(
                   width: .09,
                 )
