@@ -11,6 +11,7 @@ import '../widget/message_widget.dart';
 
 class ChatUserScreen extends StatefulWidget {
   final String friendName, friendId, friendImage, token;
+  final bool notification;
   final UserModel userModelCurrent;
 
   const ChatUserScreen({
@@ -18,23 +19,25 @@ class ChatUserScreen extends StatefulWidget {
     required this.friendId,
     required this.token,
     required this.friendName,
+    required this.notification,
     required this.friendImage,
     required this.userModelCurrent,
   });
 
   @override
-  State<ChatUserScreen> createState() =>
-      _ChatUserScreenState(friendId, friendName, friendImage, userModelCurrent, token);
+  State<ChatUserScreen> createState() => _ChatUserScreenState(
+      friendId, friendName, friendImage, userModelCurrent, token, notification);
 }
 
 class _ChatUserScreenState extends State<ChatUserScreen> {
   final String friendId, friendName, friendImage, token;
+  final bool notification;
   final UserModel userModelCurrent;
   final scrollController = ScrollController();
   int limit = 20;
 
-  _ChatUserScreenState(
-      this.friendId, this.friendName, this.friendImage, this.userModelCurrent, this.token);
+  _ChatUserScreenState(this.friendId, this.friendName, this.friendImage,
+      this.userModelCurrent, this.token, this.notification);
 
   @override
   void initState() {
@@ -230,7 +233,8 @@ class _ChatUserScreenState extends State<ChatUserScreen> {
                         );
                       }),
                 )),
-                MessageTextField(userModelCurrent.uid, friendId, token, friendName),
+                MessageTextField(userModelCurrent.uid, friendId, token,
+                    friendName, notification),
                 const SizedBox(
                   width: .09,
                 )

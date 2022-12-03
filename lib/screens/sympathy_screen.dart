@@ -102,8 +102,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                         city = '',
                                         state = '',
                                         uid = '',
-                                        token = '',
-                                        isMutuallyMy = false;
+                                        isMutuallyMy = false,
+                                        token = '';
                                     try {
                                       uid = snapshot.data.docs[index]['uid'];
                                       idDoc =
@@ -257,7 +257,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                                 searchRangeEnd: 0,
                                                                                 ageInt: 0,
                                                                                 state: '',
-                                                                                token: ''),
+                                                                                token: '',
+                                                                                notification: true),
                                                                             isBack:
                                                                                 true,
                                                                             idUser:
@@ -267,7 +268,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                           )));
                                                                     },
                                                                     child:
-                                                                        Padding(
+                                                                    Padding(
                                                                       padding: EdgeInsets.all(
                                                                           size.width /
                                                                               50),
@@ -292,7 +293,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                               width: size.width / 40),
                                                                           Expanded(
                                                                             child:
-                                                                                Column(
+                                                                            Column(
                                                                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                                               children: [
                                                                                 Row(
@@ -348,22 +349,21 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                                                                   children: [
                                                                                     if (!isMutuallyMy)
-                                                                                      buttonSympathy('Принять симпатию', [
+                                                                                      buttonUniversal('Принять симпатию', [
                                                                                         color_black_88,
                                                                                         color_black_88
                                                                                       ], () {
                                                                                         if (!isMutuallyMy) {
                                                                                           createSympathy(uid, userModelCurrent).then((value) async {
-                                                                                            await sendFcmMessage(
-                                                                                                'У вас взаимная симпатия',
-                                                                                                'Посмотреть',
-                                                                                                token, 'sympathy', userModelCurrent.uid, userModelCurrent.userImageUrl[0]);
                                                                                             setState(() {});
+                                                                                            if (token != '' && asyncSnapshotUser.data['notification']) {
+                                                                                              await sendFcmMessage('tinder', 'У вас взаимная симпатия', token, 'sympathy', userModelCurrent.uid, userModelCurrent.userImageUrl[0]);
+                                                                                            }
                                                                                           });
                                                                                         }
                                                                                       }),
                                                                                     if (isMutuallyMy)
-                                                                                      buttonSympathy('У вас взаимно', [
+                                                                                      buttonUniversal('У вас взаимно', [
                                                                                         Colors.blueAccent,
                                                                                         Colors.purpleAccent,
                                                                                         Colors.orangeAccent
@@ -378,11 +378,12 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                                       onTap: () {
                                                                                         Navigator.of(context).push(MaterialPageRoute(
                                                                                             builder: (context) => ChatUserScreen(
-                                                                                                  friendId: uid,
+                                                                                              friendId: uid,
                                                                                                   friendName: name,
                                                                                                   friendImage: imageUri,
                                                                                                   userModelCurrent: userModelCurrent,
                                                                                                   token: token,
+                                                                                                  notification: asyncSnapshotUser.data['notification'],
                                                                                                 )));
                                                                                       },
                                                                                       path: 'images/ic_send.png',

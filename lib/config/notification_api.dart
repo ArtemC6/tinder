@@ -13,6 +13,7 @@ class NotificationApi {
       final styleInformation = BigPictureStyleInformation(
         FilePathAndroidBitmap(largeIconPath),
         largeIcon: FilePathAndroidBitmap(largeIconPath),
+        hideExpandedLargeIcon: false,
       );
 
       return NotificationDetails(
@@ -34,13 +35,18 @@ class NotificationApi {
     }
   }
 
-  static void selectNotification(String? payload) {
+  static Future<void> selectNotification(String? payload) async {
     if (payload != null && payload.isNotEmpty) {
       onNotifications.add(payload);
     }
   }
 
   static Future initNotification() async {
+    final details = await notifications.getNotificationAppLaunchDetails();
+    if (details != null && details.didNotificationLaunchApp) {
+      onNotifications.add(details.payload.toString());
+    }
+
     await notifications.initialize(
         onSelectNotification: selectNotification,
         const InitializationSettings(

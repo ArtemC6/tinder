@@ -11,6 +11,7 @@ import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
 import '../screens/settings/edit_profile_screen.dart';
 import '../screens/that_user_screen.dart';
+import 'animation_widget.dart';
 
 class buttonAuth extends StatelessWidget {
   String name;
@@ -57,7 +58,7 @@ class buttonAuth extends StatelessWidget {
   }
 }
 
-Widget buttonSympathyProfile(String name, color, onTap) {
+Widget buttonUniversal(String name, color, onTap) {
   return Container(
     padding: const EdgeInsets.only(right: 20),
     height: 40,
@@ -173,7 +174,6 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                     bool isMutuallyFriend = false, isMutuallyMy = false;
-                    // bool isMutuallyMy = false;
                     try {
                       for (int i = 0; i < snapshot.data.docs.length; i++) {
                         isMutuallyFriend = snapshot.data.docs[i]['uid'] ==
@@ -190,14 +190,13 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
                         }
                       }
                     } catch (E) {}
-
                     if (snapshotMy.hasData && snapshot.hasData) {
-                      return buttonLogik(
-                          isMutuallyMy, isMutuallyFriend, context);
-                    } else {
-                      return buttonLogik(
-                          isMutuallyMy, isMutuallyFriend, context);
+                      return SlideFadeTransition(
+                          animationDuration: const Duration(milliseconds: 500),
+                          child: buttonLogic(
+                              isMutuallyMy, isMutuallyFriend, context));
                     }
+                    return const SizedBox();
                   });
             }
             return const SizedBox();
@@ -205,37 +204,55 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
     );
   }
 
-  Widget buttonLogik(
+  Widget buttonLogic(
       bool isMutuallyMy, bool isMutuallyFriend, BuildContext context) {
     if (!isMutuallyMy && isMutuallyFriend) {
-      return buttonSympathyProfile(
+      return buttonUniversal(
           'Ожидайте ответа', [Colors.blueAccent, Colors.purpleAccent], () {
         if (!isMutuallyMy && isMutuallyFriend) {
-          createSympathy(userModelCurrent.uid, userModelFriend);
-        } else {
-          deleteSympathyPartner(userModelCurrent.uid, userModelFriend.uid);
+          deleteSympathyPartner(userModelFriend.uid, userModelCurrent.uid);
         }
       });
     } else if (!isMutuallyMy && !isMutuallyFriend) {
-      return buttonSympathyProfile(
+      return buttonUniversal(
           'Оставить симпатию', [color_black_88, color_black_88], () {
         if (!isMutuallyMy && !isMutuallyFriend) {
-          createSympathy(userModelFriend.uid, userModelCurrent);
+          createSympathy(userModelFriend.uid, userModelCurrent).then((value) {
+            if (userModelFriend.token != '' && userModelFriend.notification) {
+              sendFcmMessage(
+                  'tinder',
+                  'У вас симпатия',
+                  userModelFriend.token,
+                  'sympathy',
+                  userModelCurrent.uid,
+                  userModelCurrent.userImageUrl[0]);
+            }
+          });
         } else {
           deleteSympathyPartner(userModelFriend.uid, userModelCurrent.uid);
         }
       });
     } else if (isMutuallyMy && !isMutuallyFriend) {
-      return buttonSympathyProfile(
+      return buttonUniversal(
           'Принять симпатию', [Colors.blueAccent, Colors.purpleAccent], () {
         if (isMutuallyMy && !isMutuallyFriend) {
-          createSympathy(userModelFriend.uid, userModelCurrent);
+          createSympathy(userModelFriend.uid, userModelCurrent).then((value) {
+            if (userModelFriend.token != '' && userModelFriend.notification) {
+              sendFcmMessage(
+                  'tinder',
+                  'У вас взаимная симпатия',
+                  userModelFriend.token,
+                  'sympathy',
+                  userModelCurrent.uid,
+                  userModelCurrent.userImageUrl[0]);
+            }
+          });
         } else {
           deleteSympathyPartner(userModelFriend.uid, userModelCurrent.uid);
         }
       });
     } else {
-      return buttonSympathyProfile('Написать',
+      return buttonUniversal('Написать',
           [Colors.blueAccent, Colors.purpleAccent, Colors.orangeAccent], () {
         Navigator.push(
             context,
@@ -245,6 +262,7 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
               friendImage: userModelFriend.userImageUrl[0],
               userModelCurrent: userModelCurrent,
               token: userModelFriend.token,
+              notification: userModelFriend.notification,
             )));
       });
     }
@@ -258,48 +276,51 @@ class buttonProfileMy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(right: 20),
-      height: 40,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.white38,
-              blurRadius: 5.0,
-              spreadRadius: 0.0,
-              offset: Offset(
-                0.0,
-                1.5,
-              ),
-            )
-          ],
-          border: Border.all(width: 0.7, color: Colors.white30),
-          gradient: const LinearGradient(
-              colors: [Colors.blueAccent, Colors.purpleAccent]),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-                context,
-                FadeRouteAnimation(EditProfileScreen(
-                  isFirst: false,
-                  userModel: userModel,
-                )));
-          },
-          style: ElevatedButton.styleFrom(
-            shadowColor: Colors.transparent,
-            backgroundColor: Colors.transparent,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return SlideFadeTransition(
+      animationDuration: const Duration(milliseconds: 600),
+      child: Container(
+        padding: const EdgeInsets.only(right: 20),
+        height: 40,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.white38,
+                blurRadius: 5.0,
+                spreadRadius: 0.0,
+                offset: Offset(
+                  0.0,
+                  1.5,
+                ),
+              )
+            ],
+            border: Border.all(width: 0.7, color: Colors.white30),
+            gradient: const LinearGradient(
+                colors: [Colors.blueAccent, Colors.purpleAccent]),
+            borderRadius: BorderRadius.circular(20),
           ),
-          child: RichText(
-            text: TextSpan(
-              text: 'Редактировать',
-              style: GoogleFonts.lato(
-                textStyle: const TextStyle(
-                    color: Colors.white, fontSize: 11, letterSpacing: .1),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  FadeRouteAnimation(EditProfileScreen(
+                    isFirst: false,
+                    userModel: userModel,
+                  )));
+            },
+            style: ElevatedButton.styleFrom(
+              shadowColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+            ),
+            child: RichText(
+              text: TextSpan(
+                text: 'Редактировать',
+                style: GoogleFonts.lato(
+                  textStyle: const TextStyle(
+                      color: Colors.white, fontSize: 11, letterSpacing: .1),
+                ),
               ),
             ),
           ),
@@ -350,49 +371,6 @@ class buttonLike extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget buttonSympathy(String name, color, onTap) {
-  return SizedBox(
-    height: 40,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.white38,
-            blurRadius: 5.0,
-            spreadRadius: 0.0,
-            offset: Offset(
-              0.0,
-              1.5,
-            ),
-          )
-        ],
-        border: Border.all(width: 0.8, color: Colors.white38),
-        gradient: LinearGradient(colors: color),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          shadowColor: Colors.transparent,
-          backgroundColor: Colors.transparent,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        ),
-        child: RichText(
-          maxLines: 1,
-          text: TextSpan(
-            text: name,
-            style: GoogleFonts.lato(
-              textStyle: const TextStyle(
-                  color: Colors.white, fontSize: 10.5, letterSpacing: .0),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 InkWell homeAnimationButton(

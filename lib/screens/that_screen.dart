@@ -138,7 +138,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         dataLastWrite,
                                                         isWriteUser = false,
                                                         isLastOpenChat = false,
-                                                        isNewMessage = false;
+                                                        isNewMessage = false,
+                                                        notification = false;
 
                                                     try {
                                                       dataLastWrite =
@@ -158,6 +159,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           .data['state'];
                                                       token = asyncSnapshotUser
                                                           .data['token'];
+                                                      notification =
+                                                          asyncSnapshotUser
+                                                                  .data[
+                                                              'notification'];
 
                                                       timeLastMessage =
                                                           snapshotChat
@@ -260,6 +265,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                             userModelCurrent,
                                                                         token:
                                                                             token,
+                                                                        notification:
+                                                                            notification,
                                                                       )));
                                                                 } catch (E) {}
                                                               },

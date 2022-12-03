@@ -16,6 +16,7 @@ class UserModel {
   List<String> userImageUrl;
   List<String> userImagePath;
   Timestamp ageTime;
+  bool notification;
 
   UserModel(
       {required this.name,
@@ -25,6 +26,7 @@ class UserModel {
       required this.ageInt,
       required this.ageTime,
       required this.token,
+      required this.notification,
       required this.userPol,
       required this.searchPol,
       required this.searchRangeStart,

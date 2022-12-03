@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
@@ -8,7 +7,6 @@ import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
 
 import '../config/const.dart';
-import '../config/notification_api.dart';
 import '../model/user_model.dart';
 import '../widget/animation_widget.dart';
 import '../widget/button_widget.dart';
@@ -43,6 +41,7 @@ class _HomeScreen extends State<HomeScreen>
 
   Future readFirebase(
       int setLimit, bool isDeleteDislike, bool isReadDislike) async {
+    // userModelPartner.clear();
     limit += setLimit;
     Future.delayed(const Duration(milliseconds: 3000), () {
       setState(() {
@@ -52,13 +51,13 @@ class _HomeScreen extends State<HomeScreen>
 
     // userModelPartner.clear();
 
-    for (var elementMain in listDisLike) {
-      for (var element in userModelPartner) {
-        if (elementMain == element.uid) {
-          print(element.name);
-        }
-      }
-    }
+    // for (var elementMain in listDisLike) {
+    //   for (var element in userModelPartner) {
+    //     if (elementMain == element.uid) {
+    //       print(element.name);
+    //     }
+    //   }
+    // }
 
     if (isReadDislike) {
       await readDislikeFirebase(userModelCurrent.uid).then((list) {
@@ -99,12 +98,11 @@ class _HomeScreen extends State<HomeScreen>
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
                   state: data['state'],
-                  token: data['token']));
+                  token: data['token'],
+                  notification: data['notification']));
               setState(() {});
             } else {
               if (isDeleteDislike) {
-                print('listPa: ${userModelPartner.length}');
-                print('object');
                 setState(() {
                   listDisLike.clear();
                 });
@@ -124,7 +122,7 @@ class _HomeScreen extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    readFirebase(6, false, true);
+    readFirebase(12, false, true);
   }
 
   @override
@@ -246,8 +244,6 @@ class _HomeScreen extends State<HomeScreen>
                                       (CardSwipeOrientation orientation,
                                           int index) async {
                                         setState(() async {
-                                    if (index < userModelPartner.length + 1) {
-                                    } else {}
 
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
@@ -269,16 +265,22 @@ class _HomeScreen extends State<HomeScreen>
                                       listDisLike
                                           .add(userModelPartner[index].uid);
 
-                                      await sendFcmMessage(
-                                          'У вас симпатия',
-                                          'Посмотреть',
-                                          userModelPartner[index].token,
-                                          'sympathy', userModelCurrent.uid, userModelCurrent.userImageUrl[0]);
-
                                       createSympathy(
                                               userModelPartner[index].uid,
                                               userModelCurrent)
-                                          .then((value) {
+                                          .then((value) async {
+                                        if (userModelPartner[index].token !=
+                                                '' &&
+                                            userModelPartner[index]
+                                                .notification) {
+                                          await sendFcmMessage(
+                                              'tinder',
+                                              'У вас симпатия',
+                                              userModelPartner[index].token,
+                                              'sympathy',
+                                              userModelCurrent.uid,
+                                              userModelCurrent.userImageUrl[0]);
+                                        }
                                         CachedNetworkImage.evictFromCache(
                                             userModelPartner[index]
                                                 .userImageUrl[0]);

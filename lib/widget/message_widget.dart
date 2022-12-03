@@ -134,23 +134,25 @@ class MessagesItem extends StatelessWidget {
 
 class MessageTextField extends StatefulWidget {
   final String currentId, friendId, token, friendName;
+  final bool notification;
 
-  const MessageTextField(
-      this.currentId, this.friendId, this.token, this.friendName,
+  const MessageTextField(this.currentId, this.friendId, this.token,
+      this.friendName, this.notification,
       {super.key});
 
   @override
-  _MessageTextFieldState createState() =>
-      _MessageTextFieldState(currentId, friendId, token, friendName);
+  _MessageTextFieldState createState() => _MessageTextFieldState(
+      currentId, friendId, token, friendName, notification);
 }
 
 class _MessageTextFieldState extends State<MessageTextField> {
   final String currentId, friendId, token, friendName;
+  final bool notification;
   final TextEditingController _controllerMessage = TextEditingController();
   bool isWrite = true;
 
-  _MessageTextFieldState(
-      this.currentId, this.friendId, this.token, this.friendName);
+  _MessageTextFieldState(this.currentId, this.friendId, this.token,
+      this.friendName, this.notification);
 
   void startTimer() {
     Timer.periodic(
@@ -191,7 +193,6 @@ class _MessageTextFieldState extends State<MessageTextField> {
                 gradient: const LinearGradient(colors: [
                   Colors.pinkAccent,
                   Colors.purpleAccent,
-                  // Colors.,
                   Colors.blueAccent,
                 ]),
                 // ),
@@ -213,7 +214,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   child: TextFormField(
                     textCapitalization: TextCapitalization.words,
                     inputFormatters: [
-                      LengthLimitingTextInputFormatter(500),
+                      LengthLimitingTextInputFormatter(550),
                     ],
                     controller: _controllerMessage,
                     keyboardType: TextInputType.multiline,
@@ -246,7 +247,10 @@ class _MessageTextFieldState extends State<MessageTextField> {
                 if (_controllerMessage.text.trim().isNotEmpty) {
                   String messageText = _controllerMessage.text;
                   _controllerMessage.clear();
-                  sendFcmMessage(friendName, messageText, token, 'chat', widget.friendId);
+                  if (notification && token != '') {
+                    sendFcmMessage('tinder', '$friendName: $messageText', token,
+                        'chat', widget.friendId);
+                  }
                   final docMessage = FirebaseFirestore.instance
                       .collection('User')
                       .doc(widget.currentId)

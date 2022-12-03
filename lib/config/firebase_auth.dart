@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
@@ -29,6 +30,11 @@ class FirebaseAuthMethods {
             .collection('User')
             .doc(FirebaseAuth.instance.currentUser?.uid);
 
+        String? token;
+        await FirebaseMessaging.instance.getToken().then((value) {
+          token = value;
+        });
+
         final json = {
           'uid': FirebaseAuth.instance.currentUser?.uid,
           'name': name.trim(),
@@ -39,6 +45,7 @@ class FirebaseAuthMethods {
           'myCity': '',
           'searchPol': '',
           'state': '',
+          'token': token,
           'rangeStart': 0,
           'rangeEnd': 0,
           'ageTime': DateTime.now(),
@@ -46,11 +53,12 @@ class FirebaseAuthMethods {
           'listInterests': [],
           'listImagePath': [],
           'listImageUri': [],
+          'notification': true,
         };
-        docUser.set(json);
+        await docUser.set(json);
 
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => Manager()));
+            MaterialPageRoute(builder: (context) => const Manager()));
       }).onError((error, stackTrace) {
         Navigator.pop(context);
       });
@@ -69,9 +77,10 @@ class FirebaseAuthMethods {
               email: email.trim(), password: password.trim())
           .then((value) {
         Navigator.pop(context);
-        setStateFirebase('online').then((value) async {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => Manager()));
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Manager()));
+        setStateFirebase('online').then((value) async {}).then((value) {
+          setTokenUserFirebase().then((value) {});
         });
       }).onError((error, stackTrace) {
         Navigator.pop(context);
@@ -79,12 +88,13 @@ class FirebaseAuthMethods {
     } on FirebaseAuthException {}
   }
 
-  Future<void> signOut(BuildContext context) async {
+  Future<void> signOut(BuildContext context, String uid) async {
     try {
-      setStateFirebase('offline').then((value) async {
-        _auth.signOut().then((value) {
-          Navigator.pushReplacement(
-              context, FadeRouteAnimation(const SignInScreen()));
+      _auth.signOut().then((value) {}).then((value) {
+        Navigator.pushReplacement(
+            context, FadeRouteAnimation(const SignInScreen()));
+        setStateFirebase('offline', uid).then((value) async {
+          deleteUserTokenFirebase(uid);
         });
       });
     } on FirebaseAuthException {}

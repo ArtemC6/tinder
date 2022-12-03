@@ -69,7 +69,9 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                   myCity: data['myCity'],
                   imageBackground: data['imageBackground'],
                   ageInt: data['ageInt'],
-                  state: data['state'], token: data['token']));
+                  state: data['state'],
+                  token: data['token'],
+                  notification: data['notification']));
               if (listLike.length == listUser.length + 1) {
                 isLoadingNewUser = false;
               }

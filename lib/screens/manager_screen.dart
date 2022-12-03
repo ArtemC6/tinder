@@ -43,7 +43,6 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
-         print('object');
         NotificationApi.showNotification(
             id: idNotification ++,
             title: notification.title.toString(),
@@ -92,7 +91,8 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
             imageBackground: user.imageBackground,
             ageInt: user.ageInt,
             state: user.state,
-            token: user.token);
+            token: user.token,
+            notification: user.notification);
       });
       isLoading = true;
       setStateFirebase('online');

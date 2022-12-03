@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -70,7 +71,8 @@ Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
                   searchRangeEnd: 0,
                   ageInt: 0,
                   state: '',
-                  token: ''),
+                  token: '',
+                  notification: true),
             )));
       });
     } on FirebaseException {
@@ -146,7 +148,8 @@ Future<void> uploadImage(BuildContext context, UserModel userModelCurrent, bool 
                     searchRangeEnd: 0,
                     ageInt: 0,
                     state: '',
-                    token: ''),
+                    token: '',
+                    notification: true),
               )));
         } else {
           Navigator.pushReplacement(
@@ -171,7 +174,7 @@ Future<void> createSympathy(String idPartner, UserModel userModelCurrent) async 
         .collection('User')
         .doc(idPartner)
         .collection('sympathy')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((querySnapshot) {
       for (var result in querySnapshot.docs) {
         Map<String, dynamic> data = result.data();
@@ -211,7 +214,7 @@ Future<void> deleteSympathyPartner(String idPartner, String idUser) async {
       .collection('User')
       .doc(idPartner)
       .collection('sympathy')
-      .get(const GetOptions(source: Source.cache))
+      .get()
       .then((querySnapshot) {
     for (var result in querySnapshot.docs) {
       Map<String, dynamic> data = result.data();
@@ -307,17 +310,41 @@ Future<void> imageRemove(int index, BuildContext context, UserModel userModelCur
   } catch (err) {}
 }
 
-Future<void> setStateFirebase(String state) async {
+Future<void> setStateFirebase(String state, [String? uid]) async {
   try {
     final docUser = FirebaseFirestore.instance
         .collection('User')
-        .doc(FirebaseAuth.instance.currentUser?.uid);
+        .doc(uid ?? FirebaseAuth.instance.currentUser?.uid);
 
     final json = {
       'state': state,
       if (state == 'offline') 'lastDateOnline': DateTime.now(),
     };
     await docUser.update(json);
+  } on FirebaseException {}
+}
+
+Future<void> deleteUserTokenFirebase(String uid) async {
+  try {
+    final docUser = FirebaseFirestore.instance.collection('User').doc(uid);
+    final json = {
+      'token': '',
+    };
+    await docUser.update(json);
+  } on FirebaseException {}
+}
+
+Future<void> setTokenUserFirebase() async {
+  try {
+    await FirebaseMessaging.instance.getToken().then((token) async {
+      final docUser = FirebaseFirestore.instance
+          .collection('User')
+          .doc(FirebaseAuth.instance.currentUser?.uid);
+      final json = {
+        'token': token,
+      };
+      await docUser.update(json);
+    });
   } on FirebaseException {}
 }
 
@@ -435,12 +462,13 @@ Future<UserModel> readUserFirebase([String? idUser]) async {
       imageBackground: '',
       userInterests: [],
       searchRangeEnd: 0,
-      token: '');
+      token: '',
+      notification: true);
   try {
     await FirebaseFirestore.instance
         .collection('User')
         .doc(idUser ?? FirebaseAuth.instance.currentUser!.uid)
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((DocumentSnapshot documentSnapshot) {
       Map<String, dynamic> data =
           documentSnapshot.data() as Map<String, dynamic>;
@@ -460,7 +488,8 @@ Future<UserModel> readUserFirebase([String? idUser]) async {
           imageBackground: data['imageBackground'],
           ageInt: data['ageInt'],
           state: data['state'],
-          token: data['token']);
+          token: data['token'],
+          notification: data['notification']);
     });
   } on FirebaseException {}
   return userModel;
@@ -473,7 +502,7 @@ Future<List<String>> readDislikeFirebase(String idUser) async {
         .collection('User')
         .doc(idUser)
         .collection('dislike')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((querySnapshot) {
       for (var result in querySnapshot.docs) {
         listDislike.add(result.id);
@@ -489,7 +518,7 @@ Future<List<String>> readLikeFirebase(String idUser) async {
         .collection('User')
         .doc(idUser)
         .collection('likes')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((querySnapshot) {
       for (var result in querySnapshot.docs) {
         listDislike.add(result.id);
@@ -577,7 +606,7 @@ Future<bool> putLike(UserModel userModelCurrent, UserModel userModel, bool isLik
         .collection('User')
         .doc(userModel.uid)
         .collection('likes')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((querySnapshot) async {
       for (var result in querySnapshot.docs) {
         if (userModelCurrent.uid == result.id) {
@@ -594,9 +623,14 @@ Future<bool> putLike(UserModel userModelCurrent, UserModel userModel, bool isLik
               .doc(userModelCurrent.uid)
               .set({});
 
-          if (userModelCurrent.uid != userModel.uid) {
-            sendFcmMessage('${userModelCurrent.name} нравится вашь профиль',
-                'Посмотреть', userModel.token, 'like');
+          if (userModelCurrent.uid != userModel.uid &&
+              userModel.notification &&
+              userModel.token != '') {
+            sendFcmMessage(
+                'tinder',
+                '${userModelCurrent.name}: нравится вашь профиль',
+                userModel.token,
+                'like');
           }
         } else {
           FirebaseFirestore.instance
@@ -618,7 +652,7 @@ Future<Map> readInterestsFirebase() async {
   try {
     await FirebaseFirestore.instance
         .collection('ImageInterests')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((QuerySnapshot querySnapshot) {
       for (var document in querySnapshot.docs) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
@@ -632,24 +666,28 @@ Future<Map> readInterestsFirebase() async {
 
 Future<AccountIsFull> readFirebaseIsAccountFull() async {
   AccountIsFull accountIsFull = AccountIsFull(
-      isEmptyDataUser: false, isEmptyImageBackground: false, isStart: false);
+      isEmptyDataUser: false, isEmptyImageBackground: false, isStart: true);
 
+  // print('uid');
+  // print(FirebaseAuth.instance.currentUser?.uid);
   try {
     if (FirebaseAuth.instance.currentUser?.uid != null) {
+      // print('Next');
       await FirebaseFirestore.instance
           .collection('StartApp')
           .doc('IsStart')
-          .get(const GetOptions(source: Source.cache))
+          .get()
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
+          print('Start');
           accountIsFull.isStart = documentSnapshot['isStart'];
         }
       }).then((value) async {
         if (accountIsFull.isStart) {
           await FirebaseFirestore.instance
               .collection('User')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .get(const GetOptions(source: Source.cache))
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .get()
               .then((DocumentSnapshot documentSnapshot) {
             if (documentSnapshot.exists) {
               if (documentSnapshot['myPol'] != '' &&
@@ -675,6 +713,10 @@ Future<AccountIsFull> readFirebaseIsAccountFull() async {
       });
     }
   } on FirebaseException {}
+
+  print(accountIsFull.isEmptyDataUser);
+  print(accountIsFull.isStart);
+  print(accountIsFull.isEmptyImageBackground);
 
   return accountIsFull;
 }
@@ -722,7 +764,7 @@ Future<List<String>> readFirebaseImageProfile() async {
     await FirebaseFirestore.instance
         .collection('ImageProfile')
         .doc('Image')
-        .get(const GetOptions(source: Source.cache))
+        .get()
         .then((DocumentSnapshot documentSnapshot) {
       listImages
           .addAll(List<String>.from(documentSnapshot['listProfileImage']));
@@ -751,9 +793,7 @@ Future<bool> sendFcmMessage(
         "sound": "default",
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
       },
-
       "priority": "high",
-
       'data': {
         'click_action': "FLUTTER_NOTIFICATION_CLICK",
         'type': type,
@@ -763,11 +803,10 @@ Future<bool> sendFcmMessage(
       "to": userToken,
     };
 
-    var response =
-        await http.post(url, headers: header, body: json.encode(request));
+    await http.post(url, headers: header, body: json.encode(request));
 
     return true;
-  } catch (e, s) {
+  } catch (e) {
     return false;
   }
 }

@@ -47,7 +47,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _nameController = TextEditingController(),
       _searchPolController = TextEditingController(),
       _ageRangController = TextEditingController(),
-      _localController = TextEditingController();
+      _localController = TextEditingController(),
+      _notificationController = TextEditingController();
 
   var _selectedInterests = [];
   DateTime _dateTimeBirthday = DateTime.now();
@@ -113,6 +114,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'rangeStart': _valuesAge.start,
         'rangeEnd': _valuesAge.end,
         'myCity': _localController.text,
+        'notification':
+            _notificationController.text == 'Включить' ? true : false,
         'token': token,
       };
 
@@ -139,6 +142,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void settingsValue() {
     _nameController.text = modelUser.name;
+
+    print('111');
+    print('111');
+    print('111');
+    print('111');
+    print('111');
+    print(modelUser.notification);
+
+    if (modelUser.notification) {
+      _notificationController.text = 'Включить';
+    } else {
+      _notificationController.text = 'Вюключить';
+    }
+
     _ageRangController.text = modelUser.searchRangeStart == 0
         ? ' '
         : 'От ${modelUser.searchRangeStart.toInt()} до ${modelUser.searchRangeEnd.toInt()} лет';
@@ -157,6 +174,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _searchPolController.text =
           modelUser.searchPol == 'Мужской' ? 'С парнем' : 'С девушкой';
     }
+
     if (modelUser.userImageUrl.isNotEmpty) {
       isPhoto = true;
     }
@@ -166,8 +184,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future readFirebase() async {
+    print('read');
+    print((modelUser.uid));
     if (modelUser.uid == '') {
       await readUserFirebase().then((user) {
+        print('Eas');
+
         setState(() {
           modelUser = UserModel(
               name: user.name,
@@ -183,7 +205,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               myCity: user.myCity,
               imageBackground: user.imageBackground,
               ageInt: user.ageInt,
-              state: user.state, token: user.token);
+              state: user.state,
+              token: user.token,
+              notification: user.notification);
           isLoading = true;
         });
       });
@@ -207,657 +231,322 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (isLoading) {
       return Scaffold(
         backgroundColor: color_black_88,
-        body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Container(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: AnimationLimiter(
-              child: AnimationConfiguration.staggeredList(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Container(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: AnimationLimiter(
+                child: AnimationConfiguration.staggeredList(
                   position: 1,
                   delay: const Duration(milliseconds: 100),
                   child: SlideAnimation(
-                      duration: const Duration(milliseconds: 2000),
-                      verticalOffset: height * .40,
-                      curve: Curves.ease,
-                      child: FadeInAnimation(
-                        curve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 4000),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 30, bottom: 0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  if (!isFirst)
-                                    IconButton(
-                                      color: Colors.white,
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      icon: const Icon(
-                                          Icons.arrow_back_ios_new_rounded,
-                                          size: 20),
-                                    ),
-                                  customIconButton(
-                                    path: 'images/ic_log_out.png',
-                                    width: 30,
-                                    height: 30,
-                                    onTap: () async {
-                                      await context
-                                          .read<FirebaseAuthMethods>()
-                                          .signOut(context);
-                                    },
-                                    padding: 0,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 120,
-                              width: 120,
-                              child: Card(
-                                shadowColor: Colors.white30,
-                                color: color_black_88,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(100),
-                                    side: const BorderSide(
-                                      width: 0.8,
-                                      color: Colors.white30,
-                                    )),
-                                elevation: 6,
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    if (modelUser.userImageUrl.isNotEmpty)
-                                      ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        child: CachedNetworkImage(
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(100)),
-                                              image: DecorationImage(
-                                                image: imageProvider,
-                                                fit: BoxFit.cover,
-                                                  alignment: Alignment.topCenter),
-                                            ),
-                                          ),
-                                          progressIndicatorBuilder:
-                                              (context, url, progress) =>
-                                                  Center(
-                                            child: SizedBox(
-                                              height: 120,
-                                              width: 120,
-                                              child: CircularProgressIndicator(
-                                                color: Colors.white,
-                                                strokeWidth: 0.8,
-                                                value: progress.progress,
-                                              ),
-                                            ),
-                                          ),
-                                          imageUrl: modelUser.userImageUrl[0],
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    if (modelUser.userImageUrl.isEmpty)
-                                      customIconButton(
-                                        path: 'images/ic_add.png',
-                                        width: 23,
-                                        height: 23,
-                                        onTap: () async {
-                                          uploadFirstImage(
-                                              context,
-                                              modelUser.userImageUrl,
-                                              modelUser.userImagePath);
-                                        },
-                                        padding: 6,
-                                      ),
-                                    if (modelUser.userImageUrl.isNotEmpty)
-                                      customIconButton(
-                                        path: 'images/edit_icon.png',
-                                        width: 25,
-                                        height: 25,
-                                        onTap: () async {
-                                          uploadImage(context, modelUser, true);
-                                        },
-                                        padding: 3,
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Row(
+                    duration: const Duration(milliseconds: 2000),
+                    verticalOffset: height * .40,
+                    curve: Curves.ease,
+                    child: FadeInAnimation(
+                      curve: Curves.easeOut,
+                      duration: const Duration(milliseconds: 4000),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10, bottom: 0),
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const SizedBox(
-                                  width: 80,
-                                ),
-                                SizedBox(
-                                  height: 40,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.white38,
-                                          blurRadius: 5.0,
-                                          spreadRadius: 0.0,
-                                          offset: Offset(
-                                            0.0,
-                                            1.0,
-                                          ),
-                                        )
-                                      ],
-                                      border: Border.all(
-                                          width: 0.7, color: Colors.white30),
-                                      gradient: const LinearGradient(colors: [
-                                        Colors.blueAccent,
-                                        Colors.purpleAccent,
-                                        Colors.orangeAccent
-                                      ]),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        _uploadData();
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        shadowColor: Colors.transparent,
-                                        backgroundColor: Colors.transparent,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                      ),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          text: isFirst
-                                              ? 'Завершить'
-                                              : 'Сохронить',
-                                          style: GoogleFonts.lato(
-                                            textStyle: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                letterSpacing: .1),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                if (!isFirst)
+                                  IconButton(
+                                    color: Colors.white,
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    icon: const Icon(
+                                        Icons.arrow_back_ios_new_rounded,
+                                        size: 20),
                                   ),
+                                customIconButton(
+                                  path: 'images/ic_log_out.png',
+                                  width: 30,
+                                  height: 30,
+                                  onTap: () async {
+                                    await context
+                                        .read<FirebaseAuthMethods>()
+                                        .signOut(context, modelUser.uid);
+                                  },
+                                  padding: 0,
                                 ),
                               ],
                             ),
-                            if (isError)
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Данные введены некоректно',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            if (!isPhoto)
-                              const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Добавьте главное фото',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            textFieldProfileSettings(_nameController, false,
-                                'Имя', context, 10, () {}),
-                            textFieldProfileSettings(_ageController, true,
-                                'Возраст', context, 3, () => showDatePicker()),
-                            textFieldProfileSettings(
-                                _myPolController, true, 'Ваш пол', context, 10,
-                                () {
-                              showCupertinoModalBottomSheet(
-                                  topRadius: const Radius.circular(30),
-                                  duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_black_88,
-                                  context: context,
-                                  builder: (context) {
-                                    return StatefulBuilder(
-                                        builder: (context, setState) {
-                                      return Container(
-                                        height: 260,
-                                        padding: const EdgeInsets.all(28),
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Column(
-                                          children: [
-                                            Card(
-                                              shadowColor: Colors.white30,
-                                              color: color_black_88,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(14),
-                                                  side: const BorderSide(
-                                                    width: 0.8,
-                                                    color: Colors.white38,
-                                                  )),
-                                              elevation: 16,
-                                              child: ExpansionTile(
-                                                initiallyExpanded: true,
-                                                collapsedIconColor:
-                                                    Colors.white,
-                                                collapsedTextColor:
-                                                    Colors.white,
-                                                title: RichText(
-                                                  text: TextSpan(
-                                                    text: 'Укажите свой пол',
-                                                    style: GoogleFonts.lato(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                              color:
-                                                                  Colors.blue,
-                                                              fontSize: 12,
-                                                              letterSpacing:
-                                                                  .9),
-                                                    ),
-                                                  ),
-                                                ),
-                                                children: [
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'Мужской',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _myPolController.text =
-                                                            'Мужской';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'Женский',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _myPolController.text =
-                                                            'Женский';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                          ),
+                          SizedBox(
+                            height: 120,
+                            width: 120,
+                            child: Card(
+                              shadowColor: Colors.white30,
+                              color: color_black_88,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                  side: const BorderSide(
+                                    width: 0.8,
+                                    color: Colors.white30,
+                                  )),
+                              elevation: 6,
+                              child: Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  if (modelUser.userImageUrl.isNotEmpty)
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(100),
+                                      child: CachedNetworkImage(
+                                        imageBuilder:
+                                            (context, imageProvider) =>
+                                                Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(100)),
+                                            image: DecorationImage(
+                                                image: imageProvider,
+                                                fit: BoxFit.cover,
+                                                alignment: Alignment.topCenter),
+                                          ),
                                         ),
-                                      );
-                                    });
-                                  });
+                                        progressIndicatorBuilder:
+                                            (context, url, progress) => Center(
+                                          child: SizedBox(
+                                            height: 120,
+                                            width: 120,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 0.8,
+                                              value: progress.progress,
+                                            ),
+                                          ),
+                                        ),
+                                        imageUrl: modelUser.userImageUrl[0],
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  if (modelUser.userImageUrl.isEmpty)
+                                    customIconButton(
+                                      path: 'images/ic_add.png',
+                                      width: 23,
+                                      height: 23,
+                                      onTap: () async {
+                                        uploadFirstImage(
+                                            context,
+                                            modelUser.userImageUrl,
+                                            modelUser.userImagePath);
+                                      },
+                                      padding: 6,
+                                    ),
+                                  if (modelUser.userImageUrl.isNotEmpty)
+                                    customIconButton(
+                                      path: 'images/edit_icon.png',
+                                      width: 25,
+                                      height: 25,
+                                      onTap: () async {
+                                        uploadImage(context, modelUser, true);
+                                      },
+                                      padding: 3,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(bottom: 6, top: 6),
+                            alignment: Alignment.centerRight,
+                            child: buttonUniversal(
+                                isFirst ? 'Завершить' : 'Сохронить', [
+                              Colors.blueAccent,
+                              Colors.purpleAccent,
+                              Colors.orangeAccent
+                            ], () {
+                              _uploadData();
                             }),
-                            textFieldProfileSettings(
-                                _searchPolController,
-                                true,
-                                'С кем вы хотите познакомиться',
+                          ),
+                          if (isError)
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Данные введены некоректно',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          if (!isPhoto)
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Добавьте главное фото',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          textFieldProfileSettings(_nameController, false,
+                              'Имя', context, 10, () {}),
+                          textFieldProfileSettings(_ageController, true,
+                              'Возраст', context, 3, () => showDatePicker()),
+                          textFieldProfileSettings(
+                              _myPolController, true, 'Ваш пол', context, 10,
+                              () {
+                            showBottomSheet(context, 'Укажите свой пол',
+                                'Мужской', 'Женский', _myPolController);
+                          }),
+                          textFieldProfileSettings(_searchPolController, true,
+                              'С кем вы хотите познакомиться', context, 10, () {
+                            showBottomSheet(
                                 context,
-                                10, () {
-                              showCupertinoModalBottomSheet(
-                                  topRadius: const Radius.circular(30),
-                                  duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_black_88,
-                                  context: context,
-                                  builder: (context) {
-                                    return StatefulBuilder(
-                                        builder: (context, setState) {
-                                      return Container(
-                                        height: 260,
-                                        padding: const EdgeInsets.all(28),
-                                        width: width,
-                                        child: Column(
-                                          children: [
-                                            Card(
-                                              shadowColor: Colors.white30,
-                                              color: color_black_88,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(14),
-                                                  side: const BorderSide(
-                                                    width: 0.8,
-                                                    color: Colors.white38,
-                                                  )),
-                                              elevation: 16,
-                                              child: ExpansionTile(
-                                                initiallyExpanded: true,
-                                                collapsedIconColor:
-                                                    Colors.white,
-                                                collapsedTextColor:
-                                                    Colors.white,
-                                                title: RichText(
-                                                  text: TextSpan(
-                                                    text:
-                                                        'Укажите с кем вы хотите познакомиться',
-                                                    style: GoogleFonts.lato(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                              color:
-                                                                  Colors.blue,
-                                                              fontSize: 12,
-                                                              letterSpacing:
-                                                                  .9),
-                                                    ),
-                                                  ),
-                                                ),
-                                                children: [
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'С парнем',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _searchPolController
-                                                            .text = 'С парнем';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'С девушкой',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _searchPolController
-                                                                .text =
-                                                            'С девушкой';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                                  });
-                            }),
-                            textFieldProfileSettings(_localController, true,
-                                'Вы проживаете', context, 10, () {
-                              showCupertinoModalBottomSheet(
-                                  topRadius: const Radius.circular(30),
-                                  duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_black_88,
-                                  context: context,
-                                  builder: (context) {
-                                    return StatefulBuilder(
-                                        builder: (context, setState) {
-                                      return Container(
-                                        height: 260,
-                                        padding: const EdgeInsets.all(28),
-                                        width: width,
-                                        child: Column(
-                                          children: [
-                                            Card(
-                                              shadowColor: Colors.white30,
-                                              color: color_black_88,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(14),
-                                                  side: const BorderSide(
-                                                    width: 0.8,
-                                                    color: Colors.white38,
-                                                  )),
-                                              elevation: 16,
-                                              child: ExpansionTile(
-                                                initiallyExpanded: true,
-                                                collapsedIconColor:
-                                                    Colors.white,
-                                                collapsedTextColor:
-                                                    Colors.white,
-                                                title: RichText(
-                                                  text: TextSpan(
-                                                    text:
-                                                        'Укажите где вы проживаете',
-                                                    style: GoogleFonts.lato(
-                                                      textStyle:
-                                                          const TextStyle(
-                                                              color:
-                                                                  Colors.blue,
-                                                              fontSize: 12,
-                                                              letterSpacing:
-                                                                  .9),
-                                                    ),
-                                                  ),
-                                                ),
-                                                children: [
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'Бишкек',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _localController.text =
-                                                            'Бишкек';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    title: RichText(
-                                                      text: TextSpan(
-                                                        text: 'Каракол',
-                                                        style: GoogleFonts.lato(
-                                                          textStyle:
-                                                              const TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 12,
-                                                                  letterSpacing:
-                                                                      .9),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    onTap: () {
-                                                      setState(() {
-                                                        _localController.text =
-                                                            'Каракол';
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
-                                  });
-                            }),
-                            textFieldProfileSettings(_ageRangController, true,
-                                'Диапазон поиска', context, 14, () {
-                              showCupertinoModalBottomSheet(
-                                  topRadius: const Radius.circular(30),
-                                  duration: const Duration(milliseconds: 700),
-                                  backgroundColor: color_black_88,
-                                  context: context,
-                                  builder: (context) {
-                                    return StatefulBuilder(
-                                        builder: (context, setState) {
-                                      return SizedBox(
-                                        height: 200,
-                                        width: width,
-                                        child: Column(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 20, bottom: 60),
-                                              child: RichText(
-                                                text: TextSpan(
-                                                  text:
-                                                      'От ${_valuesAge.start} до ${_valuesAge.end} лет',
-                                                  style: GoogleFonts.lato(
-                                                    textStyle: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 13,
-                                                        letterSpacing: .9),
-                                                  ),
+                                'Укажите с кем вы хотите познакомиться',
+                                'С парнем',
+                                'С девушкой',
+                                _searchPolController);
+                          }),
+                          textFieldProfileSettings(_localController, true,
+                              'Вы проживаете', context, 10, () {
+                            showBottomSheet(
+                                context,
+                                'Укажите где вы проживаете',
+                                'Бишкек',
+                                'Каракол',
+                                _localController);
+                          }),
+                          textFieldProfileSettings(_ageRangController, true,
+                              'Диапазон поиска', context, 14, () {
+                            showCupertinoModalBottomSheet(
+                                topRadius: const Radius.circular(30),
+                                duration: const Duration(milliseconds: 700),
+                                backgroundColor: color_black_88,
+                                context: context,
+                                builder: (context) {
+                                  return StatefulBuilder(
+                                      builder: (context, setState) {
+                                    return SizedBox(
+                                      height: 200,
+                                      width: width,
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 20, bottom: 60),
+                                            child: RichText(
+                                              text: TextSpan(
+                                                text:
+                                                    'От ${_valuesAge.start} до ${_valuesAge.end} лет',
+                                                style: GoogleFonts.lato(
+                                                  textStyle: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13,
+                                                      letterSpacing: .9),
                                                 ),
                                               ),
                                             ),
-                                            SfRangeSlider(
-                                              activeColor: Colors.blue,
-                                              min: 16,
-                                              max: 30,
-                                              values: _valuesAge,
-                                              stepSize: 1,
-                                              enableTooltip: true,
-                                              onChanged:
-                                                  (SfRangeValues values) {
-                                                setState(() {
-                                                  _valuesAge = values;
-                                                  _ageRangController.text =
-                                                      'От ${_valuesAge.start} до ${_valuesAge.end} лет';
-                                                });
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    });
+                                          ),
+                                          SfRangeSlider(
+                                            activeColor: Colors.blue,
+                                            min: 16,
+                                            max: 30,
+                                            values: _valuesAge,
+                                            stepSize: 1,
+                                            enableTooltip: true,
+                                            onChanged: (SfRangeValues values) {
+                                              setState(() {
+                                                _valuesAge = values;
+                                                _ageRangController.text =
+                                                    'От ${_valuesAge.start} до ${_valuesAge.end} лет';
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   });
-                            }),
-                            Theme(
-                              data: ThemeData.light(),
-                              child: Card(
-                                color: color_black_88,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18),
-                                    side: const BorderSide(
-                                      width: 0.8,
-                                      color: Colors.white38,
-                                    )),
-                                elevation: 10,
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.only(top: 8, bottom: 8),
-                                  child: MultiSelectBottomSheetField(
-                                    initialValue: modelUser.userInterests,
-                                    searchHintStyle:
-                                        const TextStyle(color: Colors.white),
-                                    buttonText: Text(
-                                      'Выбрать $interestsCount максимум (6)',
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    buttonIcon: const Icon(
-                                      Icons.arrow_forward_ios_outlined,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                    backgroundColor: color_black_88,
-                                    checkColor: Colors.white,
-                                    confirmText: const Text('Выбрать'),
-                                    cancelText: const Text('Закрыть'),
-                                    searchIcon: const Icon(
-                                      Icons.search,
-                                      color: Colors.white,
-                                    ),
-                                    closeSearchIcon: const Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                    ),
-                                    searchHint: 'Поиск',
-                                    searchTextStyle:
-                                        const TextStyle(color: Colors.white),
-                                    initialChildSize: 0.4,
-                                    listType: MultiSelectListType.CHIP,
-                                    searchable: true,
-                                    title: Text(
-                                      "Ваши интересы ${interestsCount.toString()} максимум (6)",
-                                      style: const TextStyle(color: Colors.white),
-                                    ),
-                                    items: items,
-                                    onSelectionChanged: (value) {
-                                      setState(() {
-                                        interestsCount = value.length;
-                                      });
-                                    },
-                                    onConfirm: (values) {
-                                  setState(() {
-                                    _selectedInterests = values;
-                                  });
-                                },
-                                chipDisplay: MultiSelectChipDisplay(
-                                  onTap: (value) {
+                                });
+                          }),
+                          textFieldProfileSettings(_notificationController,
+                              true, 'Уведомления', context, 10, () {
+                            showBottomSheet(
+                                context,
+                                'Укажите хотите получать уведомления',
+                                'Включить',
+                                'Выключить',
+                                _notificationController);
+                          }),
+                          Theme(
+                            data: ThemeData.light(),
+                            child: Card(
+                              color: color_black_88,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                  side: const BorderSide(
+                                    width: 0.8,
+                                    color: Colors.white38,
+                                  )),
+                              elevation: 10,
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 8),
+                                child: MultiSelectBottomSheetField(
+                                  initialValue: modelUser.userInterests,
+                                  searchHintStyle:
+                                      const TextStyle(color: Colors.white),
+                                  buttonText: Text(
+                                    'Выбрать $interestsCount максимум (6)',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  buttonIcon: const Icon(
+                                    Icons.arrow_forward_ios_outlined,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  backgroundColor: color_black_88,
+                                  checkColor: Colors.white,
+                                  confirmText: const Text('Выбрать'),
+                                  cancelText: const Text('Закрыть'),
+                                  searchIcon: const Icon(
+                                    Icons.search,
+                                    color: Colors.white,
+                                  ),
+                                  closeSearchIcon: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                  ),
+                                  searchHint: 'Поиск',
+                                  searchTextStyle:
+                                      const TextStyle(color: Colors.white),
+                                  initialChildSize: 0.4,
+                                  listType: MultiSelectListType.CHIP,
+                                  searchable: true,
+                                  title: Text(
+                                    "Ваши интересы ${interestsCount.toString()} максимум (6)",
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  items: items,
+                                  onSelectionChanged: (value) {
                                     setState(() {
-                                      _selectedInterests.remove(value);
+                                      interestsCount = value.length;
                                     });
                                   },
+                                  onConfirm: (values) {
+                                    setState(() {
+                                      _selectedInterests = values;
+                                    });
+                                  },
+                                  chipDisplay: MultiSelectChipDisplay(
+                                    onTap: (value) {
+                                      setState(() {
+                                        _selectedInterests.remove(value);
+                                      });
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: height * .05,
-                        ),
-                      ],
+                          SizedBox(
+                            height: height * .05,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -869,5 +558,95 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     return const loadingCustom();
+  }
+
+  Future<dynamic> showBottomSheet(
+      context, title, select_1, select_2, TextEditingController controller) {
+    return showCupertinoModalBottomSheet(
+        topRadius: const Radius.circular(30),
+        duration: const Duration(milliseconds: 700),
+        backgroundColor: color_black_88,
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Container(
+              height: 260,
+              padding: const EdgeInsets.all(28),
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                children: [
+                  Card(
+                    shadowColor: Colors.white30,
+                    color: color_black_88,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: const BorderSide(
+                          width: 0.8,
+                          color: Colors.white38,
+                        )),
+                    elevation: 16,
+                    child: Theme(
+                      data: ThemeData.light(),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        title: RichText(
+                          text: TextSpan(
+                            text: title,
+                            style: GoogleFonts.lato(
+                              textStyle: const TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12,
+                                  letterSpacing: .9),
+                            ),
+                          ),
+                        ),
+                        children: [
+                          ListTile(
+                            title: RichText(
+                              text: TextSpan(
+                                text: select_1,
+                                style: GoogleFonts.lato(
+                                  textStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      letterSpacing: .9),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                controller.text = select_1;
+                                Navigator.pop(context);
+                              });
+                            },
+                          ),
+                          ListTile(
+                            title: RichText(
+                              text: TextSpan(
+                                text: select_2,
+                                style: GoogleFonts.lato(
+                                  textStyle: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      letterSpacing: .9),
+                                ),
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                controller.text = select_2;
+                                Navigator.pop(context);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+        });
   }
 }

@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tinder/screens/settings/settiongs_profile_screen.dart';
 
 import '../config/const.dart';
@@ -42,7 +41,7 @@ class _ProfileScreen extends State<ProfileScreen> {
       this.userModelPartner, this.isBack, this.idUser, this.userModelCurrent);
 
   Future sortingList() async {
-    readInterestsFirebase().then((map) {
+   await readInterestsFirebase().then((map) {
       for (var elementMain in userModelPartner.userInterests) {
         map.forEach((key, value) {
           if (elementMain == key) {
@@ -74,13 +73,15 @@ class _ProfileScreen extends State<ProfileScreen> {
                 myCity: user.myCity,
                 imageBackground: user.imageBackground,
                 ageInt: user.ageInt,
-                state: user.state, token: user.token);
+                state: user.state,
+                token: user.token,
+                notification: user.notification);
             isLoading = true;
           });
         });
-        sortingList();
+        await sortingList();
       } else {
-        sortingList();
+        await sortingList();
       }
 
       putLike(userModelCurrent, userModelPartner, false).then((value) {
@@ -202,43 +203,23 @@ class _ProfileScreen extends State<ProfileScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        text:
-                                            '${userModelPartner.name}, ${userModelPartner.ageInt}',
-                                        style: GoogleFonts.lato(
-                                          textStyle: TextStyle(
-                                              color:
-                                                  Colors.white.withOpacity(1),
-                                              fontSize: 16,
-                                              letterSpacing: .8),
-                                        ),
-                                      ),
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        text: userModelPartner.myCity,
-                                        style: GoogleFonts.lato(
-                                          textStyle: TextStyle(
-                                              color:
-                                                  Colors.white.withOpacity(0.8),
-                                              fontSize: 11,
-                                              letterSpacing: .5),
-                                        ),
-                                      ),
-                                    ),
+                                    animatedText(
+                                        15.0,
+                                        '${userModelPartner.name}, ${userModelPartner.ageInt}',
+                                        Colors.white,
+                                        600,
+                                        1),
+                                    animatedText(11.0, userModelPartner.myCity,
+                                        Colors.white.withOpacity(.8), 600, 1),
                                   ],
                                 ),
                               ),
                               if (isProprietor)
                                 buttonProfileMy(userModelPartner),
                               if (!isProprietor)
-                                SizedBox(
-                                  height: 40,
-                                  child: buttonProfileUser(
-                                    userModelCurrent,
-                                    userModelPartner,
-                                  ),
+                                buttonProfileUser(
+                                  userModelCurrent,
+                                  userModelPartner,
                                 ),
                               const SizedBox()
                             ],

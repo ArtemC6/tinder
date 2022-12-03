@@ -1,6 +1,4 @@
 // @dart=2.9
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,13 +14,8 @@ import 'package:tinder/screens/manager_screen.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
 import 'package:tinder/screens/settings/warning_screen.dart';
-import 'package:tinder/screens/sympathy_screen.dart';
-import 'package:tinder/screens/that_screen.dart';
-import 'package:tinder/screens/view_likes_screen.dart';
 
-import 'config/const.dart';
 import 'config/firestore_operations.dart';
-import 'config/notification_api.dart';
 import 'model/user_model.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(message) async {
@@ -35,7 +28,6 @@ void main() async {
   await Firebase.initializeApp();
   await FirebaseMessaging.instance.getInitialMessage();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // await NotificationApi.initNotification();
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -95,45 +87,32 @@ class _Manager extends State<Manager> {
   void initState() {
     super.initState();
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      RemoteNotification notification = message.notification;
-      AndroidNotification android = message.notification?.android;
-      if (notification != null && android != null) {
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        print(message.data['type']);
-        exit(0);
-        // if (message.data['type'] == 'sympathy') {
-        //   Navigator.push(
-        //       context,
-        //       FadeRouteAnimation(SympathyScreen(
-        //         userModelCurrent: userModelCurrent,
-        //       )));
-        // } else if (message.data['type'] == 'chat') {
-        //   Navigator.push(
-        //       context,
-        //       FadeRouteAnimation(ChatScreen(
-        //         userModelCurrent: userModelCurrent,
-        //       )));
-        // } else if (message.data['type'] == 'like') {
-        //   Navigator.push(
-        //       context,
-        //       FadeRouteAnimation(ViewLikesScreen(
-        //         userModelCurrent: userModelCurrent,
-        //       )));
-        // }
-      }
-    });
+    // FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    //   RemoteNotification notification = message.notification;
+    //   AndroidNotification android = message.notification?.android;
+    //   if (notification != null && android != null) {
+    //
+    //     // if (message.data['type'] == 'sympathy') {
+    //     //   Navigator.push(
+    //     //       context,
+    //     //       FadeRouteAnimation(SympathyScreen(
+    //     //         userModelCurrent: userModelCurrent,
+    //     //       )));
+    //     // } else if (message.data['type'] == 'chat') {
+    //     //   Navigator.push(
+    //     //       context,
+    //     //       FadeRouteAnimation(ChatScreen(
+    //     //         userModelCurrent: userModelCurrent,
+    //     //       )));
+    //     // } else if (message.data['type'] == 'like') {
+    //     //   Navigator.push(
+    //     //       context,
+    //     //       FadeRouteAnimation(ViewLikesScreen(
+    //     //         userModelCurrent: userModelCurrent,
+    //     //       )));
+    //     // }
+    //   }
+    // });
 
     readFirebaseIsAccountFull().then((result) {
       setState(() {
@@ -141,6 +120,10 @@ class _Manager extends State<Manager> {
         isEmptyDataUser = result.isEmptyDataUser;
         isStart = result.isStart;
         isLoading = true;
+
+        print('data+ ${isEmptyDataUser}');
+        print('dataz+ ${isStart}');
+        print('data+ ${isEmptyImageBackground}');
       });
     });
   }
@@ -187,7 +170,9 @@ class _Manager extends State<Manager> {
                         imageBackground: '',
                         userInterests: [],
                         searchRangeEnd: 0,
-                        state: ''),
+                        state: '',
+                        token: '',
+                        notification: true),
                   );
                 }
               } else {
