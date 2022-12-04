@@ -30,7 +30,10 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
   final scrollController = ScrollController();
   int limit = 0;
 
-  Future readFirebase(int limit, isReadLike) async {
+  Future readFirebase(int setLimit, isReadLike) async {
+    limit += setLimit;
+    print(limit);
+
     listUser.clear();
     if (isReadLike) {
       await readLikeFirebase(userModelCurrent.uid).then((list) {
@@ -72,6 +75,8 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                   state: data['state'],
                   token: data['token'],
                   notification: data['notification']));
+              print('like ${listLike.length} user ${listUser.length}');
+
               if (listLike.length == listUser.length + 1) {
                 isLoadingNewUser = false;
               }
@@ -88,13 +93,14 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
 
   @override
   void initState() {
-    readFirebase(limit = 8, true);
+    readFirebase(8, true);
     scrollController.addListener(() {
-      if (scrollController.position.maxScrollExtent == scrollController.offset) {
-        readFirebase(limit + 5, false);
+      if (scrollController.position.maxScrollExtent ==
+          scrollController.offset) {
+        readFirebase(5, false);
         Future.delayed(const Duration(milliseconds: 500), () {
           scrollController.animateTo(
-            scrollController.position.maxScrollExtent,
+            scrollController.position.maxScrollExtent - 70,
             duration: const Duration(milliseconds: 1500),
             curve: Curves.fastOutSlowIn,
           );
@@ -131,20 +137,21 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                       itemCount: listUser.length + 1,
                       itemBuilder: (context, index) {
                         if (index < listUser.length) {
-                          return AnimationConfiguration.staggeredList(
-                            position: index,
-                            delay: const Duration(milliseconds: 200),
-                            child: SlideAnimation(
-                              duration: const Duration(milliseconds: 1400),
-                              verticalOffset: 200,
-                              curve: Curves.decelerate,
-                              child: FadeInAnimation(
-                                curve: Curves.easeOut,
-                                duration: const Duration(milliseconds: 2500),
-                                child: itemUserLike(
-                                    listUser[index], userModelCurrent),
-                              ),
+                          int indexAnimation = index + 1;
+                        return AnimationConfiguration.staggeredList(
+                          position: index,
+                          delay: const Duration(milliseconds: 200),
+                          child: SlideAnimation(
+                            duration: const Duration(milliseconds: 1200),
+                            verticalOffset: 200,
+                            curve: Curves.decelerate,
+                            child: FadeInAnimation(
+                              curve: Curves.easeOut,
+                              duration: const Duration(milliseconds: 2500),
+                              child: itemUserLike(listUser[index],
+                                  userModelCurrent, indexAnimation),
                             ),
+                          ),
                           );
                         } else {
                           if (isLoadingNewUser) {
@@ -161,17 +168,18 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                                 ),
                               ),
                             );
-                          } else {
-                            return const SizedBox();
-                          }
+                        } else {
+                          return const SizedBox();
                         }
-                      },
-                    ),
+                      }
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ));
+          ),
+        ),
+      );
     }
 
     return Scaffold(

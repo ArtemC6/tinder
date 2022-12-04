@@ -11,24 +11,31 @@ class NotificationApi {
       final largeIconPath = await Utils.downloadFile(uri, 'largeIcon');
 
       final styleInformation = BigPictureStyleInformation(
+        htmlFormatContent: true,
         FilePathAndroidBitmap(largeIconPath),
         largeIcon: FilePathAndroidBitmap(largeIconPath),
         hideExpandedLargeIcon: false,
       );
 
       return NotificationDetails(
-        android: AndroidNotificationDetails('channel title', 'channel name',
-            playSound: true,
-            priority: Priority.high,
-            importance: Importance.max,
-            styleInformation: styleInformation),
+        android: AndroidNotificationDetails(
+          'channel title', 'channel name',
+          playSound: false,
+          priority: Priority.high,
+          importance: Importance.max,
+          styleInformation: styleInformation,
+          channelShowBadge: true,
+
+          // fullScreenIntent: true,
+          // largeIcon: largeIconPath,
+        ),
       );
     } else {
       return const NotificationDetails(
           android: AndroidNotificationDetails(
-        'channel title',
+            'channel title',
         'channel name',
-        playSound: true,
+        playSound: false,
         priority: Priority.high,
         importance: Importance.max,
       ));
@@ -55,13 +62,13 @@ class NotificationApi {
   }
 
   static Future showNotification({
-    int id = 0,
+    int? id,
     String? title,
     String? body,
     String? payload,
     String? uri,
   }) async =>
       notifications.show(
-          id, title, body, await notificationDetailsDetails(uri!),
+          id!, title, body, await notificationDetailsDetails(uri!),
           payload: payload);
 }

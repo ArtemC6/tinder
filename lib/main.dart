@@ -1,4 +1,6 @@
 // @dart=2.9
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,15 +20,18 @@ import 'package:tinder/screens/settings/warning_screen.dart';
 import 'config/firestore_operations.dart';
 import 'model/user_model.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(message) async {
-  await Firebase.initializeApp();
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('Noo');
+  print(message.data['uri']);
+  print(message.data['uid']);
+  print(message.data['type']);
+
 }
 
 void main() async {
   CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await FirebaseMessaging.instance.getInitialMessage();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   SystemChrome.setPreferredOrientations([
@@ -86,44 +91,12 @@ class _Manager extends State<Manager> {
   @override
   void initState() {
     super.initState();
-
-    // FirebaseMessaging.onMessageOpenedApp.listen((message) {
-    //   RemoteNotification notification = message.notification;
-    //   AndroidNotification android = message.notification?.android;
-    //   if (notification != null && android != null) {
-    //
-    //     // if (message.data['type'] == 'sympathy') {
-    //     //   Navigator.push(
-    //     //       context,
-    //     //       FadeRouteAnimation(SympathyScreen(
-    //     //         userModelCurrent: userModelCurrent,
-    //     //       )));
-    //     // } else if (message.data['type'] == 'chat') {
-    //     //   Navigator.push(
-    //     //       context,
-    //     //       FadeRouteAnimation(ChatScreen(
-    //     //         userModelCurrent: userModelCurrent,
-    //     //       )));
-    //     // } else if (message.data['type'] == 'like') {
-    //     //   Navigator.push(
-    //     //       context,
-    //     //       FadeRouteAnimation(ViewLikesScreen(
-    //     //         userModelCurrent: userModelCurrent,
-    //     //       )));
-    //     // }
-    //   }
-    // });
-
     readFirebaseIsAccountFull().then((result) {
       setState(() {
         isEmptyImageBackground = result.isEmptyImageBackground;
         isEmptyDataUser = result.isEmptyDataUser;
         isStart = result.isStart;
         isLoading = true;
-
-        print('data+ ${isEmptyDataUser}');
-        print('dataz+ ${isStart}');
-        print('data+ ${isEmptyImageBackground}');
       });
     });
   }

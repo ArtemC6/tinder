@@ -311,7 +311,7 @@ showAlertDialogLoading(BuildContext context) {
         size: 48,
         color: Colors.blueAccent,
       )),
-      blur: 0.5,
+      blur: 0.8,
       dismissable: false,
       context,
       future: Future.delayed(const Duration(seconds: 4)));

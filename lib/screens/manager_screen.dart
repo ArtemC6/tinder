@@ -4,6 +4,7 @@ import 'package:tinder/screens/home_screen.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/sympathy_screen.dart';
 import 'package:tinder/screens/that_screen.dart';
+import 'package:tinder/screens/that_user_screen.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
@@ -27,16 +28,65 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
 
   _ManagerScreen(this.currentIndex);
 
-  Future<void> settingsNotification() async {
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-      alert: true, // Required to display a heads up notification
-      badge: true,
-      sound: true,
-    );
+  void setIndexPage(String payload, String uid) {
+    setState(() {
+      if (payload == 'sympathy') {
+        currentIndex = 1;
+      }
+      if (payload == 'chat') {
+        currentIndex = 2;
+        if(isLoading) {
+          Navigator.push(
+            context,
+            FadeRouteAnimation(
+              ChatUserScreen(
+                friendId: uid,
+                friendName: '',
+                friendImage: '',
+                userModelCurrent: userModelCurrent,
+                token: '',
+                notification: true,
+              ),
+            ),
+          );
+        } else {
+          Future.delayed(const Duration(milliseconds: 300), () {
+            Navigator.push(
+              context,
+              FadeRouteAnimation(
+                ChatUserScreen(
+                  friendId: uid,
+                  friendName: '',
+                  friendImage: '',
+                  userModelCurrent: userModelCurrent,
+                  token: '',
+                  notification: true,
+                ),
+              ),
+            );
+          });
+        }
+
+      }
+      if (payload == 'like') {
+        currentIndex = 3;
+      }
+    });
   }
 
-  void getNotificationFcm() {
+  void listenNotification() {
+    NotificationApi.onNotifications.stream.listen((payload) {
+      setIndexPage(payload.split(',')[0], payload.split(',')[1]);
+    });
+  }
+
+  Future<void> getNotificationFcm() async {
+    await FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        setIndexPage(message.data['type'], message.data['uid']);
+      }
+    });
+
     NotificationApi.initNotification();
     listenNotification();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
@@ -44,29 +94,21 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
         NotificationApi.showNotification(
-            id: idNotification ++,
-            title: notification.title.toString(),
-            body: notification.body.toString(),
-            payload: message.data['type'],
-           uri: message.data['uri'],
+          id: idNotification++,
+          title: notification.title.toString(),
+          body: notification.body.toString(),
+          payload: '${message.data['type']},${message.data['uid']}',
+          uri: message.data['uri'],
         );
       }
     });
-  }
 
-  void listenNotification() {
-    NotificationApi.onNotifications.stream.listen((payload) {
-      setState(() {
-        if (payload == 'sympathy') {
-          currentIndex = 1;
-        }
-        if (payload == 'chat') {
-          currentIndex = 2;
-        }
-        if (payload == 'like') {
-          currentIndex = 3;
-        }
-      });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      if (notification != null && android != null) {
+        setIndexPage(message.data['type'], message.data['uid']);
+      }
     });
   }
 
@@ -74,6 +116,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     getNotificationFcm();
+
     readUserFirebase().then((user) {
       setState(() {
         userModelCurrent = UserModel(
@@ -97,6 +140,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
       isLoading = true;
       setStateFirebase('online');
     });
+
     super.initState();
   }
 

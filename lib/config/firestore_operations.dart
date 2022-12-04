@@ -667,19 +667,14 @@ Future<Map> readInterestsFirebase() async {
 Future<AccountIsFull> readFirebaseIsAccountFull() async {
   AccountIsFull accountIsFull = AccountIsFull(
       isEmptyDataUser: false, isEmptyImageBackground: false, isStart: true);
-
-  // print('uid');
-  // print(FirebaseAuth.instance.currentUser?.uid);
   try {
     if (FirebaseAuth.instance.currentUser?.uid != null) {
-      // print('Next');
       await FirebaseFirestore.instance
           .collection('StartApp')
           .doc('IsStart')
           .get()
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
-          print('Start');
           accountIsFull.isStart = documentSnapshot['isStart'];
         }
       }).then((value) async {
@@ -713,10 +708,6 @@ Future<AccountIsFull> readFirebaseIsAccountFull() async {
       });
     }
   } on FirebaseException {}
-
-  print(accountIsFull.isEmptyDataUser);
-  print(accountIsFull.isStart);
-  print(accountIsFull.isEmptyImageBackground);
 
   return accountIsFull;
 }
@@ -791,11 +782,13 @@ Future<bool> sendFcmMessage(
         "title": title,
         "body": message,
         "sound": "default",
+        "content_available": true,
         "click_action": "FLUTTER_NOTIFICATION_CLICK",
+        "android_channel_id": "high_importance_channel",
+        if (uri != null) "image": uri,
       },
       "priority": "high",
       'data': {
-        'click_action': "FLUTTER_NOTIFICATION_CLICK",
         'type': type,
         'uid': uid ?? '',
         'uri': uri ?? '',

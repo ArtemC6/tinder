@@ -83,8 +83,9 @@ class photoUser extends StatelessWidget {
 
 class itemUserLike extends StatelessWidget {
   final UserModel userModelCurrent, userModelLike;
+  final int indexAnimation;
 
-  itemUserLike(this.userModelLike, this.userModelCurrent, {super.key});
+  itemUserLike(this.userModelLike, this.userModelCurrent, this.indexAnimation, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -129,19 +130,14 @@ class itemUserLike extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: [
-                      SizedBox(
-                        child: photoUser(
-                          uri: userModelLike.userImageUrl[0],
-                          width: 60,
-                          height: 60,
-                          state: userModelLike.state,
-                          padding: 0,
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    child: photoUser(
+                      uri: userModelLike.userImageUrl[0],
+                      width: 60,
+                      height: 60,
+                      state: userModelLike.state,
+                      padding: 0,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   // SizedBox(
@@ -150,7 +146,7 @@ class itemUserLike extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SlideFadeTransition(
-                          animationDuration: const Duration(milliseconds: 550),
+                          animationDuration: const Duration(milliseconds: 500),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,24 +329,41 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
               alignment: Alignment.topCenter,
               width: MediaQuery.of(context).size.width),
         ),
-        Container(
-          alignment: Alignment.bottomLeft,
-          padding: const EdgeInsets.only(bottom: 20, left: 20),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RichText(
-                text: TextSpan(
-                  text: '${userModelPartner[index].name}, '
-                      '${userModelPartner[index].ageInt} '
-                      '\n${userModelPartner[index].myCity}',
-                  style: GoogleFonts.lato(
-                    textStyle: const TextStyle(
-                        color: Colors.white, fontSize: 14, letterSpacing: .0),
+        Positioned(
+          height: MediaQuery.of(context).size.height *  0.10,
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            // color: Colors.green,
+            alignment: Alignment.bottomLeft,
+            // decoration: BoxDecoration(
+            //   borderRadius: BorderRadius.circular(22),
+            // ),
+            padding: const EdgeInsets.only(bottom: 20, left: 20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // animatedText(
+                //     14.0,
+                //     '${userModelPartner[index].name}, '
+                //         '${userModelPartner[index].ageInt} '
+                //         '\n${userModelPartner[index].myCity}',
+                //     400,
+                //     Colors.white,
+                //     1),
+
+                RichText(
+                  text: TextSpan(
+                    text: '${userModelPartner[index].name}, '
+                        '${userModelPartner[index].ageInt} '
+                        '\n${userModelPartner[index].myCity}',
+                    style: GoogleFonts.lato(
+                      textStyle: const TextStyle(
+                          color: Colors.white, fontSize: 14, letterSpacing: .0),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

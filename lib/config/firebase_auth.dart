@@ -77,9 +77,9 @@ class FirebaseAuthMethods {
               email: email.trim(), password: password.trim())
           .then((value) {
         Navigator.pop(context);
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const Manager()));
         setStateFirebase('online').then((value) async {}).then((value) {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const Manager()));
           setTokenUserFirebase().then((value) {});
         });
       }).onError((error, stackTrace) {

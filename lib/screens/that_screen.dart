@@ -94,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       snapshotFriendId.data.docs[index].id;
                                   return AnimationConfiguration.staggeredList(
                                     position: index,
-                                    delay: const Duration(milliseconds: 300),
+                                    delay: const Duration(milliseconds: 400),
                                     child: SlideAnimation(
                                       duration:
                                           const Duration(milliseconds: 1000),
@@ -133,6 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                         lastMsg = '',
                                                         nameUser = '',
                                                         imageUri = '',
+                                                        indexAnimation = index + 1,
                                                         token = '',
                                                         state = '',
                                                         dataLastWrite,
@@ -251,7 +252,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                                               splashColor: Colors
                                                                   .transparent,
                                                               onTap: () {
-                                                                try {
                                                                   Navigator.push(
                                                                       context,
                                                                       FadeRouteAnimation(ChatUserScreen(
@@ -267,8 +267,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                             token,
                                                                         notification:
                                                                             notification,
-                                                                      )));
-                                                                } catch (E) {}
+                                                                      ),),);
                                                               },
                                                               child: Row(
                                                                 mainAxisAlignment:
@@ -278,24 +277,17 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                     CrossAxisAlignment
                                                                         .center,
                                                                 children: [
-                                                                  Stack(
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .bottomLeft,
-                                                                    children: [
-                                                                      photoUser(
-                                                                        uri:
-                                                                            imageUri,
-                                                                        width: width *
-                                                                            0.17,
-                                                                        height: width *
-                                                                            0.17,
-                                                                        state:
-                                                                            state,
-                                                                        padding:
-                                                                            0,
-                                                                      ),
-                                                                    ],
+                                                                  photoUser(
+                                                                    uri:
+                                                                        imageUri,
+                                                                    width: width *
+                                                                        0.17,
+                                                                    height: width *
+                                                                        0.17,
+                                                                    state:
+                                                                        state,
+                                                                    padding:
+                                                                        0,
                                                                   ),
                                                                   SizedBox(
                                                                       width:
@@ -347,7 +339,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                               Expanded(
                                                                                 child: Padding(
                                                                                   padding: const EdgeInsets.only(right: 10),
-                                                                                  child: animatedText(11.0, lastMsg, Colors.white.withOpacity(.3), 400, 2),
+                                                                                  child: animatedText(11.0, lastMsg, Colors.white.withOpacity(.3),
+                                                                                      indexAnimation * 400 < 2400 ? indexAnimation  * 400 : 600, 2),
                                                                                 ),
                                                                               ),
                                                                             if (isWriteUser)

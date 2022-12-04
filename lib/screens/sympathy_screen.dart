@@ -43,7 +43,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
         Future.delayed(const Duration(milliseconds: 600), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent - 80,
-            duration: const Duration(milliseconds: 1500),
+            duration: const Duration(milliseconds: 1400),
             curve: Curves.fastOutSlowIn,
           );
         });
@@ -97,6 +97,7 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                       snapshot.hasData) {
                                     var name = '',
                                         age = 0,
+                                        indexAnimation = index + 1,
                                         imageUri = '',
                                         idDoc = '',
                                         city = '',
@@ -112,10 +113,10 @@ class _SympathyScreenState extends State<SympathyScreen> {
 
                                     return AnimationConfiguration.staggeredList(
                                       position: index,
-                                      delay: const Duration(milliseconds: 400),
+                                      delay: const Duration(milliseconds: 200),
                                       child: SlideAnimation(
                                         duration:
-                                            const Duration(milliseconds: 1700),
+                                            const Duration(milliseconds: 1500),
                                         verticalOffset: 220,
                                         curve: Curves.ease,
                                         child: FadeInAnimation(
@@ -300,7 +301,8 @@ class _SympathyScreenState extends State<SympathyScreen> {
                                                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                                   children: [
                                                                                     SlideFadeTransition(
-                                                                                      animationDuration: const Duration(milliseconds: 450),
+                                                                                      animationDuration: Duration(milliseconds: indexAnimation * 300 < 1500 ? indexAnimation * 300 : 600),
+                                                                                      curve: Curves.easeInSine,
                                                                                       child: Column(
                                                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                                                         children: [

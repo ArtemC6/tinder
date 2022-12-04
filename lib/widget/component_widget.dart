@@ -661,29 +661,33 @@ class _topPanelChatState extends State<topPanelChat> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                    photoUser(
-                                      uri: friendImage,
-                                      width: 43,
-                                      height: 43,
-                                      state: 'offline',
-                                      padding: 0,
-                                    ),
-                                  if (asyncSnapshot.data['state'] != 'offline')
-                                    SlideFadeTransition(
-                                      animationDuration:
-                                          const Duration(milliseconds: 550),
-                                      child: customIconButton(
+                              SizedBox(
+                                width: 43,
+                                height: 43,
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                      photoUser(
+                                        uri: friendImage,
+                                        width: 43,
+                                        height: 43,
+                                        state: 'offline',
                                         padding: 0,
-                                        width: 22,
-                                        height: 22,
-                                        path: 'images/ic_green_dot.png',
-                                        onTap: () {},
                                       ),
-                                    ),
-                                ],
+                                    if (asyncSnapshot.data['state'] != 'offline')
+                                      SlideFadeTransition(
+                                        animationDuration:
+                                            const Duration(milliseconds: 550),
+                                        child: customIconButton(
+                                          padding: 0,
+                                          width: 22,
+                                          height: 22,
+                                          path: 'images/ic_green_dot.png',
+                                          onTap: () {},
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                               Container(
                                 padding: const EdgeInsets.only(left: 8),

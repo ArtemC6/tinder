@@ -277,7 +277,7 @@ class buttonProfileMy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SlideFadeTransition(
-      animationDuration: const Duration(milliseconds: 600),
+      animationDuration: const Duration(milliseconds: 800),
       child: Container(
         padding: const EdgeInsets.only(right: 20),
         height: 40,

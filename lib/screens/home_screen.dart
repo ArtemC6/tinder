@@ -41,22 +41,39 @@ class _HomeScreen extends State<HomeScreen>
 
   Future readFirebase(
       int setLimit, bool isDeleteDislike, bool isReadDislike) async {
-    // userModelPartner.clear();
     limit += setLimit;
-    Future.delayed(const Duration(milliseconds: 3000), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
         isWrite = true;
       });
     });
 
-    // userModelPartner.clear();
+    userModelPartner.clear();
 
     // for (var elementMain in listDisLike) {
-    //   for (var element in userModelPartner) {
-    //     if (elementMain == element.uid) {
-    //       print(element.name);
-    //     }
+    //   print('did: $elementMain');
+    // }
+    // //   print(elementMain);
+    // for (var element in userModelPartner) {
+    //   print('user: ${element.uid}');
+    //
+    //   //   if (elementMain == element.uid) {
+    //   //     print(element.name);
+    //   //   }
+    // }
+
+    print(' length Do: ${userModelPartner.length}');
+
+    // for (var elementMain in listDisLike) {
+    //   userModelPartner.removeWhere((element) => element == elementMain );
+    //
+    // for (var element in userModelPartner) {
+    //   if (elementMain == element.uid) {
+    //     userModelPartner.remove(element);
+    //
+    //     print('${element.uid} name :${element.name} length: ${userModelPartner.length}');
     //   }
+    // }
     // }
 
     if (isReadDislike) {
@@ -65,7 +82,7 @@ class _HomeScreen extends State<HomeScreen>
       });
     }
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('User')
         .where('myPol', isEqualTo: userModelCurrent.searchPol)
         // .where('myCity', isEqualTo: userModelCurrent.myCity)
@@ -100,23 +117,45 @@ class _HomeScreen extends State<HomeScreen>
                   state: data['state'],
                   token: data['token'],
                   notification: data['notification']));
+              print('List ${userModelPartner.length}');
               setState(() {});
             } else {
               if (isDeleteDislike) {
-                setState(() {
-                  listDisLike.clear();
-                });
-                deleteDislike(userModelCurrent.uid);
+                print('Limit ${limit}');
+                if (userModelPartner.length < 3) {
+                  print(
+                      'limit: ${limit} list length: ${userModelPartner.length}');
+
+                  setState(() {
+                    listDisLike.clear();
+                  });
+                  deleteDislike(userModelCurrent.uid);
+                }
               }
             }
           });
         }
       }
     }).then((value) {
+      print(' ?? ${userModelPartner.length}');
       setState(() {
+        //   if(userModelPartner.length < 3) {
+        //     print('limit: ${limit} list length: ${userModelPartner
+        //         .length}');
+        //
+        //     setState(() {
+        //       listDisLike.clear();
+        //     });
+        //     deleteDislike(userModelCurrent.uid);
+        //   }
+
+        userModelPartner.toSet();
+
         isLoading = true;
       });
     });
+
+    print('Finla');
   }
 
   @override
@@ -243,8 +282,7 @@ class _HomeScreen extends State<HomeScreen>
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
                                           int index) async {
-                                        setState(() async {
-
+                                  setState(() {
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.LEFT') {
                                       isLook = false;
@@ -288,52 +326,53 @@ class _HomeScreen extends State<HomeScreen>
                                     }
                                   });
                                 },
+                              ),
+                            ),
+                            if (isLook && !isLike)
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isLook = false;
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: width,
+                                  height: height / 2.9,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: const AssetImage(
+                                          'images/ic_heart.png'),
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.white.withOpacity(colorIndex),
+                                        BlendMode.modulate,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                              if (isLook && !isLike)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isLook = false;
-                                    });
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    width: width,
-                                    height: height / 2.9,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            image: const AssetImage(
-                                                'images/ic_heart.png'),
-                                            colorFilter: ColorFilter.mode(
-                                              Colors.white
-                                                  .withOpacity(colorIndex),
-                                              BlendMode.modulate,
-                                            ))),
-                                  ),
+                            if (isLook && isLike)
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    isLook = false;
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  width: width,
+                                  height: height / 2.9,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          image: const AssetImage(
+                                              'images/ic_remove.png'),
+                                          colorFilter: ColorFilter.mode(
+                                            Colors.white
+                                                .withOpacity(colorIndex),
+                                            BlendMode.modulate,
+                                          ))),
                                 ),
-                              if (isLook && isLike)
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isLook = false;
-                                    });
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    width: width,
-                                    height: height / 2.9,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            image: const AssetImage(
-                                                'images/ic_remove.png'),
-                                            colorFilter: ColorFilter.mode(
-                                              Colors.white
-                                                  .withOpacity(colorIndex),
-                                              BlendMode.modulate,
-                                            ))),
-                                  ),
-                                ),
+                              ),
                             ],
                           ),
                           Row(

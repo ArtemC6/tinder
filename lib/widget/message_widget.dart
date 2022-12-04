@@ -249,7 +249,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   _controllerMessage.clear();
                   if (notification && token != '') {
                     sendFcmMessage('tinder', '$friendName: $messageText', token,
-                        'chat', widget.friendId);
+                        'chat', widget.currentId);
                   }
                   final docMessage = FirebaseFirestore.instance
                       .collection('User')
