@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 
@@ -18,149 +19,224 @@ import '../screens/settings/edit_profile_screen.dart';
 import '../widget/dialog_widget.dart';
 import 'const.dart';
 
-Future<void> uploadFirstImage(BuildContext context, List<String> userImageUrl,
-    List<String> userImagePath) async {
-  FirebaseStorage storage = FirebaseStorage.instance;
-  final picker = ImagePicker();
-  XFile? pickedImage;
-  try {
-    pickedImage = await picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 28, maxWidth: 1920);
+Future<CroppedFile?> _cropImage(BuildContext context, XFile pickedImage) async {
+  CroppedFile? _croppedFile;
 
-    final String fileName = path.basename(pickedImage!.path);
-    File imageFile = File(pickedImage.path);
-
-    try {
-      var task = storage.ref(fileName).putFile(imageFile);
-
-      if (task == null) return;
-      showAlertDialogLoading(context);
-
-      final snapshot = await task.whenComplete(() {});
-      final urlDownload = await snapshot.ref.getDownloadURL();
-
-      userImagePath.add(fileName);
-      userImageUrl.add(urlDownload);
-
-      final docUser = FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid);
-
-      final json = {
-        'listImageUri': userImageUrl,
-        'listImagePath': userImagePath
-      };
-
-      docUser.update(json).then((value) {
-        Navigator.pushReplacement(
-            context,
-            FadeRouteAnimation(EditProfileScreen(
-              isFirst: false,
-              userModel: UserModel(
-                  name: '',
-                  uid: '',
-                  myCity: '',
-                  ageTime: Timestamp.now(),
-                  userPol: '',
-                  searchPol: '',
-                  searchRangeStart: 0,
-                  userImageUrl: [],
-                  userImagePath: [],
-                  imageBackground: '',
-                  userInterests: [],
-                  searchRangeEnd: 0,
-                  ageInt: 0,
-                  state: '',
-                  token: '',
-                  notification: true),
-            )));
-      });
-    } on FirebaseException {
-      Navigator.pop(context);
-    }
-  } catch (err) {
-    // Navigator.pop(context);
+  final croppedFile = await ImageCropper().cropImage(
+    sourcePath: pickedImage.path,
+    compressFormat: ImageCompressFormat.jpg,
+    compressQuality: 30,
+    uiSettings: [
+      AndroidUiSettings(
+          toolbarTitle: 'Обрезать',
+          toolbarColor: Colors.black,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false),
+      IOSUiSettings(
+        title: 'Обрезать',
+      ),
+      WebUiSettings(
+        context: context,
+        presentStyle: CropperPresentStyle.dialog,
+        barrierColor: Colors.deepPurpleAccent,
+        boundary: const CroppieBoundary(
+          width: 520,
+          height: 520,
+        ),
+        viewPort:
+            const CroppieViewPort(width: 480, height: 480, type: 'circle'),
+        enableExif: true,
+        enableZoom: true,
+        showZoomer: true,
+      ),
+    ],
+  );
+  if (croppedFile != null) {
+    _croppedFile = croppedFile;
   }
+  return _croppedFile;
 }
 
-Future<void> uploadImage(BuildContext context, UserModel userModelCurrent, bool isScreen) async {
+Future<String> uploadFirstImage(BuildContext context, List<String> userImageUrl,
+    List<String> userImagePath) async {
+  String uri = '';
+  FirebaseStorage storage = FirebaseStorage.instance;
+  final picker = ImagePicker();
+  try {
+    final pickedImage = await picker.pickImage(
+        source: ImageSource.gallery, imageQuality: 30, maxWidth: 1920);
+
+    if (pickedImage != null) {
+      await _cropImage(context, pickedImage).then((croppedFile) async {
+        if (croppedFile != null) {
+          final String fileName = path.basename(croppedFile.path);
+          File imageFile = File(croppedFile.path);
+
+          var task = storage.ref(fileName).putFile(imageFile);
+
+          if (task == null) return '';
+          showAlertDialogLoading(context);
+
+          final snapshot = await task.whenComplete(() {});
+          final urlDownload = await snapshot.ref.getDownloadURL();
+
+          userImagePath.add(fileName);
+          userImageUrl.add(urlDownload);
+
+          final docUser = FirebaseFirestore.instance
+              .collection('User')
+              .doc(FirebaseAuth.instance.currentUser?.uid);
+
+          final json = {
+            'listImageUri': userImageUrl,
+            'listImagePath': userImagePath
+          };
+
+          await docUser.update(json).then((value) {
+            uri = urlDownload;
+          });
+        }
+      });
+    }
+  } catch (err) {}
+
+  return uri;
+}
+
+Future<void> uploadImageAdd(
+    BuildContext context, UserModel userModelCurrent) async {
+  FirebaseStorage storage = FirebaseStorage.instance;
+  final picker = ImagePicker();
+
+  try {
+    final pickedImage = await picker.pickImage(
+        source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+    if (pickedImage != null) {
+      await _cropImage(context, pickedImage).then((croppedFile) async {
+        if (croppedFile != null) {
+          final String fileName = path.basename(croppedFile.path);
+          File imageFile = File(croppedFile.path);
+          try {
+            var task = storage.ref(fileName).putFile(imageFile);
+
+            if (task == null) return;
+            showAlertDialogLoading(context);
+
+            final snapshot = await task.whenComplete(() {});
+            final urlDownload = await snapshot.ref.getDownloadURL();
+
+            userModelCurrent.userImageUrl.add(urlDownload);
+            userModelCurrent.userImagePath.add(fileName);
+
+            final docUser = FirebaseFirestore.instance
+                .collection('User')
+                .doc(FirebaseAuth.instance.currentUser?.uid);
+
+            final json = {
+              'listImageUri': userModelCurrent.userImageUrl,
+              'listImagePath': userModelCurrent.userImagePath
+            };
+
+            docUser.update(json).then((value) {
+              Navigator.pushReplacement(
+                  context,
+                  FadeRouteAnimation(ManagerScreen(
+                    currentIndex: 3,
+                  )));
+            });
+          } on FirebaseException {
+            Navigator.pop(context);
+          }
+        }
+      });
+    }
+  } catch (err) {}
+}
+
+Future<void> updateFirstImage(
+    BuildContext context, UserModel userModelCurrent, bool isScreen) async {
   List<String> listImageUri = [], listImagePath = [];
   FirebaseStorage storage = FirebaseStorage.instance;
   final picker = ImagePicker();
-  XFile? pickedImage;
   try {
-    pickedImage = await picker.pickImage(
+    final pickedImage = await picker.pickImage(
         source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
+    if (pickedImage != null) {
+      await _cropImage(context, pickedImage).then((croppedFile) async {
+        if (croppedFile != null) {
+          final String fileName = path.basename(croppedFile.path);
+          File imageFile = File(croppedFile.path);
 
-    final String fileName = path.basename(pickedImage!.path);
-    File imageFile = File(pickedImage.path);
+          try {
+            var task = storage.ref(fileName).putFile(imageFile);
+            if (task == null) return;
 
-    try {
-      var task = storage.ref(fileName).putFile(imageFile);
-      if (task == null) return;
+            showAlertDialogLoading(context);
 
-      showAlertDialogLoading(context);
+            final snapshot = await task.whenComplete(() {});
+            final urlDownload = await snapshot.ref.getDownloadURL();
 
-      final snapshot = await task.whenComplete(() {});
-      final urlDownload = await snapshot.ref.getDownloadURL();
+            CachedNetworkImage.evictFromCache(userModelCurrent.userImageUrl[0]);
 
-      CachedNetworkImage.evictFromCache(userModelCurrent.userImageUrl[0]);
+            await storage.ref(userModelCurrent.userImagePath[0]).delete();
 
-      await storage.ref(userModelCurrent.userImagePath[0]).delete();
+            userModelCurrent.userImageUrl.removeAt(0);
+            userModelCurrent.userImagePath.removeAt(0);
 
-      userModelCurrent.userImageUrl.removeAt(0);
-      userModelCurrent.userImagePath.removeAt(0);
+            listImagePath.add(fileName);
+            listImageUri.add(urlDownload);
 
-      listImagePath.add(fileName);
-      listImageUri.add(urlDownload);
+            listImagePath.addAll(userModelCurrent.userImagePath);
+            listImageUri.addAll(userModelCurrent.userImageUrl);
 
-      listImagePath.addAll(userModelCurrent.userImagePath);
-      listImageUri.addAll(userModelCurrent.userImageUrl);
+            final docUser = FirebaseFirestore.instance
+                .collection('User')
+                .doc(userModelCurrent.uid);
 
-      final docUser = FirebaseFirestore.instance
-          .collection('User')
-          .doc(userModelCurrent.uid);
+            final json = {
+              'listImageUri': listImageUri,
+              'listImagePath': listImagePath
+            };
 
-      final json = {
-        'listImageUri': listImageUri,
-        'listImagePath': listImagePath
-      };
-
-      docUser.update(json).then((value) {
-        Navigator.pop(context);
-        if (isScreen) {
-          Navigator.pushReplacement(
-              context,
-              FadeRouteAnimation(EditProfileScreen(
-                isFirst: false,
-                userModel: UserModel(
-                    name: '',
-                    uid: '',
-                    myCity: '',
-                    ageTime: Timestamp.now(),
-                    userPol: '',
-                    searchPol: '',
-                    searchRangeStart: 0,
-                    userImageUrl: [],
-                    userImagePath: [],
-                    imageBackground: '',
-                    userInterests: [],
-                    searchRangeEnd: 0,
-                    ageInt: 0,
-                    state: '',
-                    token: '',
-                    notification: true),
-              )));
-        } else {
-          Navigator.pushReplacement(
-              context,
-              FadeRouteAnimation(ManagerScreen(
-                currentIndex: 3,
-              )));
+            docUser.update(json).then((value) {
+              Navigator.pop(context);
+              if (isScreen) {
+                Navigator.pushReplacement(
+                    context,
+                    FadeRouteAnimation(EditProfileScreen(
+                      isFirst: false,
+                      userModel: UserModel(
+                          name: '',
+                          uid: '',
+                          myCity: '',
+                          ageTime: Timestamp.now(),
+                          userPol: '',
+                          searchPol: '',
+                          searchRangeStart: 0,
+                          userImageUrl: [],
+                          userImagePath: [],
+                          imageBackground: '',
+                          userInterests: [],
+                          searchRangeEnd: 0,
+                          ageInt: 0,
+                          state: '',
+                          token: '',
+                          notification: true),
+                    )));
+              } else {
+                Navigator.pushReplacement(
+                    context,
+                    FadeRouteAnimation(ManagerScreen(
+                      currentIndex: 3,
+                    )));
+              }
+            });
+          } on FirebaseException {
+            Navigator.pop(context);
+          }
         }
       });
-    } on FirebaseException {
-      Navigator.pop(context);
     }
   } catch (err) {
     // Navigator.pop(context);
@@ -230,52 +306,6 @@ Future<void> deleteSympathyPartner(String idPartner, String idUser) async {
   });
 }
 
-Future<void> uploadImageAdd(BuildContext context, UserModel userModelCurrent) async {
-  FirebaseStorage storage = FirebaseStorage.instance;
-
-  final picker = ImagePicker();
-  XFile? pickedImage;
-  try {
-    pickedImage = await picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 24, maxWidth: 1920);
-
-    final String fileName = path.basename(pickedImage!.path);
-    File imageFile = File(pickedImage.path);
-
-    try {
-      var task = storage.ref(fileName).putFile(imageFile);
-
-      if (task == null) return;
-      showAlertDialogLoading(context);
-
-      final snapshot = await task.whenComplete(() {});
-      final urlDownload = await snapshot.ref.getDownloadURL();
-
-      userModelCurrent.userImageUrl.add(urlDownload);
-      userModelCurrent.userImagePath.add(fileName);
-
-      final docUser = FirebaseFirestore.instance
-          .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid);
-
-      final json = {
-        'listImageUri': userModelCurrent.userImageUrl,
-        'listImagePath': userModelCurrent.userImagePath
-      };
-
-      docUser.update(json).then((value) {
-        Navigator.pushReplacement(
-            context,
-            FadeRouteAnimation(ManagerScreen(
-              currentIndex: 3,
-            )));
-      });
-    } on FirebaseException {
-      Navigator.pop(context);
-    }
-  } catch (err) {}
-}
-
 Future<void> imageRemove(int index, BuildContext context, UserModel userModelCurrent) async {
   FirebaseStorage storage = FirebaseStorage.instance;
   try {
@@ -290,7 +320,7 @@ Future<void> imageRemove(int index, BuildContext context, UserModel userModelCur
 
       final docUser = FirebaseFirestore.instance
           .collection('User')
-          .doc(FirebaseAuth.instance.currentUser?.uid);
+          .doc(userModelCurrent.uid);
 
       final json = {
         'listImageUri': userModelCurrent.userImageUrl,

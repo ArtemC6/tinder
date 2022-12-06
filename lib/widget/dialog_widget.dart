@@ -307,11 +307,13 @@ showAlertDialogDeleteChat(BuildContext context, String friendId,
 showAlertDialogLoading(BuildContext context) {
   CustomProgressDialog.future(
       loadingWidget: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-        size: 48,
-        color: Colors.blueAccent,
+          child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        child: LoadingAnimationWidget.dotsTriangle(
+          size: 48,
+          color: Colors.blueAccent,
+        ),
       )),
-      blur: 0.8,
       dismissable: false,
       context,
       future: Future.delayed(const Duration(seconds: 4)));

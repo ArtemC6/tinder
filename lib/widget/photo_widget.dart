@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../model/user_model.dart';
+import 'animation_widget.dart';
 import 'button_widget.dart';
 import 'dialog_widget.dart';
 
@@ -80,18 +80,9 @@ class photoProfileGallery extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 26, top: 20, bottom: 18),
-          child: RichText(
-            text: TextSpan(
-              text: 'Фото',
-              style: GoogleFonts.lato(
-                textStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 12,
-                    letterSpacing: .9),
-              ),
-            ),
-          ),
+          padding: const EdgeInsets.all(20),
+          child:
+              animatedText(12.0, 'Фото', Colors.white.withOpacity(0.8), 800, 1),
         ),
         SizedBox(
             height: 380,
@@ -190,18 +181,9 @@ class photoProfileSettingsGallery extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.only(left: 26, top: 20, bottom: 18),
-          child: RichText(
-            text: TextSpan(
-              text: 'Фото',
-              style: GoogleFonts.lato(
-                textStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 12,
-                    letterSpacing: .9),
-              ),
-            ),
-          ),
+          padding: const EdgeInsets.all(20),
+          child:
+              animatedText(12.0, 'Фото', Colors.white.withOpacity(0.8), 800, 1),
         ),
         SizedBox(
             height: 380,
@@ -283,7 +265,7 @@ class photoProfileSettingsGallery extends StatelessWidget {
                                         splashColor: Colors.transparent,
                                         highlightColor: Colors.transparent,
                                         onTap: () {
-                                          uploadImage(
+                                          updateFirstImage(
                                               context, userModel, false);
                                         },
                                         child: Padding(

@@ -27,21 +27,12 @@ class slideInterests extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.all(22),
-          child: RichText(
-            text: TextSpan(
-              text: 'Интересы',
-              style: GoogleFonts.lato(
-                textStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 11,
-                    letterSpacing: .9),
-              ),
-            ),
-          ),
+          padding: const EdgeInsets.all(20),
+          child: animatedText(
+              11.0, 'Интересы', Colors.white.withOpacity(0.8), 750, 1),
         ),
         SizedBox(
-          height: 100,
+          height: 94,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -165,21 +156,12 @@ class slideInterestsSettings extends StatelessWidget {
       children: [
         Container(
           alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.all(22),
-          child: RichText(
-            text: TextSpan(
-              text: 'Интересы',
-              style: GoogleFonts.lato(
-                textStyle: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 11,
-                    letterSpacing: .9),
-              ),
-            ),
-          ),
+          padding: const EdgeInsets.all(20),
+          child: animatedText(
+              11.0, 'Интересы', Colors.white.withOpacity(0.8), 750, 1),
         ),
         SizedBox(
-          height: 100,
+          height: 96,
           child: AnimationLimiter(
             child: ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -626,8 +608,8 @@ class _topPanelChatState extends State<topPanelChat> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.only(
-                            left: 22, top: 8, bottom: 0, right: 4),
+                        padding:
+                            const EdgeInsets.only(left: 22, top: 8, right: 4),
                         child: InkWell(
                           highlightColor: Colors.transparent,
                           splashColor: Colors.transparent,
@@ -662,18 +644,18 @@ class _topPanelChatState extends State<topPanelChat> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SizedBox(
-                                width: 43,
-                                height: 43,
+                                width: 50,
+                                height: 50,
                                 child: Stack(
                                   alignment: Alignment.bottomRight,
                                   children: [
-                                      photoUser(
-                                        uri: friendImage,
-                                        width: 43,
-                                        height: 43,
-                                        state: 'offline',
-                                        padding: 0,
-                                      ),
+                                    photoUser(
+                                      uri: friendImage,
+                                      width: 50,
+                                      height: 50,
+                                      state: 'offline',
+                                      padding: 0,
+                                    ),
                                     if (asyncSnapshot.data['state'] != 'offline')
                                       SlideFadeTransition(
                                         animationDuration:

@@ -138,7 +138,7 @@ SlideFadeTransition showProgressWrite() {
   );
 }
 
-SlideFadeTransition animatedText(size, text, color, time, line) {
+SlideFadeTransition animatedText(double size, text, color, time, line) {
   return SlideFadeTransition(
     animationDuration: Duration(milliseconds: time),
     child: RichText(

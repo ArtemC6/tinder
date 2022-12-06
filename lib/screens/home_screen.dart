@@ -42,13 +42,13 @@ class _HomeScreen extends State<HomeScreen>
   Future readFirebase(
       int setLimit, bool isDeleteDislike, bool isReadDislike) async {
     limit += setLimit;
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        isWrite = true;
-      });
-    });
+    // Future.delayed(const Duration(milliseconds: 200), () {
+    //   setState(() {
+    //     isWrite = true;
+    //   });
+    // });
 
-    userModelPartner.clear();
+    // userModelPartner.clear();
 
     // for (var elementMain in listDisLike) {
     //   print('did: $elementMain');
@@ -62,7 +62,7 @@ class _HomeScreen extends State<HomeScreen>
     //   //   }
     // }
 
-    print(' length Do: ${userModelPartner.length}');
+    // print(' length Do: ${userModelPartner.length}');
 
     // for (var elementMain in listDisLike) {
     //   userModelPartner.removeWhere((element) => element == elementMain );
@@ -88,13 +88,13 @@ class _HomeScreen extends State<HomeScreen>
         // .where('myCity', isEqualTo: userModelCurrent.myCity)
         .limit(limit)
         .get()
-        .then((QuerySnapshot querySnapshot) {
+        .then((QuerySnapshot querySnapshot) async {
       for (var document in querySnapshot.docs) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         if (userModelCurrent.searchRangeStart <= data['ageInt'] &&
             userModelCurrent.searchRangeEnd >= data['ageInt']) {
           bool isDislike = true;
-          Future.forEach(listDisLike, (idUser) {
+          await Future.forEach(listDisLike, (idUser) {
             if (idUser == data['uid']) {
               isDislike = false;
             }
@@ -117,45 +117,30 @@ class _HomeScreen extends State<HomeScreen>
                   state: data['state'],
                   token: data['token'],
                   notification: data['notification']));
-              print('List ${userModelPartner.length}');
+              // print('List ${userModelPartner.length}');
               setState(() {});
-            } else {
-              if (isDeleteDislike) {
-                print('Limit ${limit}');
-                if (userModelPartner.length < 3) {
-                  print(
-                      'limit: ${limit} list length: ${userModelPartner.length}');
-
-                  setState(() {
-                    listDisLike.clear();
-                  });
-                  deleteDislike(userModelCurrent.uid);
-                }
-              }
             }
           });
         }
       }
     }).then((value) {
-      print(' ?? ${userModelPartner.length}');
+      print('Length: ${userModelPartner.length}');
+
       setState(() {
-        //   if(userModelPartner.length < 3) {
-        //     print('limit: ${limit} list length: ${userModelPartner
-        //         .length}');
-        //
-        //     setState(() {
-        //       listDisLike.clear();
-        //     });
-        //     deleteDislike(userModelCurrent.uid);
-        //   }
+        if (userModelPartner.length < 3) {
+          print('limit: ${limit} list length: ${userModelPartner.length}');
+
+          setState(() {
+            listDisLike.clear();
+          });
+          deleteDislike(userModelCurrent.uid);
+        }
 
         userModelPartner.toSet();
-
+        isWrite = true;
         isLoading = true;
       });
     });
-
-    print('Finla');
   }
 
   @override

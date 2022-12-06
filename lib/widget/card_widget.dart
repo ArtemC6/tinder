@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +15,12 @@ class photoUser extends StatelessWidget {
   String uri, state;
   double height, width, padding;
 
-  photoUser(
-      {Key? key,
-      required this.uri,
-      required this.height,
-      required this.width,
-      required this.padding,
-      required this.state})
+  photoUser({Key? key,
+    required this.uri,
+    required this.height,
+    required this.width,
+    required this.padding,
+    required this.state})
       : super(key: key);
 
   @override
@@ -112,7 +113,7 @@ class itemUserLike extends StatelessWidget {
           elevation: 14,
           child: Container(
             padding:
-                const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 10),
+            const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 10),
             child: InkWell(
               highlightColor: Colors.transparent,
               splashColor: Colors.transparent,
@@ -131,6 +132,8 @@ class itemUserLike extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
+                    width: 60,
+                    height: 60,
                     child: photoUser(
                       uri: userModelLike.userImageUrl[0],
                       width: 60,
@@ -154,7 +157,7 @@ class itemUserLike extends StatelessWidget {
                               RichText(
                                 text: TextSpan(
                                   text:
-                                      '${userModelLike.name}, ${userModelLike.ageInt}',
+                                  '${userModelLike.name}, ${userModelLike.ageInt}',
                                   style: GoogleFonts.lato(
                                     textStyle: const TextStyle(
                                         color: Colors.white,
@@ -210,15 +213,14 @@ class itemUserLike extends StatelessWidget {
   }
 }
 
-CustomScrollView cardLoadingWidget(
-    Size size, double heightCard, double heightAvatar) {
+CustomScrollView cardLoadingWidget(Size size, double heightCard, double heightAvatar) {
   return CustomScrollView(
     slivers: [
       SliverPadding(
         padding: const EdgeInsets.all(20),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) {
+                (context, index) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Column(
@@ -231,7 +233,7 @@ CustomScrollView cardLoadingWidget(
                             colorOne: Colors.white.withOpacity(0.10)),
                         height: size.height * heightCard,
                         borderRadius:
-                            const BorderRadius.all(Radius.circular(15)),
+                        const BorderRadius.all(Radius.circular(15)),
                         margin: const EdgeInsets.only(bottom: 10),
                       ),
                       Positioned(
@@ -243,7 +245,7 @@ CustomScrollView cardLoadingWidget(
                           height: size.height * heightAvatar,
                           width: size.height * heightAvatar,
                           borderRadius:
-                              const BorderRadius.all(Radius.circular(50)),
+                          const BorderRadius.all(Radius.circular(50)),
                           margin: const EdgeInsets.only(bottom: 10),
                         ),
                       ),
@@ -259,7 +261,7 @@ CustomScrollView cardLoadingWidget(
                             height: 30,
                             width: 200,
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(15)),
+                            const BorderRadius.all(Radius.circular(15)),
                             margin: const EdgeInsets.only(bottom: 10),
                           ),
                         ),
@@ -273,7 +275,7 @@ CustomScrollView cardLoadingWidget(
                             height: 30,
                             width: 200,
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(15)),
+                            const BorderRadius.all(Radius.circular(15)),
                             margin: const EdgeInsets.only(bottom: 10),
                           ),
                         ),
@@ -314,7 +316,6 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
         )),
     elevation: 10,
     child: Stack(
-      fit: StackFit.expand,
       alignment: Alignment.bottomLeft,
       children: [
         ClipRRect(
@@ -330,39 +331,59 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
               width: MediaQuery.of(context).size.width),
         ),
         Positioned(
-          height: MediaQuery.of(context).size.height *  0.10,
-          width: MediaQuery.of(context).size.width,
+          height: 61,
           child: Container(
-            // color: Colors.green,
             alignment: Alignment.bottomLeft,
-            // decoration: BoxDecoration(
-            //   borderRadius: BorderRadius.circular(22),
-            // ),
-            padding: const EdgeInsets.only(bottom: 20, left: 20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // animatedText(
-                //     14.0,
-                //     '${userModelPartner[index].name}, '
-                //         '${userModelPartner[index].ageInt} '
-                //         '\n${userModelPartner[index].myCity}',
-                //     400,
-                //     Colors.white,
-                //     1),
-
-                RichText(
-                  text: TextSpan(
-                    text: '${userModelPartner[index].name}, '
-                        '${userModelPartner[index].ageInt} '
-                        '\n${userModelPartner[index].myCity}',
-                    style: GoogleFonts.lato(
-                      textStyle: const TextStyle(
-                          color: Colors.white, fontSize: 14, letterSpacing: .0),
+            padding: const EdgeInsets.only(
+              left: 12,
+              bottom: 10,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: Colors.white38,
+                    width: 1,
+                  ),
+                ),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: 12,
+                    sigmaY: 12,
+                  ),
+                  child: Container(
+                    alignment: Alignment.bottomLeft,
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        animatedText(
+                            14.0,
+                            '${userModelPartner[index].name}, '
+                            '${userModelPartner[index].ageInt} ',
+                            Colors.white,
+                            500,
+                            1),
+                        Row(
+                          children: [
+                            animatedText(11.0, userModelPartner[index].myCity,
+                                Colors.white, 500, 1),
+                            if (userModelPartner[index].state == 'online')
+                              Image.asset(
+                                fit: BoxFit.fill,
+                                'images/ic_green_dot.png',
+                                height: 22,
+                                width: 22,
+                              ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),

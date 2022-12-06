@@ -48,6 +48,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     AnimationLimiter listImageProfile(BuildContext context) {
       return AnimationLimiter(
           child: AnimationConfiguration.staggeredList(
@@ -59,10 +60,9 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
           curve: Curves.ease,
           child: FadeInAnimation(
               curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 3000),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height,
+                duration: const Duration(milliseconds: 3000),
                 child: GridView.custom(
+                    shrinkWrap: true,
                     gridDelegate: SliverQuiltedGridDelegate(
                         mainAxisSpacing: 4,
                         crossAxisSpacing: 0,
@@ -157,7 +157,7 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
                     })),
               )),
         ),
-      ));
+      );
     }
 
     Padding topPanelProfile(BuildContext context) {
@@ -208,13 +208,33 @@ class _EditImageProfileScreen extends State<EditImageProfileScreen> {
       return Scaffold(
         backgroundColor: color_black_88,
         body: SafeArea(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                topPanelProfile(context),
-                listImageProfile(context),
-              ],
+          child: Theme(
+            data: ThemeData.light(),
+            child: NestedScrollView(
+              physics: const BouncingScrollPhysics(),
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[
+                  SliverAppBar(
+                    expandedHeight: 60,
+                    automaticallyImplyLeading: false,
+                    floating: false,
+                    forceElevated: innerBoxIsScrolled,
+                    pinned: false,
+                    titleSpacing: 0,
+                    backgroundColor:
+                        innerBoxIsScrolled ? color_black_88 : color_black_88,
+                    title: const SizedBox(),
+                    flexibleSpace: FlexibleSpaceBar(
+                        background: Container(
+                      color: color_black_88,
+                      child: topPanelProfile(context),
+                    )),
+                  ),
+                ];
+              },
+              body: SizedBox(
+                  height: size.height, child: listImageProfile(context)),
             ),
           ),
         ),

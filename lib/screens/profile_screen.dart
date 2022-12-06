@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +43,7 @@ class _ProfileScreen extends State<ProfileScreen> {
       this.userModelPartner, this.isBack, this.idUser, this.userModelCurrent);
 
   Future sortingList() async {
-   await readInterestsFirebase().then((map) {
+    await readInterestsFirebase().then((map) {
       for (var elementMain in userModelPartner.userInterests) {
         map.forEach((key, value) {
           if (elementMain == key) {
@@ -109,8 +111,10 @@ class _ProfileScreen extends State<ProfileScreen> {
     var size = MediaQuery.of(context).size;
     if (isLoading) {
       return Scaffold(
-          backgroundColor: color_black_88,
-          body: SingleChildScrollView(
+        backgroundColor: color_black_88,
+        body: Theme(
+          data: ThemeData.light(),
+          child: SingleChildScrollView(
               child: AnimationLimiter(
                   child: AnimationConfiguration.staggeredList(
             position: 1,
@@ -122,7 +126,9 @@ class _ProfileScreen extends State<ProfileScreen> {
               child: FadeInAnimation(
                 curve: Curves.easeOut,
                 duration: const Duration(milliseconds: 3000),
-                child: Stack(
+                        child: Stack(
+                  alignment:
+                      isProprietor ? Alignment.topRight : Alignment.topLeft,
                   children: [
                     Positioned(
                       child: SizedBox(
@@ -134,43 +140,91 @@ class _ProfileScreen extends State<ProfileScreen> {
                           fit: BoxFit.cover,
                           imageUrl: userModelPartner.imageBackground,
                         ),
-                      ),
-                    ),
+                              ),
+                            ),
                     if (isBack)
-                      Positioned(
+                              Positioned(
+                                height: 70,
                         child: Container(
-                          margin: const EdgeInsets.only(
-                            top: 20,
+                          alignment: Alignment.bottomLeft,
+                          padding: const EdgeInsets.only(
+                            left: 12,
                           ),
-                          height: 40,
-                          width: 40,
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                                size: 20),
-                            color: Colors.white,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: Colors.white38,
+                                  width: 1,
+                                ),
+                              ),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 12,
+                                  sigmaY: 12,
+                                ),
+                                child: SizedBox(
+                                  height: 40,
+                                  width: 40,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    icon: const Icon(
+                                        Icons.arrow_back_ios_new_rounded,
+                                        size: 20),
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-
                     if (isProprietor)
                       Positioned(
+                        height: 70,
                         child: Container(
-                          padding: const EdgeInsets.only(top: 24, right: 24),
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  FadeRouteAnimation(ProfileSettingScreen(
-                                    userModel: userModelPartner,
-                                    listInterests: listStory,
-                                  )));
-                            },
-                            icon: const Icon(Icons.settings, size: 20),
-                            color: Colors.white,
+                          alignment: Alignment.bottomRight,
+                          padding: const EdgeInsets.only(
+                            right: 12,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: Colors.white38,
+                                  width: 1,
+                                ),
+                              ),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 12,
+                                  sigmaY: 12,
+                                ),
+                                child: SizedBox(
+                                  height: 40,
+                                  width: 40,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          FadeRouteAnimation(
+                                              ProfileSettingScreen(
+                                            userModel: userModelPartner,
+                                            listInterests: listStory,
+                                          )));
+                                    },
+                                    icon: const Icon(Icons.settings, size: 20),
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -184,61 +238,62 @@ class _ProfileScreen extends State<ProfileScreen> {
                             color: Colors.transparent,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                photoProfile(uri: userModelPartner.userImageUrl[0]),
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                photoProfile(
+                                    uri: userModelPartner.userImageUrl[0]),
                                 buttonLike(
                                     isLike: isLike,
                                     userModelFriend: userModelPartner,
                                     userModelCurrent: userModelCurrent),
                               ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding:
-                                    const EdgeInsets.only(top: 10, left: 14),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    animatedText(
-                                        15.0,
-                                        '${userModelPartner.name}, ${userModelPartner.ageInt}',
-                                        Colors.white,
-                                        700,
-                                        1),
-                                    animatedText(11.0, userModelPartner.myCity,
-                                        Colors.white.withOpacity(.8), 700, 1),
-                                  ],
-                                ),
-                              ),
-                              if (isProprietor)
-                                buttonProfileMy(userModelPartner),
-                              if (!isProprietor)
-                                buttonProfileUser(
-                                  userModelCurrent,
-                                  userModelPartner,
-                                ),
-                              const SizedBox()
-                            ],
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(top: 20),
-                            alignment: Alignment.topLeft,
-                            decoration: const BoxDecoration(
-                                color: color_black_88,
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(22),
-                                    topRight: Radius.circular(22))),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                infoPanelWidget(userModel: userModelPartner),
-                                slideInterests(listStory),
-                                photoProfileGallery(
-                                    userModelPartner.userImageUrl),
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding:
+                                        const EdgeInsets.only(top: 10, left: 14),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            animatedText(
+                                                15.0,
+                                                '${userModelPartner.name}, ${userModelPartner.ageInt}',
+                                                Colors.white,
+                                                700,
+                                                1),
+                                            animatedText(11.0, userModelPartner.myCity,
+                                                Colors.white.withOpacity(.8), 700, 1),
+                                          ],
+                                        ),
+                                      ),
+                                      if (isProprietor)
+                                        buttonProfileMy(userModelPartner),
+                                      if (!isProprietor)
+                                        buttonProfileUser(
+                                          userModelCurrent,
+                                          userModelPartner,
+                                        ),
+                                      const SizedBox()
+                                    ],
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 20),
+                                    alignment: Alignment.topLeft,
+                                    decoration: const BoxDecoration(
+                                        color: color_black_88,
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(22),
+                                            topRight: Radius.circular(22))),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        infoPanelWidget(userModel: userModelPartner),
+                                        slideInterests(listStory),
+                                        photoProfileGallery(
+                                            userModelPartner.userImageUrl),
                               ],
                             ),
                           ),
@@ -249,7 +304,9 @@ class _ProfileScreen extends State<ProfileScreen> {
                 ),
               ),
             ),
-          ))));
+          ))),
+        ),
+      );
     }
     return const loadingCustom();
   }

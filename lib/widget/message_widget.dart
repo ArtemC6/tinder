@@ -40,7 +40,7 @@ class MessagesItem extends StatelessWidget {
                 style: GoogleFonts.lato(
                   textStyle: TextStyle(
                       color: Colors.white.withOpacity(.9),
-                      fontSize: 13,
+                      fontSize: 12.5,
                       letterSpacing: .5),
                 ),
               ),
@@ -51,7 +51,7 @@ class MessagesItem extends StatelessWidget {
                 style: GoogleFonts.lato(
                   textStyle: TextStyle(
                       color: Colors.white.withOpacity(.9),
-                      fontSize: 10,
+                      fontSize: 9.0,
                       letterSpacing: .5),
                 ),
               ),

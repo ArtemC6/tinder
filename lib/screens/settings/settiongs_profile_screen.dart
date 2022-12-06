@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,10 +38,12 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: color_black_88,
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Positioned(
+      body: Theme(
+        data: ThemeData.light(),
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Positioned(
                 child: SizedBox(
                   height: size.height * .28,
                   width: size.width,
@@ -51,51 +55,73 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                   ),
                 ),
               ),
-                Positioned(
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      top: 20,
-                    ),
-                    height: 40,
-                    width: 40,
-                    child: IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          size: 20),
-                      color: Colors.white,
-                    ),
+              Positioned(
+                height: 70,
+                child: Container(
+                  alignment: Alignment.bottomLeft,
+                  padding: const EdgeInsets.only(
+                    left: 12,
                   ),
-                ),
-                Positioned(
-                  child: Container(
-                      padding: const EdgeInsets.only(top: 32, right: 28),
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.white12)),
-                        child: customIconButton(
-                          height: 23,
-                          width: 23,
-                        path: 'images/ic_image.png',
-                        padding: 2,
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            FadeRouteAnimation(
-                              EditImageProfileScreen(
-                                bacImage: userModel.imageBackground,
-                              ),
-                            ),
-                          );
-                        },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: Colors.white38,
+                          width: 1,
+                        ),
+                      ),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(
+                          sigmaX: 12,
+                          sigmaY: 12,
+                        ),
+                        child: SizedBox(
+                          height: 40,
+                          width: 40,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                                size: 20),
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ),
+              Positioned(
+                child: Container(
+                  padding: const EdgeInsets.only(top: 32, right: 28),
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.white12)),
+                    child: customIconButton(
+                      height: 23,
+                      width: 23,
+                      path: 'images/ic_image.png',
+                      padding: 2,
+                      onTap: () {
+                        Navigator.pushReplacement(
+                          context,
+                          FadeRouteAnimation(
+                            EditImageProfileScreen(
+                              bacImage: userModel.imageBackground,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
               Container(
                 margin: EdgeInsets.only(top: size.height * .20),
                 child: Column(
@@ -116,7 +142,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                               width: 25,
                               height: 25,
                               onTap: () async {
-                                uploadImage(context, userModel, false);
+                                updateFirstImage(context, userModel, false);
                               },
                               padding: 0,
                             ),
@@ -135,7 +161,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                               RichText(
                                 text: TextSpan(
                                   text:
-                                      '${userModel.name}, ${userModel.ageInt}',
+                                  '${userModel.name}, ${userModel.ageInt}',
                                   style: GoogleFonts.lato(
                                     textStyle: TextStyle(
                                         color: Colors.white.withOpacity(1),
@@ -154,7 +180,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                                         style: GoogleFonts.lato(
                                           textStyle: TextStyle(
                                               color:
-                                                  Colors.white.withOpacity(0.8),
+                                              Colors.white.withOpacity(0.8),
                                               fontSize: 11,
                                               letterSpacing: .5),
                                         ),
@@ -181,12 +207,12 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                        infoPanelWidget(
-                          userModel: userModel,
-                        ),
-                        slideInterestsSettings(listInterests, userModel),
-                        photoProfileSettingsGallery(userModel),
-                      ],
+                          infoPanelWidget(
+                            userModel: userModel,
+                          ),
+                          slideInterestsSettings(listInterests, userModel),
+                          photoProfileSettingsGallery(userModel),
+                        ],
                       ),
                     ),
                   ],
@@ -195,6 +221,7 @@ class _ProfileSettingScreen extends State<ProfileSettingScreen> {
             ],
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
 }

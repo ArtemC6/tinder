@@ -142,14 +142,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void settingsValue() {
     _nameController.text = modelUser.name;
-
-    print('111');
-    print('111');
-    print('111');
-    print('111');
-    print('111');
-    print(modelUser.notification);
-
     if (modelUser.notification) {
       _notificationController.text = 'Включить';
     } else {
@@ -184,12 +176,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future readFirebase() async {
-    print('read');
-    print((modelUser.uid));
     if (modelUser.uid == '') {
       await readUserFirebase().then((user) {
-        print('Eas');
-
         setState(() {
           modelUser = UserModel(
               name: user.name,
@@ -334,9 +322,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       height: 23,
                                       onTap: () async {
                                         uploadFirstImage(
-                                            context,
-                                            modelUser.userImageUrl,
-                                            modelUser.userImagePath);
+                                                context,
+                                                modelUser.userImageUrl,
+                                                modelUser.userImagePath)
+                                            .then((uri) {
+                                          setState(() {
+                                            if (uri != '') {
+                                              isPhoto = true;
+                                              modelUser.userImageUrl.add(uri);
+                                            }
+                                          });
+                                        });
                                       },
                                       padding: 6,
                                     ),
@@ -346,7 +342,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       width: 25,
                                       height: 25,
                                       onTap: () async {
-                                        uploadImage(context, modelUser, true);
+                                        updateFirstImage(
+                                            context, modelUser, true);
                                       },
                                       padding: 3,
                                     ),
@@ -354,17 +351,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.only(bottom: 6, top: 6),
-                            alignment: Alignment.centerRight,
-                            child: buttonUniversal(
-                                isFirst ? 'Завершить' : 'Сохронить', [
-                              Colors.blueAccent,
-                              Colors.purpleAccent,
-                              Colors.orangeAccent
-                            ], () {
-                              _uploadData();
-                            }),
+                          SlideFadeTransition(
+                            animationDuration:
+                                const Duration(milliseconds: 900),
+                            child: Container(
+                              padding: const EdgeInsets.only(bottom: 6, top: 6),
+                              alignment: Alignment.centerRight,
+                              child: buttonUniversal(
+                                  isFirst ? 'Завершить' : 'Сохронить', [
+                                Colors.blueAccent,
+                                Colors.purpleAccent,
+                                Colors.orangeAccent
+                              ], () {
+                                _uploadData();
+                              }),
+                            ),
                           ),
                           if (isError)
                             const Padding(
