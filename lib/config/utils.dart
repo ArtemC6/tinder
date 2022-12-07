@@ -1,7 +1,11 @@
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'const.dart';
 
 class Utils {
   static Future<String> downloadFile(String uri, String fileName) async {
@@ -13,3 +17,34 @@ class Utils {
     return filePath;
   }
 }
+
+DateTime getDataTime(Timestamp startDate) {
+  DateTime dateTimeStart = startDate.toDate();
+  return dateTimeStart;
+}
+
+String filterDate(lastDateOnline) {
+  String time = '';
+  try {
+    if (DateTime.now().difference(getDataTime(lastDateOnline)).inDays >= 1) {
+      time = '${getDataTime(lastDateOnline).day} '
+          '${months[getDataTime(lastDateOnline).month - 1]} в ${getDataTime(lastDateOnline).hour}: ${getDataTime(lastDateOnline).minute}';
+    } else {
+      time =
+          '${getDataTime(lastDateOnline).hour}: ${getDataTime(lastDateOnline).minute}';
+    }
+  } catch (error) {}
+  return time;
+}
+
+Future<bool> getState(time) async {
+  bool isWriteUser = true;
+  await Future.delayed(Duration(milliseconds: time), () {
+    isWriteUser = false;
+  });
+  return isWriteUser;
+}
+
+// Future<void> _launchUrl(String uri) async {
+//   if (!await launchUrl(Uri.parse(uri))) {}
+// }

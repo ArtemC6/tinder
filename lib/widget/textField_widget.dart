@@ -70,7 +70,13 @@ Widget textFieldProfileSettings(TextEditingController nameController,
                 size: 18,
               ),
               labelText: hint,
+              floatingLabelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 15.5,
+                fontWeight: FontWeight.bold,
+              ),
               labelStyle: const TextStyle(
+                fontSize: 14.5,
                 fontFamily: 'Montserrat',
                 fontWeight: FontWeight.bold,
                 color: Colors.white,

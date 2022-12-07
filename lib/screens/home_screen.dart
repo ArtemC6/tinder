@@ -26,7 +26,7 @@ class _HomeScreen extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late CardController controllerCard;
   double colorIndex = 0;
-  int limit = 0;
+  int limit = 0, count = 0;
   bool isLike = false,
       isLook = false,
       isLoading = false,
@@ -42,39 +42,10 @@ class _HomeScreen extends State<HomeScreen>
   Future readFirebase(
       int setLimit, bool isDeleteDislike, bool isReadDislike) async {
     limit += setLimit;
-    // Future.delayed(const Duration(milliseconds: 200), () {
-    //   setState(() {
-    //     isWrite = true;
-    //   });
-    // });
 
-    // userModelPartner.clear();
-
-    // for (var elementMain in listDisLike) {
-    //   print('did: $elementMain');
-    // }
-    // //   print(elementMain);
-    // for (var element in userModelPartner) {
-    //   print('user: ${element.uid}');
-    //
-    //   //   if (elementMain == element.uid) {
-    //   //     print(element.name);
-    //   //   }
-    // }
-
-    // print(' length Do: ${userModelPartner.length}');
-
-    // for (var elementMain in listDisLike) {
-    //   userModelPartner.removeWhere((element) => element == elementMain );
-    //
-    // for (var element in userModelPartner) {
-    //   if (elementMain == element.uid) {
-    //     userModelPartner.remove(element);
-    //
-    //     print('${element.uid} name :${element.name} length: ${userModelPartner.length}');
-    //   }
-    // }
-    // }
+    if (userModelPartner.length > 2) {
+      userModelPartner.clear();
+    }
 
     if (isReadDislike) {
       await readDislikeFirebase(userModelCurrent.uid).then((list) {
@@ -92,7 +63,8 @@ class _HomeScreen extends State<HomeScreen>
       for (var document in querySnapshot.docs) {
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         if (userModelCurrent.searchRangeStart <= data['ageInt'] &&
-            userModelCurrent.searchRangeEnd >= data['ageInt']) {
+            userModelCurrent.searchRangeEnd >= data['ageInt'] &&
+            data['uid'] != userModelCurrent.uid) {
           bool isDislike = true;
           await Future.forEach(listDisLike, (idUser) {
             if (idUser == data['uid']) {
@@ -117,26 +89,39 @@ class _HomeScreen extends State<HomeScreen>
                   state: data['state'],
                   token: data['token'],
                   notification: data['notification']));
-              // print('List ${userModelPartner.length}');
-              setState(() {});
             }
           });
         }
       }
-    }).then((value) {
-      print('Length: ${userModelPartner.length}');
+    }).then((value) async {
+      // print('Length: ${userModelPartner.length} L$limit');
+      userModelPartner.toSet();
 
       setState(() {
-        if (userModelPartner.length < 3) {
-          print('limit: ${limit} list length: ${userModelPartner.length}');
-
-          setState(() {
-            listDisLike.clear();
-          });
-          deleteDislike(userModelCurrent.uid);
+        if (userModelPartner.isEmpty) {
+          count++;
+          if (count >= 5) {
+            setState(() {
+              listDisLike.clear();
+            });
+            deleteDislike(userModelCurrent.uid);
+            count = 0;
+          }
         }
 
-        userModelPartner.toSet();
+        if (userModelPartner.length < 3) {
+          count++;
+          // print('limit: ${limit} list length: ${userModelPartner.length} count: $count}');
+
+          if (count >= 10) {
+            setState(() {
+              listDisLike.clear();
+            });
+            deleteDislike(userModelCurrent.uid);
+            count = 0;
+          }
+        }
+
         isWrite = true;
         isLoading = true;
       });
@@ -146,7 +131,7 @@ class _HomeScreen extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    readFirebase(12, false, true);
+    readFirebase(10, false, true);
   }
 
   @override
@@ -228,7 +213,7 @@ class _HomeScreen extends State<HomeScreen>
                                     if (isWrite) {
                                       // print('index: $index list:${userModelPartner.length}');
                                       isWrite = false;
-                                      readFirebase(3, true, false);
+                                      readFirebase(8, true, false);
                                     }
 
                                     return cardLoading(size, 22);
@@ -273,6 +258,7 @@ class _HomeScreen extends State<HomeScreen>
                                       isLook = false;
                                       listDisLike
                                           .add(userModelPartner[index].uid);
+
                                       createDisLike(userModelCurrent,
                                               userModelPartner[index])
                                           .then((value) {
@@ -285,8 +271,12 @@ class _HomeScreen extends State<HomeScreen>
                                     if (orientation.toString() ==
                                         'CardSwipeOrientation.RIGHT') {
                                       isLook = false;
+
                                       listDisLike
                                           .add(userModelPartner[index].uid);
+
+                                      createDisLike(userModelCurrent,
+                                          userModelPartner[index]);
 
                                       createSympathy(
                                               userModelPartner[index].uid,

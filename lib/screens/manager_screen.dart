@@ -116,7 +116,6 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     getNotificationFcm();
-
     readUserFirebase().then((user) {
       setState(() {
         userModelCurrent = UserModel(

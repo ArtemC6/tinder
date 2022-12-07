@@ -316,6 +316,7 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
         )),
     elevation: 10,
     child: Stack(
+      fit: StackFit.expand,
       alignment: Alignment.bottomLeft,
       children: [
         ClipRRect(
@@ -331,7 +332,7 @@ Widget cardPartner(int index, List<UserModel> userModelPartner, Size size,
               width: MediaQuery.of(context).size.width),
         ),
         Positioned(
-          height: 61,
+          height: 65,
           child: Container(
             alignment: Alignment.bottomLeft,
             padding: const EdgeInsets.only(

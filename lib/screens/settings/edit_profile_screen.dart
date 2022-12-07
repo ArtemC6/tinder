@@ -13,10 +13,12 @@ import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
 import '../../config/firestore_operations.dart';
+import '../../config/utils.dart';
 import '../../model/user_model.dart';
 import '../../widget/animation_widget.dart';
 import '../../widget/button_widget.dart';
@@ -48,6 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _searchPolController = TextEditingController(),
       _ageRangController = TextEditingController(),
       _localController = TextEditingController(),
+      _supportController = TextEditingController(),
       _notificationController = TextEditingController();
 
   var _selectedInterests = [];
@@ -142,6 +145,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void settingsValue() {
     _nameController.text = modelUser.name;
+    _supportController.text = 'Если у вас возникла проблема или есть предложения по улучшению вы можете обратиться';
     if (modelUser.notification) {
       _notificationController.text = 'Включить';
     } else {
@@ -205,6 +209,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       settingsValue();
     });
   }
+
+  Future<void> _launchUrl(String uri) async {
+    String? encodeQueryParameters(Map<String, String> params) {
+      return params.entries
+          .map((MapEntry<String, String> e) =>
+      '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+    }
+
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: uri,
+      query: encodeQueryParameters(<String, String>{
+        'subject': '',
+      }),
+    );
+
+    launchUrl(emailLaunchUri);
+
+  }
+
 
   @override
   void initState() {
@@ -472,6 +497,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 'Выключить',
                                 _notificationController);
                           }),
+
+                          textFieldProfileSettings(_supportController,
+                              true, 'Техподдержка', context, 30, () async {
+                            String gmail = 'supportTinder@gmail.com';
+                            _launchUrl(gmail);
+                          }),
+
                           Theme(
                             data: ThemeData.light(),
                             child: Card(

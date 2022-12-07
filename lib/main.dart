@@ -20,25 +20,15 @@ import 'package:tinder/screens/settings/warning_screen.dart';
 import 'config/firestore_operations.dart';
 import 'model/user_model.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Noo');
-  print(message.data['uri']);
-  print(message.data['uid']);
-  print(message.data['type']);
-
-}
-
 void main() async {
   CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
 
   runApp(const MyApp());
 

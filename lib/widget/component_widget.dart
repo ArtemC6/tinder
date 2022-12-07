@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../config/const.dart';
 import '../../model/interests_model.dart';
 import '../../model/user_model.dart';
+import '../config/utils.dart';
 import '../screens/profile_screen.dart';
 import '../screens/settings/edit_profile_screen.dart';
 import '../screens/view_likes_screen.dart';

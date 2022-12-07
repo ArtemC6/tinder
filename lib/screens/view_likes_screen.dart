@@ -75,8 +75,6 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                   state: data['state'],
                   token: data['token'],
                   notification: data['notification']));
-              print('like ${listLike.length} user ${listUser.length}');
-
               if (listLike.length == listUser.length + 1) {
                 isLoadingNewUser = false;
               }

@@ -7,6 +7,7 @@ import 'package:tinder/model/user_model.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
 import '../config/const.dart';
+import '../config/utils.dart';
 import '../widget/animation_widget.dart';
 import '../widget/card_widget.dart';
 import '../widget/component_widget.dart';
@@ -94,10 +95,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                       snapshotFriendId.data.docs[index].id;
                                   return AnimationConfiguration.staggeredList(
                                     position: index,
-                                    delay: const Duration(milliseconds: 400),
+                                    delay: const Duration(milliseconds: 300),
                                     child: SlideAnimation(
                                       duration:
-                                          const Duration(milliseconds: 1000),
+                                          const Duration(milliseconds: 950),
                                       verticalOffset: 80,
                                       curve: Curves.ease,
                                       child: FadeInAnimation(

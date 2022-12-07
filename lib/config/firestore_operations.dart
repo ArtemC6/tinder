@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
@@ -32,14 +33,16 @@ Future<CroppedFile?> _cropImage(BuildContext context, XFile pickedImage) async {
           toolbarColor: Colors.black,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.original,
-          lockAspectRatio: false),
+          lockAspectRatio: false,
+          activeControlsWidgetColor: Colors.blueAccent,
+      ),
       IOSUiSettings(
         title: 'Обрезать',
       ),
+
       WebUiSettings(
         context: context,
         presentStyle: CropperPresentStyle.dialog,
-        barrierColor: Colors.deepPurpleAccent,
         boundary: const CroppieBoundary(
           width: 520,
           height: 520,
@@ -154,9 +157,10 @@ Future<void> uploadImageAdd(
   } catch (err) {}
 }
 
-Future<void> updateFirstImage(
+Future<String> updateFirstImage(
     BuildContext context, UserModel userModelCurrent, bool isScreen) async {
   List<String> listImageUri = [], listImagePath = [];
+  String uri = '';
   FirebaseStorage storage = FirebaseStorage.instance;
   final picker = ImagePicker();
   try {
@@ -239,8 +243,9 @@ Future<void> updateFirstImage(
       });
     }
   } catch (err) {
-    // Navigator.pop(context);
+
   }
+  return uri;
 }
 
 Future<void> createSympathy(String idPartner, UserModel userModelCurrent) async {
@@ -494,12 +499,14 @@ Future<UserModel> readUserFirebase([String? idUser]) async {
       searchRangeEnd: 0,
       token: '',
       notification: true);
+
   try {
     await FirebaseFirestore.instance
         .collection('User')
         .doc(idUser ?? FirebaseAuth.instance.currentUser!.uid)
         .get()
-        .then((DocumentSnapshot documentSnapshot) {
+        .then((DocumentSnapshot documentSnapshot) async {
+
       Map<String, dynamic> data =
           documentSnapshot.data() as Map<String, dynamic>;
 
@@ -782,6 +789,9 @@ Future createLastOpenChat(String uid, String friendId) async {
 Future<List<String>> readFirebaseImageProfile() async {
   List<String> listImages = [];
   try {
+
+    // FirebaseFirestore.instance.collection("collection").doc("doc").getSavy();
+
     await FirebaseFirestore.instance
         .collection('ImageProfile')
         .doc('Image')
@@ -801,6 +811,8 @@ Future<bool> sendFcmMessage(
 
     String keyAuth =
         'key=AAAAKuk0_pM:APA91bHewKAMBWy9XgTLMZ3vKV9EgDkBAF_H1lwS-XOFDudRcGu2t3kQfYP_3zmlOHxChObB1sqX9gVnIGlewtw7it-4heFSbIclpAs1L-oLYlpGH_X3Gu6SBuswrbPlgVOZehBVhn3I';
+
+    String title = 'Lancelot';
 
     var header = {
       "Content-Type": "application/json",
