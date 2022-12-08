@@ -357,7 +357,7 @@ class buttonLike extends StatelessWidget {
         likeBuilder: (bool isLiked) {
           return Icon(
             isLiked ? Icons.favorite_outlined : Icons.favorite_border_sharp,
-            color: isLiked ? Colors.red : Colors.white,
+            color: isLiked ? color_red : Colors.white,
             size: 32,
           );
         },

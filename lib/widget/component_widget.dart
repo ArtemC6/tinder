@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../config/const.dart';
 import '../../model/interests_model.dart';
@@ -779,27 +780,4 @@ class _topPanelChatState extends State<topPanelChat> {
   }
 }
 
-SizedBox showIfNoData(double height, String imagePath, String text) {
-  return SizedBox(
-    height: height,
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: height / 5,
-          child: Image.asset(
-            imagePath,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 30),
-          child: animatedText(16.0, text, Colors.white, 500, 1),
-        ),
-        SizedBox(
-          height: height / 4,
-        )
-      ],
-    ),
-  );
-}
+

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 
 import '../config/const.dart';
 
@@ -150,5 +151,62 @@ SlideFadeTransition animatedText(double size, text, color, time, line) {
         ),
       ),
     ),
+  );
+}
+
+SizedBox showIfNoData(double height, String imagePath, String text,
+    AnimationController animationController, double share,) {
+  return SizedBox(
+    height: height,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Lottie.asset(
+            alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) {
+              return const SizedBox();
+
+            }, onLoaded: (composition) {
+          animationController
+            ..duration = composition.duration
+            ..repeat();
+        },
+            controller: animationController,
+            height: height / share,
+            fit: BoxFit.contain,
+            imagePath),
+
+        Padding(
+          padding: const EdgeInsets.only(top: 40),
+          child: animatedText(14.5, text, Colors.white, 600, 2),
+        ),
+        SizedBox(
+          height: height / 3.5,
+        )
+      ],
+    ),
+  );
+}
+
+Column showAnimationGif(double height, String path, AnimationController animationController) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Lottie.asset(alignment: Alignment.center,
+          errorBuilder: (context, error, stackTrace) {
+            return const SizedBox();
+          }, onLoaded: (composition) {
+            animationController
+              ..duration = composition.duration
+              ..repeat();
+          },
+          controller: animationController,
+          height: height * 0.26,
+          width: height * 0.34,
+          path),
+      SizedBox(height: height * 0.08,),
+    ],
   );
 }

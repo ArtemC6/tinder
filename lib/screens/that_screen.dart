@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:lottie/lottie.dart';
 import 'package:tinder/model/user_model.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
@@ -23,16 +24,19 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState(userModelCurrent);
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final UserModel userModelCurrent;
   final scrollController = ScrollController();
   int limit = 7;
   bool isLoadingUser = false;
+  late final AnimationController animationController;
 
   _ChatScreenState(this.userModelCurrent);
 
   @override
   void initState() {
+    animationController = AnimationController(vsync: this);
+
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent ==
           scrollController.offset) {
@@ -47,6 +51,12 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 'Сообщения',
                 Icons.message,
-                Colors.deepPurpleAccent,
+                color_black_88,
                 false,
               ),
               SizedBox(
@@ -80,8 +90,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context, AsyncSnapshot snapshotFriendId) {
                       if (snapshotFriendId.hasData) {
                         if (snapshotFriendId.data.docs.length <= 0) {
-                          return showIfNoData(height, 'images/ic_chat_logo.png',
-                              'У вас нет сообщений');
+                          return showIfNoData(height , 'images/animation_chat.json',
+                              'У вас нет сообщений', animationController, 3.5);
                         } else {
                           return AnimationLimiter(
                             child: ListView.builder(
@@ -242,34 +252,32 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                         .white10,
                                                                   )),
                                                           elevation: 14,
-                                                          child: Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(10),
-                                                            child: InkWell(
-                                                              highlightColor:
-                                                                  Colors
-                                                                      .transparent,
-                                                              splashColor: Colors
-                                                                  .transparent,
-                                                              onTap: () {
-                                                                  Navigator.push(
-                                                                      context,
-                                                                      FadeRouteAnimation(ChatUserScreen(
-                                                                        friendId:
-                                                                            friendId,
-                                                                        friendName:
-                                                                            nameUser,
-                                                                        friendImage:
-                                                                            imageUri,
-                                                                        userModelCurrent:
-                                                                            userModelCurrent,
-                                                                        token:
-                                                                            token,
-                                                                        notification:
-                                                                            notification,
-                                                                      ),),);
-                                                              },
+                                                          child: InkWell(
+                                                            highlightColor:
+                                                                Colors
+                                                                    .transparent,
+                                                            splashColor: Colors
+                                                                .transparent,
+                                                            onTap: () {
+                                                                Navigator.push(
+                                                                    context,
+                                                                    FadeRouteAnimation(ChatUserScreen(
+                                                                      friendId:
+                                                                          friendId,
+                                                                      friendName:
+                                                                          nameUser,
+                                                                      friendImage:
+                                                                          imageUri,
+                                                                      userModelCurrent:
+                                                                          userModelCurrent,
+                                                                      token:
+                                                                          token,
+                                                                      notification:
+                                                                          notification,
+                                                                    ),),);
+                                                            },
+                                                            child: Padding(
+                                                              padding: const EdgeInsets.only(left: 4, bottom: 4, top: 4, right: 24),
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
@@ -278,26 +286,27 @@ class _ChatScreenState extends State<ChatScreen> {
                                                                     CrossAxisAlignment
                                                                         .center,
                                                                 children: [
-                                                                  photoUser(
-                                                                    uri:
-                                                                        imageUri,
-                                                                    width: width *
-                                                                        0.17,
-                                                                    height: width *
-                                                                        0.17,
-                                                                    state:
-                                                                        state,
-                                                                    padding:
-                                                                        0,
+                                                                  Expanded(
+                                                                    flex: 1,
+                                                                    child: photoUser(
+                                                                      uri:
+                                                                          imageUri,
+                                                                      width: width *
+                                                                          0.17,
+                                                                      height: width *
+                                                                          0.17,
+                                                                      state:
+                                                                          state,
+                                                                      padding:
+                                                                          0,
+                                                                    ),
                                                                   ),
                                                                   SizedBox(
                                                                       width:
                                                                           width /
                                                                               40),
-                                                                  SizedBox(
-                                                                    width:
-                                                                        width /
-                                                                            1.6,
+                                                                  Expanded(
+                                                                    flex: 3,
                                                                     child:
                                                                         Column(
                                                                       mainAxisAlignment:

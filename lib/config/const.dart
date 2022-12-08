@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_select_flutter/util/multi_select_item.dart';
 
 const color_blue_90 = Color(0xff192028);
 const color_black_88 = Color(0xff212428);
+const color_red = Color(0xFFFC0465);
 
 class FadeRouteAnimation extends PageRouteBuilder {
   final Widget page;
