@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tinder/model/user_model.dart';
 import 'package:tinder/screens/home_screen.dart';
 import 'package:tinder/screens/profile_screen.dart';
 import 'package:tinder/screens/sympathy_screen.dart';
@@ -9,7 +14,7 @@ import 'package:tinder/screens/that_user_screen.dart';
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
 import '../config/notification_api.dart';
-import '../model/user_model.dart';
+import '../config/utils.dart';
 import '../widget/animation_widget.dart';
 
 class ManagerScreen extends StatefulWidget {
@@ -22,11 +27,28 @@ class ManagerScreen extends StatefulWidget {
 }
 
 class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
-  bool isLoading = false;
-  int currentIndex = 0, idNotification = 0;
+  bool isLoading = false, isWrite = true;
+  int currentIndex = 0,
+      idNotification = 0,
+      indexSympathy = 0,
+      indexChat = 0,
+      indexProfile = 0;
+
   late UserModel userModelCurrent;
 
   _ManagerScreen(this.currentIndex);
+
+  void startTimer() {
+    Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) {
+        setState(() {
+          isWrite = true;
+        });
+        timer.cancel();
+      },
+    );
+  }
 
   void setIndexPage(String payload, String uid) {
     setState(() {
@@ -35,7 +57,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
       }
       if (payload == 'chat') {
         currentIndex = 2;
-        if(isLoading) {
+        if (isLoading) {
           Navigator.push(
             context,
             FadeRouteAnimation(
@@ -93,13 +115,29 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
       if (notification != null && android != null) {
-        NotificationApi.showNotification(
-          id: idNotification++,
-          title: notification.title.toString(),
-          body: notification.body.toString(),
-          payload: '${message.data['type']},${message.data['uid']}',
-          uri: message.data['uri'],
-        );
+        setState(() {
+          if (message.data['type'] == 'sympathy') {
+            indexSympathy++;
+          }
+          if (message.data['type'] == 'chat') {
+            indexChat++;
+          }
+          if (message.data['type'] == 'like') {
+            indexProfile++;
+          }
+        });
+
+        await setValueSharedPref('indexSympathy', indexSympathy);
+        await setValueSharedPref('indexChat', indexChat);
+        await setValueSharedPref('indexProfile', indexProfile);
+
+        // NotificationApi.showNotification(
+        //   id: idNotification++,
+        //   title: notification.title.toString(),
+        //   body: notification.body.toString(),
+        //   payload: '${message.data['type']},${message.data['uid']}',
+        //   uri: message.data['uri'],
+        // );
       }
     });
 
@@ -114,6 +152,7 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    initSharedPref();
     WidgetsBinding.instance.addObserver(this);
     getNotificationFcm();
     readUserFirebase().then((user) {
@@ -143,6 +182,15 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
     super.initState();
   }
 
+  Future<void> initSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      indexSympathy = prefs.getInt('indexSympathy') ?? 0;
+      indexChat = prefs.getInt('indexChat') ?? 0;
+      indexProfile = prefs.getInt('indexProfile') ?? 0;
+    });
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.addObserver(this);
@@ -154,10 +202,20 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.paused:
-        setStateFirebase('offline');
+        if (isWrite) {
+          startTimer();
+          isWrite = false;
+          print('of');
+          setStateFirebase('offline');
+        }
         break;
       case AppLifecycleState.resumed:
-        setStateFirebase('online');
+        if (isWrite) {
+          startTimer();
+          isWrite = false;
+          print('on');
+          setStateFirebase('online');
+        }
         break;
       case AppLifecycleState.inactive:
         break;
@@ -190,8 +248,22 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 SizedBox(height: size.width * .014),
-                Icon(listOfIcons[index],
-                    size: size.width * .076, color: Colors.white),
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    Icon(listOfIcons[index],
+                        size: size.width * .076, color: Colors.white),
+                    if (index == 1 && currentIndex != 1)
+                      if (indexSympathy > 0)
+                        showAnimationBottomNotification(indexSympathy),
+                    if (index == 2 && currentIndex != 2)
+                      if (indexChat > 0)
+                        showAnimationBottomNotification(indexChat),
+                    if (index == 3 && currentIndex != 3)
+                      if (indexProfile > 0)
+                        showAnimationBottomNotification(indexProfile),
+                  ],
+                ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 1500),
                   curve: Curves.fastLinearToSlowEaseIn,
@@ -228,11 +300,15 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
           child = SympathyScreen(
             userModelCurrent: userModelCurrent,
           );
+          setState(() => indexSympathy = 0);
+          setValueSharedPref('indexSympathy', indexSympathy);
           break;
         case 2:
           child = ChatScreen(
             userModelCurrent: userModelCurrent,
           );
+          setState(() => indexChat = 0);
+          setValueSharedPref('indexChat', indexChat);
           break;
         case 3:
           child = ProfileScreen(
@@ -241,6 +317,8 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
             idUser: '',
             userModelCurrent: userModelCurrent,
           );
+          setState(() => indexProfile = 0);
+          setValueSharedPref('indexProfile', indexProfile);
           break;
       }
       return child;
@@ -254,5 +332,21 @@ class _ManagerScreen extends State<ManagerScreen> with WidgetsBindingObserver {
     }
 
     return const loadingCustom();
+  }
+
+  SlideFadeTransition showAnimationBottomNotification(int indexNotification) {
+    return SlideFadeTransition(
+      animationDuration: const Duration(milliseconds: 750),
+      child: Container(
+        alignment: Alignment.center,
+        width: 15,
+        height: 15,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            color: Colors.deepPurpleAccent),
+        child:
+            animatedText(9.0, indexNotification.toString(), Colors.white, 0, 1),
+      ),
+    );
   }
 }

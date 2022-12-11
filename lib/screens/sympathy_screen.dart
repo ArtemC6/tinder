@@ -31,13 +31,16 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
   final UserModel userModelCurrent;
   final scrollController = ScrollController();
   int limit = 5;
+  bool isLoadingUser = false;
   late final AnimationController animationController;
-
 
   _SympathyScreenState(this.userModelCurrent);
 
   @override
   void initState() {
+    Future.delayed(const Duration(milliseconds: 1300), () {
+      setState(() => isLoadingUser = true);
+    });
     animationController = AnimationController(vsync: this);
     scrollController.addListener(() {
       if (scrollController.position.maxScrollExtent ==
@@ -102,8 +105,7 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                 itemCount: snapshot.data.docs.length + 1,
                                 shrinkWrap: true,
                                 itemBuilder: (context, index) {
-                                  if (index < snapshot.data.docs.length &&
-                                      snapshot.hasData) {
+                                  if (index < snapshot.data.docs.length) {
                                     var name = '',
                                         age = 0,
                                         indexAnimation = index + 1,
@@ -114,6 +116,7 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                         uid = '',
                                         isMutuallyMy = false,
                                         token = '';
+
                                     try {
                                       uid = snapshot.data.docs[index]['uid'];
                                       idDoc =
@@ -122,7 +125,7 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
 
                                     return AnimationConfiguration.staggeredList(
                                       position: index,
-                                      delay: const Duration(milliseconds: 200),
+                                      delay: const Duration(milliseconds: 250),
                                       child: SlideAnimation(
                                         duration:
                                             const Duration(milliseconds: 1500),
@@ -160,22 +163,30 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                                   return SizedBox(
                                                     child: StreamBuilder(
                                                         stream:
-                                                            FirebaseFirestore
-                                                                .instance
-                                                                .collection(
-                                                                    'User')
-                                                                .doc(uid)
-                                                                .collection(
-                                                                    'sympathy')
-                                                                .snapshots(),
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection('User')
+                                                            .doc(uid)
+                                                            .collection(
+                                                                'sympathy')
+                                                            .where('uid',
+                                                                isEqualTo:
+                                                                    userModelCurrent
+                                                                        .uid)
+                                                            .snapshots(),
                                                         builder: (context,
                                                             AsyncSnapshot
                                                                 asyncSnapshot) {
                                                           if (asyncSnapshot
-                                                                  .hasData &&
-                                                              snapshot
                                                                   .hasData) {
                                                             try {
+                                                              // getState(100)
+                                                              //     .then((value) {
+                                                              //   setState(() {
+                                                              //
+                                                              //   });
+                                                              // });
+
                                                               for (int i = 0;
                                                                   i <
                                                                       asyncSnapshot
@@ -197,21 +208,11 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                                             } catch (E) {}
 
                                                             return Container(
-                                                              height:
-                                                                  size.width /
-                                                                      2.3,
+                                                              height: 170,
                                                               width: size.width,
-                                                              padding: EdgeInsets.only(
-                                                                  left:
-                                                                      size.width /
-                                                                          20,
-                                                                  top: 0,
-                                                                  right:
-                                                                      size.width /
-                                                                          20,
-                                                                  bottom:
-                                                                      size.width /
-                                                                          20),
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(10),
                                                               child: Card(
                                                                 shadowColor: Colors
                                                                     .white
@@ -271,36 +272,38 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                                                     },
                                                                     child:
                                                                     Padding(
-                                                                    padding: EdgeInsets.all(
-                                                                        size.width /
-                                                                            50),
-                                                                    child:
-                                                                        Row(
+                                                                    padding:
+                                                                        const EdgeInsets.all(
+                                                                            12),
+                                                                    child: Row(
                                                                       children: [
                                                                         Expanded(
-                                                                          flex: 1,
-                                                                          child: SizedBox(
+                                                                          flex:
+                                                                              1,
+                                                                          child:
+                                                                              photoUser(
+                                                                            uri:
+                                                                                imageUri,
                                                                             width:
-                                                                                size.width / 3.8,
+                                                                                110,
                                                                             height:
-                                                                                size.width / 3.8,
-                                                                            child:
-                                                                                photoUser(
-                                                                              uri: imageUri,
-                                                                              width: size.width / 3.8,
-                                                                              height: size.width / 3.8,
-                                                                              state: state,
-                                                                              padding: 5,
-                                                                            ),
+                                                                                110,
+                                                                            state:
+                                                                                state,
+                                                                            padding:
+                                                                                5,
                                                                           ),
                                                                         ),
-                                                                        SizedBox(
-                                                                            width: size.width / 40),
+                                                                        const SizedBox(
+                                                                            width:
+                                                                                12),
                                                                         Expanded(
-                                                                          flex: 2,
+                                                                          flex:
+                                                                              2,
                                                                           child:
-                                                                          Column(
-                                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                                              Column(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.spaceEvenly,
                                                                             children: [
                                                                               Row(
                                                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -420,32 +423,36 @@ class _SympathyScreenState extends State<SympathyScreen> with TickerProviderStat
                                       ),
                                     );
                                   } else {
-                                    if (snapshot.data.docs.length >= limit &&
-                                        snapshot.hasData) {
-                                      return const Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 30),
-                                        child: Center(
-                                          child: SizedBox(
-                                            height: 24,
-                                            width: 24,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 0.8,
+                                    if (snapshot.data.docs.length >= limit) {
+                                      if (isLoadingUser) {
+                                        return const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 30),
+                                          child: Center(
+                                            child: SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 0.8,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      } else {
+                                        return cardLoadingWidget(
+                                            size, .18, .09);
+                                      }
                                     }
                                   }
+
                                   return const SizedBox();
                                 },
                               ),
                             );
                           }
-                        } else {
-                          return cardLoadingWidget(size, .14, .08);
                         }
+                        return const SizedBox();
                       }),
                 ),
               ],

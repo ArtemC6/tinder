@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
 import 'package:ndialog/ndialog.dart';
 
 import '../config/const.dart';
@@ -306,15 +307,24 @@ showAlertDialogDeleteChat(BuildContext context, String friendId,
 
 showAlertDialogLoading(BuildContext context) {
   CustomProgressDialog.future(
-      loadingWidget: Center(
-          child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-        child: LoadingAnimationWidget.dotsTriangle(
-          size: 48,
-          color: Colors.blueAccent,
-        ),
-      )),
-      dismissable: false,
-      context,
-      future: Future.delayed(const Duration(seconds: 4)));
+    loadingWidget: Center(
+      child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: Lottie.asset(
+            'images/animation_loader.json',
+            width: MediaQuery.of(context).size.width * 0.22,
+            height: MediaQuery.of(context).size.height * 0.22,
+            alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) {
+              return LoadingAnimationWidget.dotsTriangle(
+                size: 48,
+                color: Colors.blueAccent,
+              );
+            },
+          )),
+    ),
+    dismissable: false,
+    context,
+    future: Future.delayed(const Duration(seconds: 4)),
+  );
 }

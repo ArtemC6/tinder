@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'const.dart';
 
@@ -45,6 +45,7 @@ Future<bool> getState(time) async {
   return isWriteUser;
 }
 
-// Future<void> _launchUrl(String uri) async {
-//   if (!await launchUrl(Uri.parse(uri))) {}
-// }
+Future<void> setValueSharedPref(String key, int value) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt(key, value);
+}

@@ -101,11 +101,18 @@ class loadingCustom extends StatelessWidget {
     return Scaffold(
         backgroundColor: color_black_88,
         body: Center(
-          child: LoadingAnimationWidget.dotsTriangle(
-            size: 44,
-            color: Colors.blueAccent,
-          ),
-        ));
+            child: Lottie.asset(
+          'images/animation_loader.json',
+          width: MediaQuery.of(context).size.width * 0.20,
+          height: MediaQuery.of(context).size.height * 0.20,
+          alignment: Alignment.center,
+          errorBuilder: (context, error, stackTrace) {
+            return LoadingAnimationWidget.dotsTriangle(
+              size: 48,
+              color: Colors.blueAccent,
+            );
+          },
+        )));
   }
 }
 
@@ -139,16 +146,16 @@ SlideFadeTransition showProgressWrite() {
   );
 }
 
-SlideFadeTransition animatedText(double size, text, color, time, line) {
+SlideFadeTransition animatedText(
+    double size, String text, color, time, int line) {
   return SlideFadeTransition(
     animationDuration: Duration(milliseconds: time),
-    child: RichText(
+    child: Text(
       maxLines: line,
-      text: TextSpan(
-        text: text,
-        style: GoogleFonts.lato(
-          textStyle: TextStyle(color: color, fontSize: size, letterSpacing: .6),
-        ),
+      textScaleFactor: 1.0,
+      text,
+      style: GoogleFonts.lato(
+        textStyle: TextStyle(color: color, fontSize: size, letterSpacing: .6),
       ),
     ),
   );
@@ -189,24 +196,67 @@ SizedBox showIfNoData(double height, String imagePath, String text,
   );
 }
 
-Column showAnimationGif(double height, String path, AnimationController animationController) {
+Column showAnimationNoMessage(
+    double height, String path, AnimationController animationController) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Lottie.asset(alignment: Alignment.center,
           errorBuilder: (context, error, stackTrace) {
-            return const SizedBox();
-          }, onLoaded: (composition) {
-            animationController
-              ..duration = composition.duration
-              ..repeat();
-          },
+        return const SizedBox();
+      }, onLoaded: (composition) {
+        animationController
+          ..duration = composition.duration
+          ..repeat();
+      },
           controller: animationController,
           height: height * 0.26,
           width: height * 0.34,
           path),
       SizedBox(height: height * 0.08,),
     ],
+  );
+}
+
+Padding showAnimationNoUser(
+    double height, double width, AnimationController animationController) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 14, right: 14, top: 100),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Lottie.asset(alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) {
+          return const SizedBox();
+        }, onLoaded: (composition) {
+          animationController
+            ..duration = composition.duration
+            ..repeat();
+        },
+            controller: animationController,
+            height: height * 0.50,
+            width: height * 0.50,
+            'images/animation_empty.json'),
+        SlideFadeTransition(
+          animationDuration: const Duration(milliseconds: 600),
+          child: RichText(
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            text: TextSpan(
+              text: 'К сожалению никого не найдено попробуйте позже',
+              style: GoogleFonts.lato(
+                textStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  letterSpacing: .0,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 }

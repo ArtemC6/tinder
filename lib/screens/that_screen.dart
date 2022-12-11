@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:lottie/lottie.dart';
 import 'package:tinder/model/user_model.dart';
 import 'package:tinder/screens/that_user_screen.dart';
 
@@ -36,11 +35,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     animationController = AnimationController(vsync: this);
-
     scrollController.addListener(() {
+      if (!isLoadingUser) {
+        setState(() => isLoadingUser = true);
+      }
       if (scrollController.position.maxScrollExtent ==
           scrollController.offset) {
-        setState(() => limit += 4);
+        setState(() {
+          limit += 4;
+        });
         Future.delayed(const Duration(milliseconds: 600), () {
           scrollController.animateTo(
             scrollController.position.maxScrollExtent - 70,
@@ -63,6 +66,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: color_black_88,
       body: SafeArea(
@@ -194,9 +199,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                           Future.delayed(
                                                               const Duration(
                                                                   milliseconds:
-                                                                      4000),
+                                                                      3500),
                                                               () {
-                                                            getState(4500)
+                                                            getState(4000)
                                                                 .then((value) {
                                                               setState(() {
                                                                 isWriteUser =
@@ -229,7 +234,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                             imageUri);
                                                       },
                                                       child: Container(
-                                                        height: width * 0.30,
+                                                        height: 114,
                                                         width: width,
                                                         padding:
                                                             const EdgeInsets
@@ -259,25 +264,35 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                             splashColor: Colors
                                                                 .transparent,
                                                             onTap: () {
-                                                                Navigator.push(
-                                                                    context,
-                                                                    FadeRouteAnimation(ChatUserScreen(
-                                                                      friendId:
-                                                                          friendId,
-                                                                      friendName:
-                                                                          nameUser,
-                                                                      friendImage:
-                                                                          imageUri,
-                                                                      userModelCurrent:
-                                                                          userModelCurrent,
-                                                                      token:
-                                                                          token,
-                                                                      notification:
-                                                                          notification,
-                                                                    ),),);
+                                                              Navigator.push(
+                                                                context,
+                                                                FadeRouteAnimation(
+                                                                  ChatUserScreen(
+                                                                    friendId:
+                                                                        friendId,
+                                                                    friendName:
+                                                                        nameUser,
+                                                                    friendImage:
+                                                                        imageUri,
+                                                                    userModelCurrent:
+                                                                        userModelCurrent,
+                                                                    token:
+                                                                        token,
+                                                                    notification:
+                                                                        notification,
+                                                                  ),
+                                                                ),
+                                                              );
                                                             },
                                                             child: Padding(
-                                                              padding: const EdgeInsets.only(left: 4, bottom: 4, top: 4, right: 24),
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 8,
+                                                                      bottom: 8,
+                                                                      top: 8,
+                                                                      right:
+                                                                          24),
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
@@ -288,23 +303,22 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                                 children: [
                                                                   Expanded(
                                                                     flex: 1,
-                                                                    child: photoUser(
+                                                                    child:
+                                                                        photoUser(
                                                                       uri:
                                                                           imageUri,
-                                                                      width: width *
-                                                                          0.17,
-                                                                      height: width *
-                                                                          0.17,
+                                                                      width: 74,
+                                                                      height:
+                                                                          74,
                                                                       state:
                                                                           state,
                                                                       padding:
                                                                           0,
                                                                     ),
                                                                   ),
-                                                                  SizedBox(
+                                                                  const SizedBox(
                                                                       width:
-                                                                          width /
-                                                                              40),
+                                                                          10),
                                                                   Expanded(
                                                                     flex: 3,
                                                                     child:
@@ -339,7 +353,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                                         ),
                                                                         const SizedBox(
                                                                           height:
-                                                                              4,
+                                                                              7,
                                                                         ),
                                                                         Row(
                                                                           mainAxisAlignment:
@@ -349,8 +363,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                                               Expanded(
                                                                                 child: Padding(
                                                                                   padding: const EdgeInsets.only(right: 10),
-                                                                                  child: animatedText(11.0, lastMsg, Colors.white.withOpacity(.3),
-                                                                                      indexAnimation * 400 < 2400 ? indexAnimation  * 400 : 600, 2),
+                                                                                  child: animatedText(11.0, lastMsg, Colors.white.withOpacity(.3), indexAnimation * 400 < 2400 ? indexAnimation * 400 : 600, 2),
                                                                                 ),
                                                                               ),
                                                                             if (isWriteUser)
@@ -391,22 +404,25 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                   );
                                 } else {
                                   if (snapshotFriendId.data.docs.length >=
-                                          limit &&
-                                      snapshotFriendId.hasData) {
-                                    return const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 30),
-                                      child: Center(
-                                        child: SizedBox(
-                                          height: 24,
-                                          width: 24,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 0.8,
+                                      limit) {
+                                    if (isLoadingUser) {
+                                      return const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 30),
+                                        child: Center(
+                                          child: SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 0.8,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
+                                      );
+                                    } else {
+                                      return cardLoadingWidget(size, .12, .08);
+                                    }
                                   }
                                   return const SizedBox();
                                 }

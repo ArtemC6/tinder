@@ -1,14 +1,10 @@
 // @dart=2.9
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:tinder/config/firebase_auth.dart';
 import 'package:tinder/screens/auth/signin_screen.dart';
@@ -16,6 +12,7 @@ import 'package:tinder/screens/manager_screen.dart';
 import 'package:tinder/screens/settings/edit_image_profile_screen.dart';
 import 'package:tinder/screens/settings/edit_profile_screen.dart';
 import 'package:tinder/screens/settings/warning_screen.dart';
+import 'package:tinder/widget/animation_widget.dart';
 
 import 'config/firestore_operations.dart';
 import 'model/user_model.dart';
@@ -72,14 +69,16 @@ class Manager extends StatefulWidget {
   State<Manager> createState() => _Manager();
 }
 
-class _Manager extends State<Manager> {
+class _Manager extends State<Manager> with TickerProviderStateMixin {
   bool isEmptyImageBackground = false,
       isEmptyDataUser = false,
       isStart = false,
       isLoading = false;
+  AnimationController animationController;
 
   @override
   void initState() {
+    animationController = AnimationController(vsync: this);
     super.initState();
     readFirebaseIsAccountFull().then((result) {
       setState(() {
@@ -92,20 +91,21 @@ class _Manager extends State<Manager> {
   }
 
   @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return StreamBuilder(
-          stream: FirebaseAuth.instance.userChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: LoadingAnimationWidget.dotsTriangle(
-                  size: 44,
-                  color: Colors.blueAccent,
-                ),
-              );
-            } else if (snapshot.hasData) {
-              if (isStart) {
+        stream: FirebaseAuth.instance.userChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const loadingCustom();
+          } else if (snapshot.hasData) {
+            if (isStart) {
                 if (isEmptyDataUser) {
                   if (isEmptyImageBackground) {
                     return ManagerScreen(
@@ -134,23 +134,20 @@ class _Manager extends State<Manager> {
                         userInterests: [],
                         searchRangeEnd: 0,
                         state: '',
-                        token: '',
-                        notification: true),
-                  );
-                }
-              } else {
-                return const WarningScreen();
+                      token: '',
+                      notification: true),
+                );
               }
             } else {
-              return const SignInScreen();
+              return const WarningScreen();
             }
-          });
+          } else {
+            return const SignInScreen();
+          }
+        },
+      );
     }
-    return Center(
-      child: LoadingAnimationWidget.dotsTriangle(
-        size: 44,
-        color: Colors.blueAccent,
-      ),
-    );
+
+    return const loadingCustom();
   }
 }

@@ -162,6 +162,7 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
               .collection('User')
               .doc(userModelCurrent.uid)
               .collection('sympathy')
+              .where('uid', isEqualTo: userModelFriend.uid)
               .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshotMy) {
             if (snapshotMy.hasData) {
@@ -170,6 +171,7 @@ class _buttonProfileUserState extends State<buttonProfileUser> {
                       .collection('User')
                       .doc(userModelFriend.uid)
                       .collection('sympathy')
+                      .where('uid', isEqualTo: userModelCurrent.uid)
                       .snapshots(),
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -380,25 +382,25 @@ InkWell homeAnimationButton(
     splashColor: Colors.transparent,
     onTap: onTap,
     child: SizedBox(
-      height: height / 5,
+      height: height * 0.16,
       width: width / 2,
       child: AvatarGlow(
         glowColor: Colors.blueAccent,
-        endRadius: 60,
-        repeatPauseDuration: const Duration(milliseconds: 600),
+        endRadius: height * 0.08,
+        repeatPauseDuration: const Duration(milliseconds: 500),
         duration: Duration(milliseconds: time),
         repeat: true,
         showTwoGlows: true,
         curve: Curves.easeOutQuad,
         child: Container(
-          height: 50,
-          width: 50,
+          height: height * 0.07,
+          width: height * 0.07,
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(99)),
           child: Icon(
             icon,
             color: colors,
-            size: 30,
+            size: height * 0.04,
           ),
         ),
       ),

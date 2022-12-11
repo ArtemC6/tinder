@@ -128,14 +128,14 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
                     Colors.red,
                     true,
                   ),
-                  AnimationLimiter(
-                    child: ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: listUser.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index < listUser.length) {
-                          int indexAnimation = index + 1;
+                AnimationLimiter(
+                  child: ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: listUser.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index < listUser.length) {
+                        int indexAnimation = index + 1;
                         return AnimationConfiguration.staggeredList(
                           position: index,
                           delay: const Duration(milliseconds: 200),
@@ -182,9 +182,12 @@ class _ViewLikesScreenState extends State<ViewLikesScreen> {
 
     return Scaffold(
         backgroundColor: color_black_88,
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: cardLoadingWidget(size, .12, .07),
+        body: SizedBox(
+          height: size.height,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: cardLoadingWidget(size, .12, .07),
+          ),
         ));
   }
 }

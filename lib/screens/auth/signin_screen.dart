@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tinder/screens/auth/signup_screen.dart';
 
 import '../../config/const.dart';
 import '../../config/firebase_auth.dart';
+import '../../main.dart';
 import '../../widget/button_widget.dart';
 import '../../widget/textField_widget.dart';
 
@@ -25,6 +27,10 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    if (FirebaseAuth.instance.currentUser?.uid != null) {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const Manager()));
+    }
     controller1 = AnimationController(
       vsync: this,
       duration: const Duration(
@@ -155,10 +161,11 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                       child: Padding(
                         padding: EdgeInsets.only(top: size.height * .1),
                         child: Text(
-                          'Tinder Karakol',
+                          textScaleFactor: 1.0,
+                          'Lancelot',
                           style: TextStyle(
                             color: Colors.white.withOpacity(.7),
-                            fontSize: 30,
+                            fontSize: 34,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1,
                             wordSpacing: 4,
@@ -172,9 +179,15 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           textFieldAuth('Email...', emailController,
-                              Icons.email_outlined, size, false, 26),
-                          textFieldAuth('Password...', passwordController,
-                              Icons.lock_open_outlined, size, true, 20),
+                              Icons.email_outlined, size, false, 26, context),
+                          textFieldAuth(
+                              'Password...',
+                              passwordController,
+                              Icons.lock_open_outlined,
+                              size,
+                              true,
+                              20,
+                              context),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -197,8 +210,10 @@ class _SignInScreen extends State<SignInScreen> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           buttonAuth('Зарегистрировать аккаунт', 1.8, () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const SignUpScreen()));
+                            Navigator.push(
+                              context,
+                              FadeRouteAnimation(const SignUpScreen()),
+                            );
                           }),
                           SizedBox(height: size.height * .05),
                         ],

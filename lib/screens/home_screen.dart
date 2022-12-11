@@ -3,8 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 import 'package:tinder/config/firestore_operations.dart';
 import 'package:tinder/screens/profile_screen.dart';
 
@@ -43,8 +41,7 @@ class _HomeScreen extends State<HomeScreen>
 
   _HomeScreen(this.userModelCurrent);
 
-  Future readFirebase(
-      int setLimit, bool isDeleteDislike, bool isReadDislike) async {
+  Future readFirebase(int setLimit, bool isReadDislike) async {
     limit += setLimit;
 
     if (userModelPartner.length > 2) {
@@ -139,7 +136,10 @@ class _HomeScreen extends State<HomeScreen>
   void initState() {
     animationController = AnimationController(vsync: this);
     super.initState();
-    readFirebase(10, false, true);
+    readFirebase(
+      10,
+      true,
+    );
   }
 
   @override
@@ -181,6 +181,8 @@ class _HomeScreen extends State<HomeScreen>
                     curve: Curves.easeOut,
                     duration: const Duration(milliseconds: 3700),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         if (!isEmptyUser)
                           Stack(
@@ -188,8 +190,7 @@ class _HomeScreen extends State<HomeScreen>
                             children: [
                               Container(
                                 padding: const EdgeInsets.only(top: 10),
-                                height:
-                                    MediaQuery.of(context).size.height / 1.4,
+                                height: height * 0.70,
                                 child: TinderSwapCard(
                                   animDuration: 850,
                                   swipeUp: false,
@@ -199,10 +200,10 @@ class _HomeScreen extends State<HomeScreen>
                                   totalNum: userModelPartner.length + 1,
                                   stackNum: 3,
                                   swipeEdge: 3.0,
-                                  maxWidth: width / 1,
-                                  maxHeight: width / 1,
-                                  minWidth: width / 1.1,
-                                  minHeight: width / 1.1,
+                                  maxWidth: width * 0.98,
+                                  maxHeight: height * 0.52,
+                                  minWidth: width * 0.96,
+                                  minHeight: height * 0.44,
                                   cardBuilder: (context, index) {
                                     if (index < userModelPartner.length) {
                                       return SizedBox(
@@ -212,13 +213,14 @@ class _HomeScreen extends State<HomeScreen>
                                           onTap: () {
                                             Navigator.push(
                                                 context,
-                                                FadeRouteAnimation(ProfileScreen(
+                                                FadeRouteAnimation(
+                                                    ProfileScreen(
                                                   userModelPartner:
-                                                  userModelPartner[index],
+                                                      userModelPartner[index],
                                                   isBack: true,
                                                   idUser: '',
                                                   userModelCurrent:
-                                                  userModelCurrent,
+                                                      userModelCurrent,
                                                 )));
                                           },
                                           child: cardPartner(index,
@@ -228,15 +230,16 @@ class _HomeScreen extends State<HomeScreen>
                                     } else {
                                       if (isWrite) {
                                         isWrite = false;
-                                        readFirebase(8, true, false);
+                                        readFirebase(8, false);
                                       }
                                       return cardLoading(size, 22);
                                     }
                                   },
                                   cardController: controllerCard =
                                       CardController(),
-                                  swipeUpdateCallback: (DragUpdateDetails details,
-                                      Alignment align) {
+                                  swipeUpdateCallback:
+                                      (DragUpdateDetails details,
+                                          Alignment align) {
                                     setState(() {
                                       if (align.x < 0) {
                                         int incline = int.parse(align.x
@@ -244,7 +247,8 @@ class _HomeScreen extends State<HomeScreen>
                                             .substring(1, 2));
 
                                         if (incline <= 10 && incline > 3) {
-                                          colorIndex = double.parse('0.$incline');
+                                          colorIndex =
+                                              double.parse('0.$incline');
                                           isLike = true;
                                           isLook = true;
                                         } else {
@@ -265,7 +269,7 @@ class _HomeScreen extends State<HomeScreen>
                                   },
                                   swipeCompleteCallback:
                                       (CardSwipeOrientation orientation,
-                                      int index) async {
+                                          int index) async {
                                     setState(() {
                                       if (orientation.toString() ==
                                           'CardSwipeOrientation.LEFT') {
@@ -274,7 +278,7 @@ class _HomeScreen extends State<HomeScreen>
                                             .add(userModelPartner[index].uid);
 
                                         createDisLike(userModelCurrent,
-                                            userModelPartner[index])
+                                                userModelPartner[index])
                                             .then((value) {
                                           CachedNetworkImage.evictFromCache(
                                               userModelPartner[index]
@@ -293,11 +297,11 @@ class _HomeScreen extends State<HomeScreen>
                                             userModelPartner[index]);
 
                                         createSympathy(
-                                            userModelPartner[index].uid,
-                                            userModelCurrent)
+                                                userModelPartner[index].uid,
+                                                userModelCurrent)
                                             .then((value) async {
                                           if (userModelPartner[index].token !=
-                                              '' &&
+                                                  '' &&
                                               userModelPartner[index]
                                                   .notification) {
                                             await sendFcmMessage(
@@ -306,7 +310,8 @@ class _HomeScreen extends State<HomeScreen>
                                                 userModelPartner[index].token,
                                                 'sympathy',
                                                 userModelCurrent.uid,
-                                                userModelCurrent.userImageUrl[0]);
+                                                userModelCurrent
+                                                    .userImageUrl[0]);
                                           }
                                           CachedNetworkImage.evictFromCache(
                                               userModelPartner[index]
@@ -365,47 +370,28 @@ class _HomeScreen extends State<HomeScreen>
                             ],
                           ),
                         if (isEmptyUser)
-                          Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Lottie.asset(alignment: Alignment.center,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return const SizedBox();
-                                      }, onLoaded: (composition) {
-                                        animationController
-                                          ..duration = composition.duration
-                                          ..repeat();
-                                      },
-                                      controller: animationController,
-                                      height: height * 0.26,
-                                      width: height * 0.34,
-                                      'images/animation_empty.json'),
-
-                                  SlideFadeTransition(
-                                    animationDuration:
-                                        const Duration(milliseconds: 600),
-                                    child: RichText(
-                                      maxLines: 1,
-                                      text: TextSpan(
-                                        text:
-                                            'К сожалению никого не найдено попробуйте позже',
-                                        style: GoogleFonts.lato(
-                                          textStyle: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            letterSpacing: .0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                          Column(
+                            children: [
+                              showAnimationNoUser(
+                                  height, width, animationController),
+                              SlideFadeTransition(
+                                animationDuration:
+                                    const Duration(milliseconds: 700),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 60),
+                                  child: buttonUniversal('   Обновить   ', [
+                                    Colors.blueAccent,
+                                    Colors.purpleAccent,
+                                    Colors.orangeAccent
+                                  ], () {
+                                    readFirebase(
+                                      10,
+                                      true,
+                                    );
+                                  }),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         if (!isEmptyUser)
                           Row(
@@ -431,6 +417,5 @@ class _HomeScreen extends State<HomeScreen>
     } else {
       return const loadingCustom();
     }
-
   }
 }

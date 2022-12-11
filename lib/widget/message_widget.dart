@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tinder/model/user_model.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
@@ -63,7 +64,7 @@ class MessagesItem extends StatelessWidget {
 
     Widget formMessageFriend() {
       return Container(
-        margin: EdgeInsets.only(left: 10),
+        margin: const EdgeInsets.only(left: 10),
         decoration: BoxDecoration(
             color: Colors.white.withOpacity(.01),
             borderRadius: const BorderRadius.only(
@@ -133,25 +134,27 @@ class MessagesItem extends StatelessWidget {
 }
 
 class MessageTextField extends StatefulWidget {
-  final String currentId, friendId, token, friendName;
+  final UserModel currentUser;
+  final String friendId, token, friendName;
   final bool notification;
 
-  const MessageTextField(this.currentId, this.friendId, this.token,
+  const MessageTextField(this.currentUser, this.friendId, this.token,
       this.friendName, this.notification,
       {super.key});
 
   @override
   _MessageTextFieldState createState() => _MessageTextFieldState(
-      currentId, friendId, token, friendName, notification);
+      currentUser, friendId, token, friendName, notification);
 }
 
 class _MessageTextFieldState extends State<MessageTextField> {
-  final String currentId, friendId, token, friendName;
+  final String friendId, token, friendName;
   final bool notification;
+  final UserModel currentUser;
   final TextEditingController _controllerMessage = TextEditingController();
   bool isWrite = true;
 
-  _MessageTextFieldState(this.currentId, this.friendId, this.token,
+  _MessageTextFieldState(this.currentUser, this.friendId, this.token,
       this.friendName, this.notification);
 
   void startTimer() {
@@ -173,7 +176,7 @@ class _MessageTextFieldState extends State<MessageTextField> {
         if (isWrite) {
           startTimer();
           isWrite = false;
-          putUserWrites(currentId, friendId);
+          putUserWrites(currentUser.uid, friendId);
         }
       }
     });
@@ -205,36 +208,39 @@ class _MessageTextFieldState extends State<MessageTextField> {
                 child: Container(
                   alignment: Alignment.center,
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
+                      const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
                   decoration: BoxDecoration(
                     color: color_black_88,
                     border: Border.all(color: color_black_88),
                     borderRadius: BorderRadius.circular(26),
                   ),
-                  child: TextFormField(
-                    textCapitalization: TextCapitalization.words,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(550),
-                    ],
-                    controller: _controllerMessage,
-                    keyboardType: TextInputType.multiline,
-                    minLines: 1,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                        contentPadding: const EdgeInsets.only(
-                            left: 15, bottom: 5, top: 11, right: 15),
-                        counterStyle: const TextStyle(color: Colors.white),
-                        hintStyle:
-                        TextStyle(color: Colors.white.withOpacity(0.9)),
-                        hintText: "Сообщение..."),
-                    style: const TextStyle(
-                      fontSize: 15.5,
-                      color: Colors.white,
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: TextFormField(
+                      textCapitalization: TextCapitalization.words,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(550),
+                      ],
+                      controller: _controllerMessage,
+                      minLines: 1,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: const EdgeInsets.only(
+                              left: 15, bottom: 5, top: 5, right: 15),
+                          counterStyle: const TextStyle(color: Colors.white),
+                          hintStyle:
+                              TextStyle(color: Colors.white.withOpacity(0.9)),
+                          hintText: "Сообщение..."),
+                      style: GoogleFonts.lato(
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13.5,
+                              letterSpacing: .5)),
                     ),
                   ),
                 ),
@@ -248,33 +254,38 @@ class _MessageTextFieldState extends State<MessageTextField> {
                   String messageText = _controllerMessage.text;
                   _controllerMessage.clear();
                   if (notification && token != '') {
-                    sendFcmMessage('tinder', '$friendName: $messageText', token,
-                        'chat', widget.currentId);
+                    sendFcmMessage(
+                        'Lancelot',
+                        '${currentUser.name}: $messageText',
+                        token,
+                        'chat',
+                        currentUser.uid);
                   }
+                  final dateCurrent = DateTime.now();
                   final docMessage = FirebaseFirestore.instance
                       .collection('User')
-                      .doc(widget.currentId)
+                      .doc(widget.currentUser.uid)
                       .collection('messages')
                       .doc(widget.friendId)
                       .collection('chats')
                       .doc();
                   docMessage
                       .set(({
-                    "senderId": widget.currentId,
+                    "senderId": currentUser.uid,
                     "idDoc": docMessage.id,
                     "receiverId": widget.friendId,
                     "message": messageText,
-                    "date": DateTime.now(),
+                    "date": dateCurrent,
                   }))
                       .then((value) {
                     FirebaseFirestore.instance
                         .collection('User')
-                        .doc(widget.currentId)
+                        .doc(currentUser.uid)
                         .collection('messages')
                         .doc(widget.friendId)
                         .set({
                       'last_msg': messageText,
-                      'date': DateTime.now(),
+                      'date': dateCurrent,
                       'writeLastData': '',
                       'last_date_open_chat': '',
                     });
@@ -284,25 +295,25 @@ class _MessageTextFieldState extends State<MessageTextField> {
                       .collection('User')
                       .doc(widget.friendId)
                       .collection('messages')
-                      .doc(widget.currentId)
+                      .doc(currentUser.uid)
                       .collection("chats")
                       .doc();
 
                   docMessageFriend.set({
                     "idDoc": docMessageFriend.id,
-                    "senderId": widget.currentId,
+                    "senderId": currentUser.uid,
                     "receiverId": widget.friendId,
                     "message": messageText,
-                    "date": DateTime.now(),
+                    "date": dateCurrent,
                   }).then((value) {
                     FirebaseFirestore.instance
                         .collection('User')
                         .doc(widget.friendId)
                         .collection('messages')
-                        .doc(widget.currentId)
+                        .doc(currentUser.uid)
                         .set({
                       "last_msg": messageText,
-                      'date': DateTime.now(),
+                      'date': dateCurrent,
                       'writeLastData': '',
                       'last_date_open_chat': '',
                     });

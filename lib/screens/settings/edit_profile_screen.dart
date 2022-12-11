@@ -74,7 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
     },
         onConfirm: (date) {},
-        currentTime: DateTime.now(),
+        currentTime: getDataTime(modelUser.ageTime),
         locale: LocaleType.ru);
   }
 
@@ -393,20 +393,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ),
                           if (isError)
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Данные введены некоректно',
-                                style: TextStyle(color: Colors.red),
-                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: animatedText(
+                                  12,
+                                  'Данные введены некоректно',
+                                  Colors.red,
+                                  500,
+                                  1),
                             ),
                           if (!isPhoto)
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Добавьте главное фото',
-                                style: TextStyle(color: Colors.red),
-                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: animatedText(12, 'Добавьте главное фото',
+                                  Colors.red, 500, 1),
                             ),
                           textFieldProfileSettings(_nameController, false,
                               'Имя', context, 10, () {}),
@@ -454,15 +454,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 top: 20, bottom: 60),
-                                            child: RichText(
-                                              text: TextSpan(
-                                                text:
-                                                    'От ${_valuesAge.start} до ${_valuesAge.end} лет',
-                                                style: GoogleFonts.lato(
-                                                  textStyle: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 13,
-                                                      letterSpacing: .9),
+                                            child: SlideFadeTransition(
+                                              animationDuration: const Duration(
+                                                  milliseconds: 550),
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  text:
+                                                      'От ${_valuesAge.start} до ${_valuesAge.end} лет',
+                                                  style: GoogleFonts.lato(
+                                                    textStyle: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13,
+                                                        letterSpacing: .9),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -506,70 +510,94 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                           Theme(
                             data: ThemeData.light(),
-                            child: Card(
-                              color: color_black_88,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  side: const BorderSide(
-                                    width: 0.8,
-                                    color: Colors.white38,
-                                  )),
-                              elevation: 10,
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.only(top: 8, bottom: 8),
-                                child: MultiSelectBottomSheetField(
-                                  initialValue: modelUser.userInterests,
-                                  searchHintStyle:
-                                      const TextStyle(color: Colors.white),
-                                  buttonText: Text(
-                                    'Выбрать $interestsCount максимум (6)',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  buttonIcon: const Icon(
-                                    Icons.arrow_forward_ios_outlined,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  backgroundColor: color_black_88,
-                                  checkColor: Colors.white,
-                                  confirmText: const Text('Выбрать'),
-                                  cancelText: const Text('Закрыть'),
-                                  searchIcon: const Icon(
-                                    Icons.search,
-                                    color: Colors.white,
-                                  ),
-                                  closeSearchIcon: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                  ),
-                                  searchHint: 'Поиск',
-                                  searchTextStyle:
-                                      const TextStyle(color: Colors.white),
-                                  initialChildSize: 0.4,
-                                  listType: MultiSelectListType.CHIP,
-                                  searchable: true,
-                                  title: Text(
-                                    "Ваши интересы ${interestsCount.toString()} максимум (6)",
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  items: items,
-                                  onSelectionChanged: (value) {
-                                    setState(() {
-                                      interestsCount = value.length;
-                                    });
-                                  },
-                                  onConfirm: (values) {
-                                    setState(() {
-                                      _selectedInterests = values;
-                                    });
-                                  },
-                                  chipDisplay: MultiSelectChipDisplay(
-                                    onTap: (value) {
+                            child: MediaQuery(
+                              data: MediaQuery.of(context)
+                                  .copyWith(textScaleFactor: 1.0),
+                              child: Card(
+                                color: color_black_88,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                    side: const BorderSide(
+                                      width: 0.8,
+                                      color: Colors.white38,
+                                    )),
+                                elevation: 10,
+                                child: Container(
+                                  padding:
+                                      const EdgeInsets.only(top: 8, bottom: 8),
+                                  child: MultiSelectBottomSheetField(
+                                    initialValue: modelUser.userInterests,
+                                    searchHintStyle:
+                                        const TextStyle(color: Colors.white),
+                                    buttonText: Text(
+                                      textScaleFactor: 1.0,
+                                      'Выбрать $interestsCount максимум (6)',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    buttonIcon: const Icon(
+                                      Icons.arrow_forward_ios_outlined,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                    backgroundColor: color_black_88,
+                                    checkColor: Colors.white,
+                                    confirmText: Text(
+                                      textScaleFactor: 1.0,
+                                      'Выбрать',
+                                      style: GoogleFonts.lato(
+                                          textStyle: const TextStyle(
+                                              color: Colors.blueAccent,
+                                              fontSize: 13,
+                                              letterSpacing: .6)),
+                                    ),
+                                    cancelText: Text(
+                                      textScaleFactor: 1.0,
+                                      'Закрыть',
+                                      style: GoogleFonts.lato(
+                                          textStyle: const TextStyle(
+                                              color: Colors.blueAccent,
+                                              fontSize: 13,
+                                              letterSpacing: .6)),
+                                    ),
+                                    searchIcon: const Icon(
+                                      Icons.search,
+                                      color: Colors.white,
+                                    ),
+                                    closeSearchIcon: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                    ),
+                                    searchHint: 'Поиск',
+                                    searchTextStyle:
+                                        const TextStyle(color: Colors.white),
+                                    initialChildSize: 0.4,
+                                    listType: MultiSelectListType.CHIP,
+                                    searchable: true,
+                                    title: animatedText(
+                                        13,
+                                        "Ваши интересы ${interestsCount.toString()} максимум (6)",
+                                        Colors.white,
+                                        500,
+                                        1),
+                                    items: items,
+                                    onSelectionChanged: (value) {
                                       setState(() {
-                                        _selectedInterests.remove(value);
+                                        interestsCount = value.length;
                                       });
                                     },
+                                    onConfirm: (values) {
+                                      setState(() {
+                                        _selectedInterests = values;
+                                      });
+                                    },
+                                    chipDisplay: MultiSelectChipDisplay(
+                                      onTap: (value) {
+                                        setState(() {
+                                          _selectedInterests.remove(value);
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
@@ -597,7 +625,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       context, title, select_1, select_2, TextEditingController controller) {
     return showCupertinoModalBottomSheet(
         topRadius: const Radius.circular(30),
-        duration: const Duration(milliseconds: 700),
+        duration: const Duration(milliseconds: 800),
         backgroundColor: color_black_88,
         context: context,
         builder: (context) {
@@ -622,30 +650,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       data: ThemeData.light(),
                       child: ExpansionTile(
                         initiallyExpanded: true,
-                        title: RichText(
-                          text: TextSpan(
-                            text: title,
-                            style: GoogleFonts.lato(
-                              textStyle: const TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 12,
-                                  letterSpacing: .9),
-                            ),
-                          ),
-                        ),
+                        title: animatedText(12, title, Colors.white, 0, 2),
                         children: [
                           ListTile(
-                            title: RichText(
-                              text: TextSpan(
-                                text: select_1,
-                                style: GoogleFonts.lato(
-                                  textStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      letterSpacing: .9),
-                                ),
-                              ),
-                            ),
+                            title: animatedText(
+                                12, select_1, Colors.white, 600, 1),
                             onTap: () {
                               setState(() {
                                 controller.text = select_1;
@@ -654,17 +663,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             },
                           ),
                           ListTile(
-                            title: RichText(
-                              text: TextSpan(
-                                text: select_2,
-                                style: GoogleFonts.lato(
-                                  textStyle: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      letterSpacing: .9),
-                                ),
-                              ),
-                            ),
+                            title: animatedText(
+                                12, select_2, Colors.white, 600, 1),
                             onTap: () {
                               setState(() {
                                 controller.text = select_2;

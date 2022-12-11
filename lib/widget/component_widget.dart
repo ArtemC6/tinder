@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../config/const.dart';
 import '../../model/interests_model.dart';
@@ -580,11 +579,12 @@ class _topPanelChatState extends State<topPanelChat> {
               try {
                 if (snapshot.data['writeLastData'] != '') {
                   if (DateTime.now()
-                          .difference(getDataTime(snapshot.data['writeLastData']))
+                          .difference(
+                              getDataTime(snapshot.data['writeLastData']))
                           .inSeconds <
-                      4) {
-                    getState(4500).then((value){
-                      setState((){
+                      3) {
+                    getState(3500).then((value) {
+                      setState(() {
                         isWriteUser = value;
                       });
                     });

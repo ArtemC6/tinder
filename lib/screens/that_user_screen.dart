@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:lottie/lottie.dart';
 
 import '../config/const.dart';
 import '../config/firestore_operations.dart';
@@ -136,21 +135,14 @@ class _ChatUserScreenState extends State<ChatUserScreen>
                               .orderBy("date", descending: true)
                               .snapshots(),
                           builder: (context, AsyncSnapshot snapshotMy) {
-                            return StreamBuilder(
-                              stream: FirebaseFirestore.instance
-                                  .collection("User")
-                                  .doc(friendId)
-                                  .collection('messages')
-                                  .doc(userModelCurrent.uid)
-                                  .collection('chats')
-                                  .limit(limit)
-                                  .orderBy("date", descending: true)
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (snapshotMy.hasData && snapshot.hasData) {
-                                  int lengthDoc = snapshotMy.data.docs.length;
+                            if (snapshotMy.hasData) {
+                              int lengthDoc = snapshotMy.data.docs.length;
+
                               if (snapshotMy.data.docs.length <= 0) {
-                                return showAnimationGif(height, 'images/animation_user_chat.json', animationController);
+                                return showAnimationNoMessage(
+                                    height,
+                                    'images/animation_user_chat.json',
+                                    animationController);
                               } else {
                                 return AnimationLimiter(
                                   child: ListView.builder(
@@ -201,17 +193,40 @@ class _ChatUserScreenState extends State<ChatUserScreen>
                                                       lengthDoc) {
                                                     isLastMessage = true;
                                                   }
-                                                  showAlertDialogDeleteMessage(
-                                                      context,
-                                                      friendId,
-                                                      userModelCurrent.uid,
-                                                      friendName,
-                                                      myIdMessage,
-                                                      snapshot.data!.docs[index]
-                                                          ['idDoc'],
-                                                      snapshotMy,
-                                                      index + 1,
-                                                      isLastMessage);
+
+                                                  await FirebaseFirestore
+                                                      .instance
+                                                      .collection("User")
+                                                      .doc(friendId)
+                                                      .collection('messages')
+                                                      .doc(userModelCurrent.uid)
+                                                      .collection('chats')
+                                                      .where('message',
+                                                          isEqualTo: message)
+                                                      .where('date',
+                                                          isEqualTo: date)
+                                                      .get()
+                                                      .then((QuerySnapshot
+                                                          querySnapshot) async {
+                                                    for (var document
+                                                        in querySnapshot.docs) {
+                                                      Map<String, dynamic>
+                                                          data = document.data()
+                                                              as Map<String,
+                                                                  dynamic>;
+
+                                                      showAlertDialogDeleteMessage(
+                                                          context,
+                                                          friendId,
+                                                          userModelCurrent.uid,
+                                                          friendName,
+                                                          myIdMessage,
+                                                          data['idDoc'],
+                                                          snapshotMy,
+                                                          index + 1,
+                                                          isLastMessage);
+                                                    }
+                                                  });
                                                 },
                                                 child: MessagesItem(
                                                     message,
@@ -251,22 +266,20 @@ class _ChatUserScreenState extends State<ChatUserScreen>
                                 );
                               }
                             }
-                                return const Center(
-                                  child: SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 0.8,
-                                    ),
-                                  ),
-                                );
-                              },
+                            return const Center(
+                              child: SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 0.8,
+                                ),
+                              ),
                             );
-                          }),
-                    )),
-                MessageTextField(userModelCurrent.uid, friendId, token,
-                    friendName, notification),
+                          },
+                        ))),
+                MessageTextField(userModelCurrent, friendId, token, friendName,
+                    notification),
                 const SizedBox(
                   width: .09,
                 )

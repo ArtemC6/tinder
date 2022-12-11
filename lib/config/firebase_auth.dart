@@ -77,10 +77,11 @@ class FirebaseAuthMethods {
               email: email.trim(), password: password.trim())
           .then((value) {
         Navigator.pop(context);
-        setStateFirebase('online').then((value) async {}).then((value) {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const Manager()));
-          setTokenUserFirebase().then((value) {});
+        setStateFirebase('online').then((value) {
+          setTokenUserFirebase().then((value) {
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const Manager()));
+          });
         });
       }).onError((error, stackTrace) {
         Navigator.pop(context);
@@ -90,7 +91,7 @@ class FirebaseAuthMethods {
 
   Future<void> signOut(BuildContext context, String uid) async {
     try {
-      _auth.signOut().then((value) {}).then((value) {
+      _auth.signOut().then((value) {
         Navigator.pushReplacement(
             context, FadeRouteAnimation(const SignInScreen()));
         setStateFirebase('offline', uid).then((value) async {
